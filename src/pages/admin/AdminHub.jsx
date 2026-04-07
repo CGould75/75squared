@@ -7,13 +7,13 @@ import { supabase } from '../../lib/supabaseClient';
 import { GlobalDomainContext } from '../../layouts/AdminLayout';
 
 const mockSystemHealthData = [
-  { name: 'Mon', authority: 42, organic: 1200, latency: 140 },
-  { name: 'Tue', authority: 42, organic: 1350, latency: 135 },
-  { name: 'Wed', authority: 43, organic: 1600, latency: 138 },
-  { name: 'Thu', authority: 44, organic: 1900, latency: 120 },
-  { name: 'Fri', authority: 45, organic: 2400, latency: 110 },
-  { name: 'Sat', authority: 45, organic: 2600, latency: 105 },
-  { name: 'Sun', authority: 46, organic: 2950, latency: 98 },
+  { name: 'Mon', authority: 1, organic: 2, latency: 140 },
+  { name: 'Tue', authority: 1, organic: 2, latency: 135 },
+  { name: 'Wed', authority: 1, organic: 4, latency: 138 },
+  { name: 'Thu', authority: 1, organic: 5, latency: 120 },
+  { name: 'Fri', authority: 1, organic: 8, latency: 110 },
+  { name: 'Sat', authority: 1, organic: 10, latency: 105 },
+  { name: 'Sun', authority: 2, organic: 14, latency: 98 },
 ];
 
 const mockWebVitals = [
@@ -75,10 +75,10 @@ const AdminHub = () => {
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--color-purple-dark)', fontWeight: 700, fontSize: '0.9rem' }}>
                 <TrendingUp size={16} /> Domain Authority
               </div>
-              <span style={{ fontSize: '0.8rem', background: 'rgba(16, 185, 129, 0.1)', color: '#10B981', padding: '2px 8px', borderRadius: '12px', fontWeight: 800 }}>+4 pts</span>
+              <span style={{ fontSize: '0.8rem', background: 'rgba(16, 185, 129, 0.1)', color: '#10B981', padding: '2px 8px', borderRadius: '12px', fontWeight: 800 }}>+1 pts</span>
            </div>
-           <div style={{ fontSize: '2.5rem', fontWeight: 900 }}>46</div>
-           <div style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>Top 5% trajectory detected. High probability of SERP takeover.</div>
+           <div style={{ fontSize: '2.5rem', fontWeight: 900 }}>2</div>
+           <div style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>Initial indexing detected. Sandbox phase establishing network baseline.</div>
         </div>
 
         {/* Metric 2 */}
@@ -87,10 +87,10 @@ const AdminHub = () => {
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--color-blue-main)', fontWeight: 700, fontSize: '0.9rem' }}>
                 <Search size={16} /> Organic Position Velocity
               </div>
-              <span style={{ fontSize: '0.8rem', background: 'rgba(16, 185, 129, 0.1)', color: '#10B981', padding: '2px 8px', borderRadius: '12px', fontWeight: 800 }}>+126%</span>
+              <span style={{ fontSize: '0.8rem', background: 'rgba(16, 185, 129, 0.1)', color: '#10B981', padding: '2px 8px', borderRadius: '12px', fontWeight: 800 }}>+600%</span>
            </div>
-           <div style={{ fontSize: '2.5rem', fontWeight: 900 }}>2,950 <span style={{ fontSize: '1rem', color: 'var(--color-text-muted)' }}>clicks/wk</span></div>
-           <div style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>Algorithm update favorable. Keywords ranking on Page 1 expanded.</div>
+           <div style={{ fontSize: '2.5rem', fontWeight: 900 }}>14 <span style={{ fontSize: '1rem', color: 'var(--color-text-muted)' }}>clicks/wk</span></div>
+           <div style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>First branded impressions recorded. Crawl rate prioritizing new sitemaps.</div>
         </div>
 
         {/* Metric 3 */}
