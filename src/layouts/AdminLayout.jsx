@@ -17,7 +17,7 @@ const AdminLayout = () => {
   const [searchQuery, setSearchQuery] = useState('');
   
   // Phase 14: Global Domain Sub-Routing Architectures
-  const [activeDomain, setActiveDomain] = useState('goodys');
+  const [activeDomain, setActiveDomain] = useState('75squared.com - Primary');
   const [availableDomains, setAvailableDomains] = useState([]);
 
   useEffect(() => {
