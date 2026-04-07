@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Users, Shield, Ghost, Key, CheckCircle2, Lock, Unlock, Eye, Sparkles } from 'lucide-react';
+import { Users, Shield, Ghost, Key, CheckCircle2, Lock, Unlock, Eye, Sparkles, Code } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 import { supabase } from '../../lib/supabaseClient';
@@ -92,6 +92,29 @@ const ClientManagement = () => {
         <button onClick={handleAddNewClient} className="btn btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 24px', fontSize: '1.05rem', fontWeight: 600 }}>
           <Sparkles size={18} /> Provision New Client
         </button>
+      </div>
+
+      <div style={{ marginBottom: '40px' }}>
+        <div className="glass-panel" style={{ padding: '24px', background: 'linear-gradient(to right, white, rgba(59, 130, 246, 0.02))' }}>
+           <h3 style={{ fontSize: '1.2rem', fontWeight: 800, marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Code size={20} color="var(--color-blue-main)" /> Active Property Deployments
+           </h3>
+           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))', gap: '20px' }}>
+              {clients.map(client => (
+                <div key={`deploy-${client.id}`} style={{ border: '1px solid rgba(0,0,0,0.05)', borderRadius: '12px', padding: '16px', background: 'white' }}>
+                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px', alignItems: 'center' }}>
+                     <span style={{ fontWeight: 700 }}>{client.name}</span>
+                     <span style={{ fontSize: '0.7rem', background: client.status === 'active' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)', color: client.status === 'active' ? '#10B981' : '#EF4444', padding: '4px 8px', borderRadius: '12px', fontWeight: 800 }}>
+                       {client.status === 'active' ? 'RECEIVING DATA' : 'PENDING INSTALL'}
+                     </span>
+                   </div>
+                   <code style={{ display: 'block', padding: '12px', background: '#1e1e1e', color: '#d4d4d4', borderRadius: '6px', fontSize: '0.8rem', whiteSpace: 'nowrap', overflowX: 'auto' }}>
+                     &lt;script src="https://nexus.75squared.com/edge.js" data-property="{client.domain}"&gt;&lt;/script&gt;
+                   </code>
+                </div>
+              ))}
+           </div>
+        </div>
       </div>
 
       <div style={{ display: 'grid', gap: '20px' }}>

@@ -74,8 +74,26 @@ a:hover {
 
 .glass-panel:hover {
   transform: translateY(-5px);
-  box-shadow: 0 20px 50px rgba(147, 51, 234, 0.08);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.08);
   border: 1px solid rgba(255, 255, 255, 1);
+}
+
+@keyframes pulse-ring {
+  0% { transform: scale(0.8); opacity: 0.5; }
+  100% { transform: scale(2.5); opacity: 0; }
+}
+
+.pulse-dot {
+  position: relative;
+}
+.pulse-dot::after {
+  content: '';
+  position: absolute;
+  left: -2px; top: -2px; right: -2px; bottom: -2px;
+  border-radius: 50%;
+  border: 2px solid inherit;
+  background: inherit;
+  animation: pulse-ring 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
 }
 
 /* Gradients */
