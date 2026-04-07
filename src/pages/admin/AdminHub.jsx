@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { ShieldCheck, ArrowRight, ShieldAlert, Activity, Ghost, Zap, MousePointerClick, Globe, TrendingUp, AlertTriangle, MessageSquare, LayoutDashboard, Search, Eye } from 'lucide-react';
+import { ShieldCheck, ArrowRight, ShieldAlert, Activity, Ghost, Zap, MousePointerClick, Globe, TrendingUp, AlertTriangle, MessageSquare, LayoutDashboard, Search, Eye, LineChart as LineChartIcon } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
 
