@@ -137,7 +137,7 @@ const Hero = () => {
             </div>
           </div>
 
-          {/* Interactive Visual Elements */}
+            {/* Interactive Visual Elements */}
           <div style={{ position: 'relative', height: '540px' }}>
             
             {/* Center Node (Always behind the floaters but glowing) */}
@@ -158,60 +158,44 @@ const Hero = () => {
               <Cpu size={36} color="white" />
             </div>
 
-            <FloatingBadge 
-              id="digital-marketing"
-              position={{ top: '25%', right: '-10%' }}
-              delay="0s"
-              zIndex={5}
-            />
-
-            <FloatingBadge 
-              id="custom-websites"
-              position={{ bottom: '5%', left: '-5%' }}
-              delay="1.5s"
-              zIndex={6}
-            />
-
+            {/* Left Side Group */}
             <FloatingBadge 
               id="seo-geo-optimization"
               position={{ top: '5%', left: '0%' }}
               delay="0.8s"
+              zIndex={5}
+            />
+            <FloatingBadge 
+              id="enterprise-dashboards"
+              position={{ top: '35%', left: '-15%' }}
+              delay="1.2s"
+              zIndex={6}
+            />
+            <FloatingBadge 
+              id="custom-websites"
+              position={{ bottom: '10%', left: '5%' }}
+              delay="1.6s"
               zIndex={7}
             />
 
-            <FloatingBadge 
-              id="software-solutions"
-              position={{ bottom: '15%', right: '-5%' }}
-              delay="1.2s"
-              zIndex={8}
-            />
-
-            <FloatingBadge 
-              id="email-marketing"
-              position={{ top: '40%', left: '-20%' }}
-              delay="2.0s"
-              zIndex={9}
-            />
-
+            {/* Right Side Group */}
             <FloatingBadge 
               id="ai-integration"
-              position={{ top: '-10%', right: '-5%' }}
-              delay="2.5s"
-              zIndex={10}
-            />
-
-            <FloatingBadge 
-              id="enterprise-dashboards"
-              position={{ top: '15%', left: '-15%' }}
-              delay="2.2s"
-              zIndex={4}
-            />
-
-            <FloatingBadge 
-              id="database-modernization"
-              position={{ bottom: '-15%', left: '15%' }}
-              delay="1.7s"
+              position={{ top: '5%', right: '0%' }}
+              delay="1.0s"
               zIndex={8}
+            />
+            <FloatingBadge 
+              id="multi-tenant-saas"
+              position={{ top: '35%', right: '-15%' }}
+              delay="1.4s"
+              zIndex={9}
+            />
+            <FloatingBadge 
+              id="digital-marketing"
+              position={{ bottom: '10%', right: '5%' }}
+              delay="1.8s"
+              zIndex={10}
             />
 
           </div>

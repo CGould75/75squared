@@ -12,7 +12,7 @@ const SEOHead = ({ title, description, path = "" }) => {
     "name": "75 Squared",
     "description": description || defaultDesc,
     "url": `https://75squared.com${path}`,
-    "telephone": "+1-800-000-0000",
+    "telephone": "+1-702-907-0932",
     "address": {
       "@type": "PostalAddress",
       "addressLocality": "Las Vegas",

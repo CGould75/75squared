@@ -3,6 +3,13 @@ import { Link } from 'react-router-dom';
 import { servicesData } from '../data/services.jsx';
 
 const Services = () => {
+  // Group services by category dynamically
+  const groupedServices = servicesData.reduce((acc, curr) => {
+    if (!acc[curr.category]) acc[curr.category] = [];
+    acc[curr.category].push(curr);
+    return acc;
+  }, {});
+
   return (
     <section id="services" className="section" style={{ position: 'relative', background: 'rgba(0,0,0,0.01)' }}>
       <div className="container">
@@ -19,37 +26,45 @@ const Services = () => {
           </p>
         </div>
 
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-          gap: '30px',
-          marginTop: '60px'
-        }}>
-          {servicesData.map((service, index) => (
-             <Link to={`/services/${service.id}`} key={index} className="glass-panel hover-grow" style={{ padding: '40px', display: 'flex', flexDirection: 'column', gap: '20px', textDecoration: 'none' }}>
+        <div style={{ marginTop: '60px', display: 'flex', flexDirection: 'column', gap: '80px' }}>
+          {Object.keys(groupedServices).map((categoryName, idx) => (
+            <div key={idx}>
+              <h3 style={{ fontSize: '2rem', fontWeight: 800, marginBottom: '30px', borderBottom: '2px solid rgba(0,0,0,0.05)', paddingBottom: '16px', color: 'var(--color-text-main)' }}>
+                {categoryName}
+              </h3>
               <div style={{
-                width: '72px',
-                height: '72px',
-                borderRadius: '16px',
-                background: 'rgba(0, 0, 0, 0.03)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                marginBottom: '8px',
-                color: 'var(--color-text-main)' // fallback
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+                gap: '30px'
               }}>
-                {service.icon}
+                {groupedServices[categoryName].map((service, index) => (
+                  <Link to={`/services/${service.id}`} key={index} className="glass-panel hover-grow" style={{ padding: '40px', display: 'flex', flexDirection: 'column', gap: '20px', textDecoration: 'none' }}>
+                    <div style={{
+                      width: '72px',
+                      height: '72px',
+                      borderRadius: '16px',
+                      background: 'rgba(0, 0, 0, 0.03)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      marginBottom: '8px',
+                      color: 'var(--color-text-main)' // fallback
+                    }}>
+                      {service.icon}
+                    </div>
+                    <h4 style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--color-text-main)' }}>{service.title}</h4>
+                    <p style={{ color: 'var(--color-text-muted)', lineHeight: '1.6' }}>
+                      {service.description}
+                    </p>
+                    <div style={{ marginTop: 'auto', paddingTop: '20px' }}>
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', fontWeight: 700, fontSize: '0.95rem', color: 'var(--color-purple-main)' }}>
+                        Explore Capability &rarr;
+                      </span>
+                    </div>
+                  </Link>
+                ))}
               </div>
-              <h3 style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--color-text-main)' }}>{service.title}</h3>
-              <p style={{ color: 'var(--color-text-muted)', lineHeight: '1.6' }}>
-                {service.description}
-              </p>
-              <div style={{ marginTop: 'auto', paddingTop: '20px' }}>
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', fontWeight: 700, fontSize: '0.95rem', color: 'var(--color-purple-main)' }}>
-                  Explore Capability &rarr;
-                </span>
-              </div>
-            </Link>
+            </div>
           ))}
         </div>
       </div>

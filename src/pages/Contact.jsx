@@ -73,7 +73,7 @@ const Contact = () => {
                   </div>
                   <div>
                     <div style={{ fontWeight: 700, marginBottom: '4px' }}>Phone</div>
-                    <a href="tel:+18000000000" style={{ color: 'var(--color-text-muted)', textDecoration: 'none' }}>+1 (800) 000-0000</a>
+                    <a href="tel:+17029070932" style={{ color: 'var(--color-text-muted)', textDecoration: 'none' }}>(702) 907-0932</a>
                   </div>
                 </div>
               </div>
