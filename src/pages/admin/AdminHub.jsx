@@ -6,22 +6,74 @@ import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, R
 import { supabase } from '../../lib/supabaseClient';
 import { GlobalDomainContext } from '../../layouts/AdminLayout';
 
-const mockSystemHealthData = [
-  { name: 'Mon', authority: 1, organic: 2, latency: 140 },
-  { name: 'Tue', authority: 1, organic: 2, latency: 135 },
-  { name: 'Wed', authority: 1, organic: 4, latency: 138 },
-  { name: 'Thu', authority: 1, organic: 5, latency: 120 },
-  { name: 'Fri', authority: 1, organic: 8, latency: 110 },
-  { name: 'Sat', authority: 1, organic: 10, latency: 105 },
-  { name: 'Sun', authority: 2, organic: 14, latency: 98 },
-];
-
-const mockWebVitals = [
-  { metric: 'LCP', score: 1.2, max: 3, fill: '#10B981' },
-  { metric: 'FID', score: 0.8, max: 3, fill: '#10B981' },
-  { metric: 'CLS', score: 0.04, max: 3, fill: '#10B981' },
-  { metric: 'TTFB', score: 0.4, max: 3, fill: '#F59E0B' },
-];
+const siteData = {
+  '75squared.com - Primary': {
+    da: 2,
+    organic: 14,
+    latency: 98,
+    daText: '+1 pts',
+    organicText: '+600%',
+    latencyText: 'OPTIMAL',
+    labels: {
+      da: 'Initial indexing detected. Sandbox phase establishing network baseline.',
+      organic: 'First branded impressions recorded. Crawl rate prioritizing new sitemaps.',
+      latency: 'Vercel Edge cache hit-rate at 99.4%. Passing all Core Web Vitals.'
+    },
+    graph: [
+      { name: 'Mon', authority: 1, organic: 2, latency: 140 },
+      { name: 'Tue', authority: 1, organic: 2, latency: 135 },
+      { name: 'Wed', authority: 1, organic: 4, latency: 138 },
+      { name: 'Thu', authority: 1, organic: 5, latency: 120 },
+      { name: 'Fri', authority: 1, organic: 8, latency: 110 },
+      { name: 'Sat', authority: 1, organic: 10, latency: 105 },
+      { name: 'Sun', authority: 2, organic: 14, latency: 98 },
+    ]
+  },
+  'lrms.com': {
+    da: 46,
+    organic: '2,950',
+    latency: 120,
+    daText: '+4 pts',
+    organicText: '+126%',
+    latencyText: 'OPTIMAL',
+    labels: {
+      da: 'Top 5% trajectory detected. High probability of SERP takeover.',
+      organic: 'Algorithm update favorable. Keywords ranking on Page 1 expanded.',
+      latency: 'Next.js rendering engine stable. TTFB under 200ms.'
+    },
+    graph: [
+      { name: 'Mon', authority: 42, organic: 1200, latency: 140 },
+      { name: 'Tue', authority: 42, organic: 1350, latency: 135 },
+      { name: 'Wed', authority: 43, organic: 1600, latency: 138 },
+      { name: 'Thu', authority: 44, organic: 1900, latency: 120 },
+      { name: 'Fri', authority: 45, organic: 2400, latency: 110 },
+      { name: 'Sat', authority: 45, organic: 2600, latency: 105 },
+      { name: 'Sun', authority: 46, organic: 2950, latency: 120 },
+    ]
+  },
+  'goodyslv.com': {
+    da: 28,
+    organic: 840,
+    latency: 85,
+    daText: '+2 pts',
+    organicText: '+12%',
+    latencyText: 'BLAZING',
+    labels: {
+      da: 'Local backlinks successfully acquired. Authority stabilizing.',
+      organic: 'Steady growth. Local SEO pack triggering frequently.',
+      latency: 'Lightweight static site serving extremely rapidly.'
+    },
+    graph: [
+      { name: 'Mon', authority: 26, organic: 700, latency: 90 },
+      { name: 'Tue', authority: 26, organic: 710, latency: 92 },
+      { name: 'Wed', authority: 27, organic: 750, latency: 88 },
+      { name: 'Thu', authority: 27, organic: 790, latency: 85 },
+      { name: 'Fri', authority: 28, organic: 810, latency: 85 },
+      { name: 'Sat', authority: 28, organic: 820, latency: 80 },
+      { name: 'Sun', authority: 28, organic: 840, latency: 85 },
+    ]
+  }
+};
 
 const AdminHub = () => {
   const [userRole, setUserRole] = useState('admin');
@@ -52,6 +104,8 @@ const AdminHub = () => {
     return clientPermissions[key] !== false;
   };
 
+  const currentData = siteData[activeDomain] || siteData['75squared.com - Primary'];
+
   return (
     <div>
       {/* 50,000ft View Header */}
@@ -61,7 +115,7 @@ const AdminHub = () => {
             <Activity size={36} color="var(--color-blue-main)" /> Platform Telemetry <span style={{ fontSize: '1rem', background: '#111', color: 'white', padding: '4px 12px', borderRadius: '16px', fontWeight: 800 }}>LIVE</span>
           </h1>
           <p style={{ color: 'var(--color-text-muted)', fontSize: '1.1rem' }}>
-            50,000ft overview of <strong>{activeDomain}</strong>. System health, algorithmic metrics, and autonomous deployments.
+            System health, algorithmic metrics, and autonomous deployments.
           </p>
         </div>
       </div>
@@ -75,10 +129,10 @@ const AdminHub = () => {
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--color-purple-dark)', fontWeight: 700, fontSize: '0.9rem' }}>
                 <TrendingUp size={16} /> Domain Authority
               </div>
-              <span style={{ fontSize: '0.8rem', background: 'rgba(16, 185, 129, 0.1)', color: '#10B981', padding: '2px 8px', borderRadius: '12px', fontWeight: 800 }}>+1 pts</span>
+              <span style={{ fontSize: '0.8rem', background: 'rgba(16, 185, 129, 0.1)', color: '#10B981', padding: '2px 8px', borderRadius: '12px', fontWeight: 800 }}>{currentData.daText}</span>
            </div>
-           <div style={{ fontSize: '2.5rem', fontWeight: 900 }}>2</div>
-           <div style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>Initial indexing detected. Sandbox phase establishing network baseline.</div>
+           <div style={{ fontSize: '2.5rem', fontWeight: 900 }}>{currentData.da}</div>
+           <div style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>{currentData.labels.da}</div>
         </div>
 
         {/* Metric 2 */}
@@ -87,10 +141,10 @@ const AdminHub = () => {
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--color-blue-main)', fontWeight: 700, fontSize: '0.9rem' }}>
                 <Search size={16} /> Organic Position Velocity
               </div>
-              <span style={{ fontSize: '0.8rem', background: 'rgba(16, 185, 129, 0.1)', color: '#10B981', padding: '2px 8px', borderRadius: '12px', fontWeight: 800 }}>+600%</span>
+              <span style={{ fontSize: '0.8rem', background: 'rgba(16, 185, 129, 0.1)', color: '#10B981', padding: '2px 8px', borderRadius: '12px', fontWeight: 800 }}>{currentData.organicText}</span>
            </div>
-           <div style={{ fontSize: '2.5rem', fontWeight: 900 }}>14 <span style={{ fontSize: '1rem', color: 'var(--color-text-muted)' }}>clicks/wk</span></div>
-           <div style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>First branded impressions recorded. Crawl rate prioritizing new sitemaps.</div>
+           <div style={{ fontSize: '2.5rem', fontWeight: 900 }}>{currentData.organic} <span style={{ fontSize: '1rem', color: 'var(--color-text-muted)' }}>clicks/wk</span></div>
+           <div style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>{currentData.labels.organic}</div>
         </div>
 
         {/* Metric 3 */}
@@ -99,10 +153,10 @@ const AdminHub = () => {
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#10B981', fontWeight: 700, fontSize: '0.9rem' }}>
                 <Zap size={16} /> Edge Latency
               </div>
-              <span style={{ fontSize: '0.8rem', background: 'rgba(59, 130, 246, 0.1)', color: 'var(--color-blue-main)', padding: '2px 8px', borderRadius: '12px', fontWeight: 800 }}>OPTIMAL</span>
+              <span style={{ fontSize: '0.8rem', background: 'rgba(59, 130, 246, 0.1)', color: 'var(--color-blue-main)', padding: '2px 8px', borderRadius: '12px', fontWeight: 800 }}>{currentData.latencyText}</span>
            </div>
-           <div style={{ fontSize: '2.5rem', fontWeight: 900 }}>98<span style={{ fontSize: '1rem', color: 'var(--color-text-muted)' }}>ms</span></div>
-           <div style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>Vercel Edge cache hit-rate at 99.4%. Passing all Core Web Vitals.</div>
+           <div style={{ fontSize: '2.5rem', fontWeight: 900 }}>{currentData.latency}<span style={{ fontSize: '1rem', color: 'var(--color-text-muted)' }}>ms</span></div>
+           <div style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>{currentData.labels.latency}</div>
         </div>
 
       </div>
@@ -116,7 +170,7 @@ const AdminHub = () => {
             </h3>
             <div style={{ width: '100%', height: '300px' }}>
               <ResponsiveContainer>
-                <AreaChart data={mockSystemHealthData} margin={{ top: 10, right: 0, left: 0, bottom: 0 }}>
+                <AreaChart data={currentData.graph} margin={{ top: 10, right: 0, left: 0, bottom: 0 }}>
                   <defs>
                     <linearGradient id="colorOrganic" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="var(--color-blue-main)" stopOpacity={0.3}/>
