@@ -6,76 +6,70 @@ import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, R
 import { supabase } from '../../lib/supabaseClient';
 import { GlobalDomainContext } from '../../layouts/AdminLayout';
 
+const generateChartData = (startAuth, startOrg, days, dailyAuthGrowth, dailyOrgGrowth) => {
+  const data = [];
+  let auth = startAuth;
+  let org = startOrg;
+  for(let i=0; i<days; i++) {
+    data.push({
+      name: days <= 7 ? ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'][i%7] : (i%7===0 ? `D-${i}` : ''),
+      authority: Math.floor(auth),
+      organic: Math.floor(org),
+      latency: Math.floor(90 + Math.random() * 30)
+    });
+    auth += dailyAuthGrowth;
+    org += dailyOrgGrowth + (Math.random() * (dailyOrgGrowth * 0.2));
+  }
+  return data;
+};
+
 const siteData = {
   '75squared.com - Primary': {
-    da: 2,
-    organic: 14,
-    latency: 98,
-    daText: '+1 pts',
-    organicText: '+600%',
-    latencyText: 'OPTIMAL',
+    da: 2, organic: 14, latency: 98,
+    daText: '+1 pts', organicText: '+600%', latencyText: 'OPTIMAL',
     labels: {
       da: 'Initial indexing detected. Sandbox phase establishing network baseline.',
       organic: 'First branded impressions recorded. Crawl rate prioritizing new sitemaps.',
       latency: 'Vercel Edge cache hit-rate at 99.4%. Passing all Core Web Vitals.'
     },
-    graph: [
-      { name: 'Mon', authority: 1, organic: 2, latency: 140 },
-      { name: 'Tue', authority: 1, organic: 2, latency: 135 },
-      { name: 'Wed', authority: 1, organic: 4, latency: 138 },
-      { name: 'Thu', authority: 1, organic: 5, latency: 120 },
-      { name: 'Fri', authority: 1, organic: 8, latency: 110 },
-      { name: 'Sat', authority: 1, organic: 10, latency: 105 },
-      { name: 'Sun', authority: 2, organic: 14, latency: 98 },
-    ]
+    graph: {
+      '7d': generateChartData(1, 2, 7, 0.14, 2),
+      '30d': generateChartData(1, 2, 30, 0.05, 3),
+      '90d': generateChartData(1, 2, 90, 0.04, 4)
+    }
   },
   'lrms.com': {
-    da: 46,
-    organic: '2,950',
-    latency: 120,
-    daText: '+4 pts',
-    organicText: '+126%',
-    latencyText: 'OPTIMAL',
+    da: 46, organic: '2,950', latency: 120,
+    daText: '+4 pts', organicText: '+126%', latencyText: 'OPTIMAL',
     labels: {
       da: 'Top 5% trajectory detected. High probability of SERP takeover.',
       organic: 'Algorithm update favorable. Keywords ranking on Page 1 expanded.',
       latency: 'Next.js rendering engine stable. TTFB under 200ms.'
     },
-    graph: [
-      { name: 'Mon', authority: 42, organic: 1200, latency: 140 },
-      { name: 'Tue', authority: 42, organic: 1350, latency: 135 },
-      { name: 'Wed', authority: 43, organic: 1600, latency: 138 },
-      { name: 'Thu', authority: 44, organic: 1900, latency: 120 },
-      { name: 'Fri', authority: 45, organic: 2400, latency: 110 },
-      { name: 'Sat', authority: 45, organic: 2600, latency: 105 },
-      { name: 'Sun', authority: 46, organic: 2950, latency: 120 },
-    ]
+    graph: {
+      '7d': generateChartData(42, 1200, 7, 0.5, 250),
+      '30d': generateChartData(35, 400, 30, 0.3, 85),
+      '90d': generateChartData(22, 100, 90, 0.26, 31)
+    }
   },
   'goodyslv.com': {
-    da: 28,
-    organic: 840,
-    latency: 85,
-    daText: '+2 pts',
-    organicText: '+12%',
-    latencyText: 'BLAZING',
+    da: 28, organic: 840, latency: 85,
+    daText: '+2 pts', organicText: '+12%', latencyText: 'BLAZING',
     labels: {
       da: 'Local backlinks successfully acquired. Authority stabilizing.',
       organic: 'Steady growth. Local SEO pack triggering frequently.',
       latency: 'Lightweight static site serving extremely rapidly.'
     },
-    graph: [
-      { name: 'Mon', authority: 26, organic: 700, latency: 90 },
-      { name: 'Tue', authority: 26, organic: 710, latency: 92 },
-      { name: 'Wed', authority: 27, organic: 750, latency: 88 },
-      { name: 'Thu', authority: 27, organic: 790, latency: 85 },
-      { name: 'Fri', authority: 28, organic: 810, latency: 85 },
-      { name: 'Sat', authority: 28, organic: 820, latency: 80 },
-      { name: 'Sun', authority: 28, organic: 840, latency: 85 },
-    ]
+    graph: {
+      '7d': generateChartData(26, 700, 7, 0.28, 20),
+      '30d': generateChartData(24, 400, 30, 0.13, 14),
+      '90d': generateChartData(18, 150, 90, 0.11, 7)
+    }
   }
 };
 
 const AdminHub = () => {
+  const [timeRange, setTimeRange] = useState('7d');
   const [userRole, setUserRole] = useState('admin');
   const [clientPermissions, setClientPermissions] = useState(null);
   const [activeClients, setActiveClients] = useState([]);
@@ -165,12 +159,23 @@ const AdminHub = () => {
          
          {/* Live Performance Chart */}
          <div className="glass-panel" style={{ padding: '30px', overflow: 'hidden' }}>
-            <h3 style={{ fontSize: '1.2rem', fontWeight: 800, marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Globe size={18} color="var(--color-text-muted)" /> Search Console Traffic vs. Authority Index
-            </h3>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+              <h3 style={{ fontSize: '1.2rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Globe size={18} color="var(--color-text-muted)" /> Search Console Traffic vs. Authority Index
+              </h3>
+              <select 
+                value={timeRange} 
+                onChange={(e) => setTimeRange(e.target.value)}
+                style={{ padding: '8px 16px', borderRadius: '8px', border: '1px solid rgba(0,0,0,0.1)', background: 'var(--color-bg-light)', fontSize: '0.9rem', fontWeight: 600, outline: 'none', cursor: 'pointer' }}
+              >
+                <option value="7d">Last 7 Days</option>
+                <option value="30d">Last 30 Days</option>
+                <option value="90d">Last 90 Days</option>
+              </select>
+            </div>
             <div style={{ width: '100%', height: '300px' }}>
               <ResponsiveContainer>
-                <AreaChart data={currentData.graph} margin={{ top: 10, right: 0, left: 0, bottom: 0 }}>
+                <AreaChart data={currentData.graph[timeRange]} margin={{ top: 10, right: 0, left: 0, bottom: 0 }}>
                   <defs>
                     <linearGradient id="colorOrganic" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="var(--color-blue-main)" stopOpacity={0.3}/>
