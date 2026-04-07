@@ -11,27 +11,35 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const [authError, setAuthError] = useState('');
+  const [isLoginMode, setIsLoginMode] = useState(true);
   const navigate = useNavigate();
 
-  const handleLogin = async (e) => {
+  const handleAuthPayload = async (e) => {
     e.preventDefault();
     setIsAuthenticating(true);
     setAuthError('');
     
-    // We attempt real authentication against the newly instantiated Supabase Vault
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (error) {
-      setAuthError(error.message);
-      setIsAuthenticating(false);
+    if (isLoginMode) {
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) {
+        setAuthError(error.message);
+        setIsAuthenticating(false);
+      } else {
+        localStorage.setItem('nexus_role', 'admin');
+        localStorage.setItem('nexus_client', '75 Squared (Master)');
+        navigate('/admin');
+      }
     } else {
-      // If successful, bootstrap standard Master state
-      localStorage.setItem('nexus_role', 'admin');
-      localStorage.setItem('nexus_client', '75 Squared (Master)');
-      navigate('/admin');
+      const { data, error } = await supabase.auth.signUp({ email, password });
+      if (error) {
+        setAuthError(error.message);
+        setIsAuthenticating(false);
+      } else {
+        // Successful registration
+        setAuthError("Registration successful! Check your email to verify your account before logging in. If email verifications are disabled, you can log in immediately.");
+        setIsAuthenticating(false);
+        setIsLoginMode(true); // switch back to login
+      }
     }
   };
 
@@ -45,19 +53,25 @@ const Login = () => {
              <LayoutDashboard size={28} color="var(--color-text-main)" />
              <span style={{ fontSize: '1.4rem', fontWeight: 800, fontFamily: 'var(--font-heading)' }}>75² Nexus</span>
           </div>
-          <h1 style={{ fontSize: '2.5rem', fontWeight: 700, marginBottom: '12px' }}>Sign in</h1>
+          <h1 style={{ fontSize: '2.5rem', fontWeight: 700, marginBottom: '12px' }}>{isLoginMode ? 'Sign in' : 'Create Account'}</h1>
           <p style={{ color: 'var(--color-text-main)', fontSize: '0.95rem' }}>
-            New to Nexus? <a href="#" style={{ color: 'var(--color-text-main)', textDecoration: 'underline' }}>Create an Account</a>
+            {isLoginMode ? 'New to Nexus? ' : 'Already have an account? '}
+            <button 
+              onClick={() => { setIsLoginMode(!isLoginMode); setAuthError(''); }}
+              style={{ background: 'none', border: 'none', padding: 0, color: 'var(--color-text-main)', textDecoration: 'underline', cursor: 'pointer', fontSize: '0.95rem' }}
+            >
+              {isLoginMode ? 'Create an Account' : 'Sign In'}
+            </button>
           </p>
         </div>
 
         <div style={{ background: '#F8F8F8', borderRadius: '8px', padding: '16px', marginBottom: '24px' }}>
            <p style={{ fontSize: '0.9rem', color: 'var(--color-text-main)', lineHeight: '1.5', margin: 0 }}>
-             By clicking "Sign In" below, you agree to Nexus's Universal <a href="#" style={{ color: 'var(--color-text-main)', textDecoration: 'underline' }}>Terms of Service</a> (updated Feb 2, 2026) and <a href="#" style={{ color: 'var(--color-text-main)', textDecoration: 'underline' }}>Privacy Policy</a>.
+             By clicking "{isLoginMode ? 'Sign In' : 'Sign Up'}" below, you agree to Nexus's Universal <a href="#" style={{ color: 'var(--color-text-main)', textDecoration: 'underline' }}>Terms of Service</a> (updated Feb 2, 2026) and <a href="#" style={{ color: 'var(--color-text-main)', textDecoration: 'underline' }}>Privacy Policy</a>.
            </p>
         </div>
 
-          <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <form onSubmit={handleAuthPayload} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             
             <div style={{ position: 'relative' }}>
               <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '4px' }}>
@@ -95,13 +109,15 @@ const Login = () => {
               </div>
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '4px' }}>
-               <input type="checkbox" id="remember" style={{ accentColor: '#10B981', width: '18px', height: '18px', borderRadius: '4px' }} />
-               <label htmlFor="remember" style={{ fontSize: '0.95rem', color: '#111', cursor: 'pointer' }}>Keep me signed in on this device</label>
-            </div>
+            {isLoginMode && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '4px' }}>
+                 <input type="checkbox" id="remember" style={{ accentColor: '#10B981', width: '18px', height: '18px', borderRadius: '4px' }} />
+                 <label htmlFor="remember" style={{ fontSize: '0.95rem', color: '#111', cursor: 'pointer' }}>Keep me signed in on this device</label>
+              </div>
+            )}
 
             {authError && (
-              <div style={{ padding: '12px', borderRadius: '8px', background: 'rgba(239, 68, 68, 0.1)', color: '#EF4444', fontSize: '0.85rem', fontWeight: 600, textAlign: 'left' }}>
+              <div style={{ padding: '12px', borderRadius: '8px', background: authError.includes('successful') ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)', color: authError.includes('successful') ? '#10B981' : '#EF4444', fontSize: '0.85rem', fontWeight: 600, textAlign: 'left' }}>
                 {authError}
               </div>
             )}
@@ -113,7 +129,7 @@ const Login = () => {
               onMouseOver={(e) => e.target.style.background = '#333'}
               onMouseOut={(e) => e.target.style.background = '#111'}
             >
-              {isAuthenticating ? 'Signing in...' : 'Sign In'}
+              {isAuthenticating ? 'Authenticating...' : (isLoginMode ? 'Sign In' : 'Sign Up')}
             </button>
           </form>
 
