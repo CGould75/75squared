@@ -62,6 +62,21 @@ const GhostEditor = () => {
      setSplitSliderData(null);
   };
 
+  // Generate deterministic pseudo-random numbers based on string seed for realistic UX
+  const getSimulatedTraffic = (seedStr) => {
+     let hash = 0;
+     if (!seedStr) return { base: 4204, variantTraffic: 4198, delay: 0.02, risk: 'LOW' };
+     const str = String(seedStr);
+     for (let i = 0; i < str.length; i++) {
+        hash = str.charCodeAt(i) + ((hash << 5) - hash);
+     }
+     const base = Math.abs(hash % 15000) + 1200; 
+     const variantTraffic = base - (Math.abs(hash % 80));
+     const delay = (Math.abs(hash % 8) * 0.01 + 0.01).toFixed(2);
+     const risk = delay > 0.05 ? 'MEDIUM' : 'LOW';
+     return { base, variantTraffic, delay, risk };
+  };
+
   return (
     <div>
       <div style={{ marginBottom: '40px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
@@ -252,7 +267,9 @@ const GhostEditor = () => {
       )}
 
       {/* Telemetry Modal Overlay */}
-      {telemetryModalData && (
+      {telemetryModalData && (() => {
+        const stats = getSimulatedTraffic(telemetryModalData.id);
+        return (
         <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.6)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
            <div className="glass-panel" style={{ width: '800px', maxWidth: '90vw', background: 'white', padding: '0', overflow: 'hidden' }}>
               <div style={{ padding: '24px', borderBottom: '1px solid rgba(0,0,0,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -269,13 +286,13 @@ const GhostEditor = () => {
                  <div style={{ background: 'var(--color-bg-light)', padding: '20px', borderRadius: '12px', border: '1px solid rgba(0,0,0,0.05)' }}>
                     <div style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--color-text-muted)', textTransform: 'uppercase', marginBottom: '8px' }}>Original Control (A)</div>
                     <div style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--color-text-main)' }}>{telemetryModalData.current}</div>
-                    <div style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', marginTop: '4px' }}>Based on 4,204 sessions</div>
+                    <div style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', marginTop: '4px' }}>Based on {stats.base.toLocaleString()} sessions</div>
                  </div>
                  
                  <div style={{ background: 'rgba(16, 185, 129, 0.05)', padding: '20px', borderRadius: '12px', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
                     <div style={{ fontSize: '0.8rem', fontWeight: 800, color: '#10B981', textTransform: 'uppercase', marginBottom: '8px' }}>Variant Winner (B)</div>
                     <div style={{ fontSize: '2rem', fontWeight: 800, color: '#10B981' }}>{telemetryModalData.benchmark}</div>
-                    <div style={{ fontSize: '0.85rem', color: '#10B981', marginTop: '4px' }}>Based on 4,198 sessions</div>
+                    <div style={{ fontSize: '0.85rem', color: '#10B981', marginTop: '4px' }}>Based on {stats.variantTraffic.toLocaleString()} sessions</div>
                  </div>
               </div>
               
@@ -296,7 +313,7 @@ const GhostEditor = () => {
                        <div style={{ color: 'var(--color-blue-main)' }}><ShieldCheck size={20} /></div>
                        <div>
                           <div style={{ fontSize: '0.85rem', fontWeight: 800, color: '#111', textTransform: 'uppercase', marginBottom: '4px' }}>Core Web Vitals Impact</div>
-                          <div style={{ fontSize: '0.9rem', color: 'var(--color-text-muted)', lineHeight: '1.4' }}>Mutation imposes a <strong>+0.02s</strong> delay on LCP (Largest Contentful Paint). SEO Risk is categorized as <strong>LOW</strong>.</div>
+                          <div style={{ fontSize: '0.9rem', color: 'var(--color-text-muted)', lineHeight: '1.4' }}>Mutation imposes a <strong>+{stats.delay}s</strong> delay on LCP (Largest Contentful Paint). SEO Risk is categorized as <strong style={{ color: stats.risk === 'LOW' ? '#10B981' : '#F59E0B' }}>{stats.risk}</strong>.</div>
                        </div>
                     </div>
 
@@ -313,7 +330,8 @@ const GhostEditor = () => {
 
            </div>
         </div>
-      )}
+        );
+      })()}
 
       {/* Split Traffic Modal */}
       {splitSliderData && (
