@@ -9,6 +9,10 @@ const ClientManagement = () => {
   const [clients, setClients] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const [showGeoModal, setShowGeoModal] = useState(false);
+  const [geoTargetClient, setGeoTargetClient] = useState(null);
+  const [geoData, setGeoData] = useState({ address: '', city: '', zip: '' });
+
   // Natively pull from Supabase Vault instead of hardcoded state
   React.useEffect(() => {
     const fetchClients = async () => {
@@ -22,23 +26,47 @@ const ClientManagement = () => {
   }, []);
 
   const traverseCapabilityToggle = async (clientId, moduleKey) => {
-    // 1. Calculate future state locally
+    const targetClient = clients.find(c => c.id === clientId);
+    const isCurrentlyEnabled = targetClient.modules[moduleKey];
+
+    // Intercept SEO/GEO activation
+    if (moduleKey === 'seo' && !isCurrentlyEnabled) {
+       setGeoTargetClient(targetClient);
+       setShowGeoModal(true);
+       return; // Stop execution to await GEO details
+    }
+
+    executeModuleToggle(clientId, moduleKey);
+  };
+
+  const executeModuleToggle = async (clientId, moduleKey) => {
     const targetClient = clients.find(c => c.id === clientId);
     const updatedModules = {
       ...targetClient.modules,
       [moduleKey]: !targetClient.modules[moduleKey]
     };
 
-    // 2. Mathematically overwrite the Supabase physical layer
     await supabase.from('nexus_clients').update({ modules: updatedModules }).eq('id', clientId);
 
-    // 3. Sync UI
     setClients(prev => prev.map(client => {
       if (client.id === clientId) {
         return { ...client, modules: updatedModules };
       }
       return client;
     }));
+  };
+
+  const saveGeoAndActivate = async () => {
+     // Log GEO context internally (simulated DB push)
+     console.log('Saved GEO coordinates for', geoTargetClient.name, geoData);
+     
+     // Activate the SEO module after successfully parsing data
+     await executeModuleToggle(geoTargetClient.id, 'seo');
+
+     // Complete pipeline
+     setShowGeoModal(false);
+     setGeoTargetClient(null);
+     setGeoData({ address: '', city: '', zip: '' });
   };
 
   const handleAddNewClient = async () => {
@@ -79,6 +107,42 @@ const ClientManagement = () => {
 
   return (
     <div>
+      {/* Geo Activation Modal */}
+      {showGeoModal && (
+        <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.5)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+           <div className="glass-panel" style={{ width: '400px', background: 'white', padding: '30px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--color-blue-main)', marginBottom: '12px' }}>
+                 <Code size={24} />
+              </div>
+              <h3 style={{ fontSize: '1.4rem', fontWeight: 800, marginBottom: '8px' }}>Setup Local GEO Grid</h3>
+              <p style={{ fontSize: '0.9rem', color: 'var(--color-text-muted)', marginBottom: '20px' }}>
+                Before activating the engine for <strong>{geoTargetClient?.name}</strong>, enter the physical entity coordinates to build the local rank tracker.
+              </p>
+              
+              <div style={{ marginBottom: '16px' }}>
+                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, marginBottom: '6px' }}>Street Address</label>
+                <input type="text" value={geoData.address} onChange={(e) => setGeoData({...geoData, address: e.target.value})} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid rgba(0,0,0,0.1)' }} placeholder="123 Main St" />
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '12px', marginBottom: '24px' }}>
+                 <div>
+                    <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, marginBottom: '6px' }}>City</label>
+                    <input type="text" value={geoData.city} onChange={(e) => setGeoData({...geoData, city: e.target.value})} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid rgba(0,0,0,0.1)' }} placeholder="Las Vegas" />
+                 </div>
+                 <div>
+                    <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, marginBottom: '6px' }}>Zip</label>
+                    <input type="text" value={geoData.zip} onChange={(e) => setGeoData({...geoData, zip: e.target.value})} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid rgba(0,0,0,0.1)' }} placeholder="89109" />
+                 </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: '12px' }}>
+                 <button onClick={() => setShowGeoModal(false)} className="btn hover-lift" style={{ flex: 1, padding: '12px', background: 'var(--color-bg-light)', color: 'var(--color-text-main)', border: 'none', fontWeight: 700, borderRadius: '8px', cursor: 'pointer' }}>Cancel</button>
+                 <button onClick={saveGeoAndActivate} className="btn hover-lift text-gradient" style={{ flex: 2, padding: '12px', color: 'white', border: 'none', fontWeight: 700, borderRadius: '8px', cursor: 'pointer' }}>Save & Activate Engine</button>
+              </div>
+           </div>
+        </div>
+      )}
+
       <div style={{ marginBottom: '40px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div>
           <h1 style={{ fontSize: '2.5rem', fontWeight: 800, marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '16px' }}>
@@ -153,7 +217,7 @@ const ClientManagement = () => {
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '12px' }}>
                 {Object.entries(client.modules).map(([moduleKey, isEnabled]) => {
                    const labelMap = {
-                     seo: 'SEO Analysis',
+                     seo: 'SEO & GEO Engine',
                      heatmaps: 'Thermal Tracking',
                      email: 'Broadcast Email',
                      content: 'AI Studio',
