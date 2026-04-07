@@ -45,6 +45,9 @@ const Navigation = () => {
             <Link to="/admin/login" style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--color-purple-main)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '6px' }}>
               Client Login
             </Link>
+            <a href="tel:+17029070932" style={{ fontWeight: 800, fontSize: '0.95rem', color: 'var(--color-text-main)', textDecoration: 'none', marginLeft: '10px' }}>
+              (702) 907-0932
+            </a>
             <Link to="/contact" className="btn btn-primary" style={{ padding: '10px 24px', fontSize: '0.9rem', textDecoration: 'none' }}>
               Get Started
             </Link>

@@ -15,9 +15,13 @@ const Footer = () => {
             <div style={{ fontFamily: 'var(--font-heading)', fontSize: '1.5rem', fontWeight: 800, marginBottom: '16px' }}>
               <span className="text-gradient">75²</span><span style={{ marginLeft: '4px', color: 'var(--color-text-main)' }}>Squared</span>
             </div>
-            <p style={{ color: 'var(--color-text-muted)', fontSize: '0.95rem', maxWidth: '250px' }}>
+            <p style={{ color: 'var(--color-text-muted)', fontSize: '0.95rem', maxWidth: '250px', marginBottom: '16px' }}>
               Las Vegas based premium digital agency. Engineering scalable web applications and high-conversion marketing.
             </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '0.95rem' }}>
+              <a href="tel:+17029070932" style={{ textDecoration: 'none', color: 'var(--color-text-main)', fontWeight: 700 }}>(702) 907-0932</a>
+              <a href="mailto:chris@75squared.com" style={{ textDecoration: 'none', color: 'var(--color-purple-main)', fontWeight: 600 }}>chris@75squared.com</a>
+            </div>
           </div>
           <div>
             <h4 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '16px', color: 'var(--color-text-main)' }}>Solutions</h4>
