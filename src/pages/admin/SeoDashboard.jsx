@@ -4,8 +4,9 @@ import { supabase } from '../../lib/supabaseClient';
 import { GlobalDomainContext } from '../../layouts/AdminLayout';
 
 // MOCK PAYLOADS BY TENANT
+// MOCK PAYLOADS BY TENANT
 const MOCK_DOMAINS = {
-  '75squared': {
+  '75squared.com': {
     overview: { domain_authority: 84, total_backlinks: 14230, organic_traffic: 112000, traffic_value: "$42,500" },
     audit: { health_score: 92, urls_crawled: 14102, healthy_urls: 13801, broken_urls: 42, redirects: 259,
              critical_errors: [
@@ -18,7 +19,7 @@ const MOCK_DOMAINS = {
       { id: 2, source: "techcrunch.com/startups", authority: 89, type: "DoFollow" }
     ]
   },
-  'goodys': {
+  'goodyslv.com': {
     overview: { domain_authority: 42, total_backlinks: 320, organic_traffic: 8500, traffic_value: "$1,200" },
     audit: { health_score: 85, urls_crawled: 42, healthy_urls: 38, broken_urls: 1, redirects: 3,
              critical_errors: [
@@ -30,7 +31,7 @@ const MOCK_DOMAINS = {
       { id: 2, source: "yelp.com/biz/goodys", authority: 90, type: "DoFollow" }
     ]
   },
-  'lrms': {
+  'lrms.com': {
     overview: { domain_authority: 68, total_backlinks: 4100, organic_traffic: 34000, traffic_value: "$15,400" },
     audit: { health_score: 72, urls_crawled: 850, healthy_urls: 700, broken_urls: 45, redirects: 105,
              critical_errors: [
@@ -59,7 +60,7 @@ const SeoDashboard = () => {
   const [loading, setLoading] = useState(true);
   
   const { activeDomain } = useContext(GlobalDomainContext);
-  const domainData = MOCK_DOMAINS[activeDomain] || MOCK_DOMAINS['75squared'];
+  const domainData = MOCK_DOMAINS[activeDomain] || MOCK_DOMAINS['75squared.com'];
 
   useEffect(() => {
     // Dynamically apply SaaS Tiers based on the logged-in Role
