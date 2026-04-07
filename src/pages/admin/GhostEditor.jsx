@@ -8,6 +8,10 @@ const GhostEditor = () => {
   const [selectedAnomaly, setSelectedAnomaly] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // New Telemetry + Actions UI State
+  const [openDropdownId, setOpenDropdownId] = useState(null);
+  const [telemetryModalData, setTelemetryModalData] = useState(null);
+
   React.useEffect(() => {
     const fetchAnomalies = async () => {
       const { data } = await supabase.from('ab_mutations').select('*').order('id', { ascending: true });
@@ -93,9 +97,38 @@ const GhostEditor = () => {
                           View Proposal <ArrowRight size={16}/>
                         </button>
                      ) : (
-                       <button onClick={() => alert('The Live Edge Router is currently tracking statistical significance. 204 users have been exposed to this mutation so far! You can set reporting durations in the Billing module.')} className="btn btn-outline" style={{ padding: '10px 20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                         <LineChart size={16}/> Live Dashboard
-                       </button>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', position: 'relative' }}>
+                           <button onClick={() => setTelemetryModalData(anomaly)} className="btn btn-outline" style={{ padding: '10px 20px', display: 'flex', alignItems: 'center', gap: '8px', borderRadius: '12px' }}>
+                             <LineChart size={16}/> Live Telemetry
+                           </button>
+                           <button 
+                             onClick={() => setOpenDropdownId(openDropdownId === anomaly.id ? null : anomaly.id)}
+                             style={{ padding: '10px 14px', background: 'var(--color-bg-light)', border: '1px solid rgba(0,0,0,0.1)', borderRadius: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+                           >
+                             <SplitSquareHorizontal size={16} color="var(--color-text-muted)" />
+                           </button>
+
+                           {/* Dropdown Menu */}
+                           {openDropdownId === anomaly.id && (
+                             <div style={{ position: 'absolute', top: 'calc(100% + 8px)', right: 0, width: '240px', background: 'white', borderRadius: '12px', boxShadow: '0 10px 30px rgba(0,0,0,0.1)', border: '1px solid rgba(0,0,0,0.05)', zIndex: 10, overflow: 'hidden' }}>
+                                <div style={{ padding: '12px 16px', borderBottom: '1px solid rgba(0,0,0,0.05)', background: 'var(--color-bg-light)' }}>
+                                   <span style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--color-text-muted)', textTransform: 'uppercase' }}>SEO Action Center</span>
+                                </div>
+                                <button onClick={() => setOpenDropdownId(null)} className="hover-lift" style={{ width: '100%', textAlign: 'left', padding: '12px 16px', background: 'none', border: 'none', borderBottom: '1px solid rgba(0,0,0,0.05)', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 600, color: '#10B981', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                  <CheckCircle2 size={16} /> Deploy Winner (100% Traffic)
+                                </button>
+                                <button onClick={() => setOpenDropdownId(null)} className="hover-lift" style={{ width: '100%', textAlign: 'left', padding: '12px 16px', background: 'none', border: 'none', borderBottom: '1px solid rgba(0,0,0,0.05)', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 600, color: '#F59E0B', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                  <AlertTriangle size={16} /> Adjust Split Weight (50/50)
+                                </button>
+                                <button onClick={() => setOpenDropdownId(null)} className="hover-lift" style={{ width: '100%', textAlign: 'left', padding: '12px 16px', background: 'none', border: 'none', borderBottom: '1px solid rgba(0,0,0,0.05)', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 600, color: 'var(--color-purple-main)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                  <MousePointerClick size={16} /> View Thermal Heatmaps
+                                </button>
+                                <button onClick={() => setOpenDropdownId(null)} className="hover-lift" style={{ width: '100%', textAlign: 'left', padding: '12px 16px', background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 600, color: '#EF4444', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                  <XCircle size={16} /> Stop Test & Rollback
+                                </button>
+                             </div>
+                           )}
+                        </div>
                     )}
                  </div>
               </div>
@@ -181,6 +214,48 @@ const GhostEditor = () => {
                  </div>
               </div>
 
+           </div>
+        </div>
+      )}
+
+      {/* Telemetry Modal Overlay */}
+      {telemetryModalData && (
+        <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.6)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+           <div className="glass-panel" style={{ width: '800px', maxWidth: '90vw', background: 'white', padding: '0', overflow: 'hidden' }}>
+              <div style={{ padding: '24px', borderBottom: '1px solid rgba(0,0,0,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                 <div>
+                   <h3 style={{ fontSize: '1.4rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                     <LineChart color="var(--color-blue-main)" /> Live Mutation Telemetry
+                   </h3>
+                   <span style={{ fontSize: '0.9rem', color: 'var(--color-text-muted)' }}>Real-time Edge routing stats for <strong style={{ color: '#111' }}>{telemetryModalData.element}</strong></span>
+                 </div>
+                 <button onClick={() => setTelemetryModalData(null)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}><XCircle size={24} color="var(--color-text-muted)" /></button>
+              </div>
+              
+              <div style={{ padding: '30px', display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '20px' }}>
+                 <div style={{ background: 'var(--color-bg-light)', padding: '20px', borderRadius: '12px', border: '1px solid rgba(0,0,0,0.05)' }}>
+                    <div style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--color-text-muted)', textTransform: 'uppercase', marginBottom: '8px' }}>Original Control (A)</div>
+                    <div style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--color-text-main)' }}>{telemetryModalData.current}</div>
+                    <div style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', marginTop: '4px' }}>Based on 4,204 sessions</div>
+                 </div>
+                 
+                 <div style={{ background: 'rgba(16, 185, 129, 0.05)', padding: '20px', borderRadius: '12px', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
+                    <div style={{ fontSize: '0.8rem', fontWeight: 800, color: '#10B981', textTransform: 'uppercase', marginBottom: '8px' }}>Variant Winner (B)</div>
+                    <div style={{ fontSize: '2rem', fontWeight: 800, color: '#10B981' }}>{telemetryModalData.benchmark}</div>
+                    <div style={{ fontSize: '0.85rem', color: '#10B981', marginTop: '4px' }}>Based on 4,198 sessions</div>
+                 </div>
+              </div>
+              
+              <div style={{ padding: '0 30px 30px 30px' }}>
+                 <div style={{ width: '100%', height: '8px', background: 'var(--color-bg-light)', borderRadius: '4px', overflow: 'hidden', display: 'flex' }}>
+                    <div style={{ width: '50%', background: 'var(--color-purple-main)' }}></div>
+                    <div style={{ width: '50%', background: '#10B981' }}></div>
+                 </div>
+                 <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '8px', fontSize: '0.8rem', color: 'var(--color-text-muted)', fontWeight: 600 }}>
+                    <span>50% Traffic (Control)</span>
+                    <span>50% Traffic (Variant)</span>
+                 </div>
+              </div>
            </div>
         </div>
       )}
