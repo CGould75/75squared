@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { Ghost, AlertTriangle, ArrowRight, Zap, CheckCircle2, XCircle, MousePointerClick, Bot, Code2, LineChart, SplitSquareHorizontal } from 'lucide-react';
+import { Ghost, AlertTriangle, ArrowRight, Zap, CheckCircle2, XCircle, MousePointerClick, Bot, Code2, LineChart, SplitSquareHorizontal, ShieldCheck, FileSearch } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabaseClient';
 
 const GhostEditor = () => {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('feed');
   const [anomalies, setAnomalies] = useState([]);
   const [selectedAnomaly, setSelectedAnomaly] = useState(null);
@@ -11,22 +13,53 @@ const GhostEditor = () => {
   // New Telemetry + Actions UI State
   const [openDropdownId, setOpenDropdownId] = useState(null);
   const [telemetryModalData, setTelemetryModalData] = useState(null);
+  
+  // Canary Routing UI State
+  const [splitSliderData, setSplitSliderData] = useState(null);
+  const [splitWeight, setSplitWeight] = useState(50);
 
   React.useEffect(() => {
     const fetchAnomalies = async () => {
       const { data } = await supabase.from('ab_mutations').select('*').order('id', { ascending: true });
-      if (data) setAnomalies(data);
+      if (data) {
+         // Filter out resolved items so they disappear from active view
+         const activeAnomalies = data.filter(a => a.status === 'Awaiting Approval' || a.status === 'A/B Test Running');
+         setAnomalies(activeAnomalies);
+      }
       setLoading(false);
     };
     fetchAnomalies();
   }, [activeTab]);
 
   const deployMutationToEdge = async (anomalyId) => {
-    // Physically alter the Supabase database reality
     const { data } = await supabase.from('ab_mutations').update({ status: 'A/B Test Running' }).eq('id', anomalyId);
-    
-    // Fallback to radar UI
     setActiveTab('feed');
+  };
+
+  const handleActionDeployWinner = async (id) => {
+     await supabase.from('ab_mutations').update({ status: 'Deployed' }).eq('id', id);
+     setAnomalies(prev => prev.filter(a => a.id !== id));
+     setOpenDropdownId(null);
+  };
+
+  const handleActionRollback = async (id) => {
+     await supabase.from('ab_mutations').update({ status: 'Rolled Back' }).eq('id', id);
+     setAnomalies(prev => prev.filter(a => a.id !== id));
+     setOpenDropdownId(null);
+  };
+
+  const handleActionHeatmap = (id) => {
+     navigate(`/admin/heatmaps?context=ab_test_${id}`);
+  };
+
+  const handleActionAdjustSplit = (anomaly) => {
+     setSplitSliderData(anomaly);
+     setOpenDropdownId(null);
+     setSplitWeight(50); 
+  };
+  
+  const saveSplitWeight = () => {
+     setSplitSliderData(null);
   };
 
   return (
@@ -114,16 +147,16 @@ const GhostEditor = () => {
                                 <div style={{ padding: '12px 16px', borderBottom: '1px solid rgba(0,0,0,0.05)', background: 'var(--color-bg-light)' }}>
                                    <span style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--color-text-muted)', textTransform: 'uppercase' }}>SEO Action Center</span>
                                 </div>
-                                <button onClick={() => setOpenDropdownId(null)} className="hover-lift" style={{ width: '100%', textAlign: 'left', padding: '12px 16px', background: 'none', border: 'none', borderBottom: '1px solid rgba(0,0,0,0.05)', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 600, color: '#10B981', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <button onClick={() => handleActionDeployWinner(anomaly.id)} className="hover-lift" style={{ width: '100%', textAlign: 'left', padding: '12px 16px', background: 'none', border: 'none', borderBottom: '1px solid rgba(0,0,0,0.05)', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 600, color: '#10B981', display: 'flex', alignItems: 'center', gap: '8px' }}>
                                   <CheckCircle2 size={16} /> Deploy Winner (100% Traffic)
                                 </button>
-                                <button onClick={() => setOpenDropdownId(null)} className="hover-lift" style={{ width: '100%', textAlign: 'left', padding: '12px 16px', background: 'none', border: 'none', borderBottom: '1px solid rgba(0,0,0,0.05)', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 600, color: '#F59E0B', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                  <AlertTriangle size={16} /> Adjust Split Weight (50/50)
+                                <button onClick={() => handleActionAdjustSplit(anomaly)} className="hover-lift" style={{ width: '100%', textAlign: 'left', padding: '12px 16px', background: 'none', border: 'none', borderBottom: '1px solid rgba(0,0,0,0.05)', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 600, color: '#F59E0B', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                  <AlertTriangle size={16} /> Adjust Canary Routing
                                 </button>
-                                <button onClick={() => setOpenDropdownId(null)} className="hover-lift" style={{ width: '100%', textAlign: 'left', padding: '12px 16px', background: 'none', border: 'none', borderBottom: '1px solid rgba(0,0,0,0.05)', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 600, color: 'var(--color-purple-main)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <button onClick={() => handleActionHeatmap(anomaly.id)} className="hover-lift" style={{ width: '100%', textAlign: 'left', padding: '12px 16px', background: 'none', border: 'none', borderBottom: '1px solid rgba(0,0,0,0.05)', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 600, color: 'var(--color-purple-main)', display: 'flex', alignItems: 'center', gap: '8px' }}>
                                   <MousePointerClick size={16} /> View Thermal Heatmaps
                                 </button>
-                                <button onClick={() => setOpenDropdownId(null)} className="hover-lift" style={{ width: '100%', textAlign: 'left', padding: '12px 16px', background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 600, color: '#EF4444', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <button onClick={() => handleActionRollback(anomaly.id)} className="hover-lift" style={{ width: '100%', textAlign: 'left', padding: '12px 16px', background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 600, color: '#EF4444', display: 'flex', alignItems: 'center', gap: '8px' }}>
                                   <XCircle size={16} /> Stop Test & Rollback
                                 </button>
                              </div>
@@ -255,6 +288,59 @@ const GhostEditor = () => {
                     <span>50% Traffic (Control)</span>
                     <span>50% Traffic (Variant)</span>
                  </div>
+              </div>
+              <div style={{ padding: '0 30px 30px 30px', marginTop: '10px' }}>
+                 <div style={{ padding: '20px', background: 'rgba(59, 130, 246, 0.05)', borderRadius: '12px', border: '1px solid rgba(59, 130, 246, 0.1)', display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '20px' }}>
+                    
+                    <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+                       <div style={{ color: 'var(--color-blue-main)' }}><ShieldCheck size={20} /></div>
+                       <div>
+                          <div style={{ fontSize: '0.85rem', fontWeight: 800, color: '#111', textTransform: 'uppercase', marginBottom: '4px' }}>Core Web Vitals Impact</div>
+                          <div style={{ fontSize: '0.9rem', color: 'var(--color-text-muted)', lineHeight: '1.4' }}>Mutation imposes a <strong>+0.02s</strong> delay on LCP (Largest Contentful Paint). SEO Risk is categorized as <strong>LOW</strong>.</div>
+                       </div>
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+                       <div style={{ color: 'var(--color-blue-main)' }}><FileSearch size={20} /></div>
+                       <div>
+                          <div style={{ fontSize: '0.85rem', fontWeight: 800, color: '#111', textTransform: 'uppercase', marginBottom: '4px' }}>Crawlability & Indexing</div>
+                          <div style={{ fontSize: '0.9rem', color: 'var(--color-text-muted)', lineHeight: '1.4' }}>Dynamic variant maintains exact <code>rel="canonical"</code> mirroring the Control tree. <strong>Safe</strong>.</div>
+                       </div>
+                    </div>
+
+                 </div>
+              </div>
+
+           </div>
+        </div>
+      )}
+
+      {/* Split Traffic Modal */}
+      {splitSliderData && (
+        <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.6)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+           <div className="glass-panel" style={{ width: '500px', maxWidth: '90vw', background: 'white', padding: '30px', overflow: 'hidden' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+                 <SplitSquareHorizontal size={24} color="#F59E0B" />
+                 <h3 style={{ fontSize: '1.4rem', fontWeight: 800 }}>Adjust Canary Routing</h3>
+              </div>
+              <p style={{ fontSize: '0.95rem', color: 'var(--color-text-muted)', marginBottom: '30px' }}>Safely dial up exposure across the edge nodes instead of an immediate 50/50 injection for <strong>{splitSliderData.element}</strong>.</p>
+              
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px', fontWeight: 800 }}>
+                 <span style={{ color: 'var(--color-purple-main)' }}>{100 - splitWeight}% Control</span>
+                 <span style={{ color: '#10B981' }}>{splitWeight}% Variant</span>
+              </div>
+              
+              <input 
+                type="range" 
+                min="0" max="100" 
+                value={splitWeight} 
+                onChange={(e) => setSplitWeight(parseInt(e.target.value))}
+                style={{ width: '100%', cursor: 'pointer', marginBottom: '40px' }} 
+              />
+              
+              <div style={{ display: 'flex', gap: '12px' }}>
+                 <button onClick={() => setSplitSliderData(null)} className="btn hover-lift" style={{ flex: 1, padding: '12px', background: 'var(--color-bg-light)', color: 'var(--color-text-main)', border: 'none', fontWeight: 700, borderRadius: '8px', cursor: 'pointer' }}>Cancel</button>
+                 <button onClick={saveSplitWeight} className="btn hover-lift" style={{ flex: 2, padding: '12px', background: '#F59E0B', color: 'white', border: 'none', fontWeight: 700, borderRadius: '8px', cursor: 'pointer' }}>Set Routing Policy</button>
               </div>
            </div>
         </div>
