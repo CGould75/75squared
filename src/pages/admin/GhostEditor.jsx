@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Ghost, AlertTriangle, ArrowRight, Zap, CheckCircle2, XCircle, MousePointerClick, Bot, Code2, LineChart, SplitSquareHorizontal, ShieldCheck, FileSearch } from 'lucide-react';
+import { Ghost, AlertTriangle, ArrowRight, Zap, CheckCircle2, XCircle, MousePointerClick, Bot, Code2, LineChart, SplitSquareHorizontal, ShieldCheck, FileSearch, Maximize } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabaseClient';
 
@@ -17,6 +17,7 @@ const GhostEditor = () => {
   // Canary Routing UI State
   const [splitSliderData, setSplitSliderData] = useState(null);
   const [splitWeight, setSplitWeight] = useState(50);
+  const [showFullScreenPreview, setShowFullScreenPreview] = useState(false);
 
   React.useEffect(() => {
     const fetchAnomalies = async () => {
@@ -226,9 +227,14 @@ const GhostEditor = () => {
 
               {/* Right Side: The Proposal */}
               <div className="glass-panel" style={{ padding: '30px', display: 'flex', flexDirection: 'column' }}>
-                 <h3 style={{ fontSize: '1.3rem', fontWeight: 800, marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                   <Bot size={24} color="var(--color-purple-main)" /> Mutation Proposal
-                 </h3>
+                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+                   <h3 style={{ fontSize: '1.3rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '12px', margin: 0 }}>
+                     <Bot size={24} color="var(--color-purple-main)" /> Mutation Proposal
+                   </h3>
+                   <button onClick={() => setShowFullScreenPreview(true)} className="btn btn-outline" style={{ padding: '6px 14px', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                     <Maximize size={14} /> Full Screen View
+                   </button>
+                 </div>
 
                  <div style={{ width: '100%', height: '240px', background: 'var(--color-bg-light)', borderRadius: '12px', border: '1px solid var(--color-purple-main)', position: 'relative', overflow: 'hidden', marginBottom: '24px' }}>
                    {/* Simulated Altered View */}
@@ -363,6 +369,58 @@ const GhostEditor = () => {
            </div>
         </div>
       )}
+
+      {/* Full Screen Preview Overlay */}
+      {showFullScreenPreview && (
+        <div className="fade-in" style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.9)', zIndex: 10000, display: 'flex', flexDirection: 'column' }}>
+           
+           {/* Mock Browser Chrome */}
+           <div style={{ padding: '16px 24px', background: '#111', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                 <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#EF4444' }}></div>
+                 <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#F59E0B' }}></div>
+                 <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#10B981' }}></div>
+              </div>
+              <div style={{ background: 'rgba(255,255,255,0.1)', padding: '8px 250px', borderRadius: '8px', fontSize: '0.85rem', color: 'rgba(255,255,255,0.6)', display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 500 }}>
+                 <ShieldCheck size={14} color="#10B981" /> https://{selectedAnomaly?.element.includes('Hero') ? 'hero-mutation' : 'live-variant'}.75squared.edge
+              </div>
+              <button onClick={() => setShowFullScreenPreview(false)} style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.9rem', fontWeight: 600 }}>
+                 <XCircle size={18} /> Exit Preview
+              </button>
+           </div>
+           
+           <div style={{ flex: 1, background: '#f8fafc', position: 'relative', overflowY: 'auto' }}>
+              {/* Contextual Website Frame Mockup */}
+              <div style={{ height: '80px', background: 'white', borderBottom: '1px solid rgba(0,0,0,0.05)', display: 'flex', alignItems: 'center', padding: '0 8%', justifyContent: 'space-between' }}>
+                 <h2 style={{ fontSize: '1.6rem', fontWeight: 900, letterSpacing: '-0.5px' }}>Nexus SaaS</h2>
+                 <div style={{ display: 'flex', gap: '30px', fontWeight: 600, color: 'var(--color-text-muted)', fontSize: '0.95rem' }}>
+                    <span style={{ cursor: 'pointer' }}>Features</span>
+                    <span style={{ cursor: 'pointer' }}>Integrations</span>
+                    <span style={{ cursor: 'pointer' }}>Pricing</span>
+                 </div>
+              </div>
+              
+              <div style={{ maxWidth: '900px', margin: '100px auto', textAlign: 'center', padding: '0 20px' }}>
+                 <h1 style={{ fontSize: '4.5rem', fontWeight: 800, marginBottom: '20px', lineHeight: '1.1', color: '#111' }}>
+                    Scale Your Agency With <br/><span className="text-gradient">AI Automation</span>
+                 </h1>
+                 <p style={{ fontSize: '1.25rem', color: 'var(--color-text-muted)', marginBottom: '50px', maxWidth: '600px', margin: '0 auto 50px auto', lineHeight: '1.6' }}>
+                    Stop wasting time on manual SEO tasks. Let our edge routers and AI bots handle your A/B testing autonomously in real-time.
+                 </p>
+                 
+                 {/* The Injected Component Visualized in Full Context */}
+                 <div style={{ display: 'inline-block', position: 'relative' }}>
+                    <div style={{ position: 'absolute', top: '-40px', right: '-30px', background: 'var(--color-purple-main)', color: 'white', padding: '6px 12px', borderRadius: '8px', fontSize: '0.75rem', fontWeight: 800, transform: 'rotate(8deg)', boxShadow: '0 8px 20px rgba(147, 51, 234, 0.4)', zIndex: 10 }}>AI Variant B</div>
+                    <button className="btn btn-primary hover-lift" style={{ padding: '24px 48px', fontSize: '1.3rem', background: 'var(--color-purple-main)', color: 'white', borderRadius: '40px', boxShadow: '0 20px 40px rgba(147, 51, 234, 0.3)', border: 'none', cursor: 'pointer', fontWeight: 800 }}>
+                       Start Your 14-Day Free Trial
+                    </button>
+                    <p style={{ marginTop: '16px', fontSize: '0.85rem', color: 'var(--color-text-muted)', fontWeight: 600 }}>No credit card required. Cancel anytime.</p>
+                 </div>
+              </div>
+           </div>
+        </div>
+      )}
+
     </div>
   );
 };
