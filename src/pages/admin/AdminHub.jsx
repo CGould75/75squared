@@ -16,6 +16,10 @@ const AdminHub = () => {
     if (rawPerms) setClientPermissions(JSON.parse(rawPerms));
 
     const checkLiveProperties = async () => {
+       // --- ONE OFF DB UPDATE TO RENAME CLIENTS ENFORCING RLS ---
+       await supabase.from('nexus_clients').update({ name: '75 Squared', domain: '75squared.com - Primary' }).eq('name', 'Primary Vault Customer');
+       await supabase.from('nexus_clients').update({ name: 'LRMS' }).eq('name', 'LRMS.com');
+       
        const { data } = await supabase.from('nexus_clients').select('*');
        if (data) setActiveClients(data);
     };

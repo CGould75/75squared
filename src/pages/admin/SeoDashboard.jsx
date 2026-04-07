@@ -98,7 +98,7 @@ const SeoDashboard = () => {
       </div>
 
       <div style={{ display: 'flex', background: 'rgba(0,0,0,0.05)', borderRadius: '12px', padding: '4px', marginBottom: '30px', width: 'max-content' }}>
-        {['Overview', 'Site Audit', 'Keyword Explorer'].map(tab => (
+        {['Overview', 'Site Audit', 'Keyword Explorer', 'Trend Catcher'].map(tab => (
           <button 
             key={tab}
             onClick={() => setActiveTab(tab.toLowerCase())}
@@ -326,6 +326,34 @@ const SeoDashboard = () => {
 
           </div>
 
+        </div>
+      )}
+
+      {/* ========================================== */}
+      {/* TAB 4: TREND CATCHER */}
+      {/* ========================================== */}
+      {activeTab === 'trend catcher' && (
+        <div className="fade-in">
+          <div className="glass-panel" style={{ padding: '30px' }}>
+             <h3 style={{ fontSize: '1.3rem', fontWeight: 800, marginBottom: '20px' }}>RSS Feed Targeting</h3>
+             <p style={{ color: 'var(--color-text-muted)', marginBottom: '24px' }}>Select the industries you want your Autopilot to monitor for breaking news and viral trends.</p>
+             
+             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px' }}>
+                {['Technology & SaaS', 'Real Estate', 'Finance & Crypto', 'Local News', 'Health & Wellness', 'E-Commerce', 'Automotive', 'Travel & Hospitality'].map(industry => (
+                  <label key={industry} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '16px', background: 'var(--color-bg-light)', border: '1px solid rgba(0,0,0,0.05)', borderRadius: '12px', cursor: 'pointer', transition: 'all 0.2s' }}
+                         onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
+                         onMouseLeave={e => e.currentTarget.style.transform = 'none'}>
+                     <input type="checkbox" defaultChecked={industry === 'Real Estate' || industry === 'Technology & SaaS'} style={{ width: '20px', height: '20px', accentColor: 'var(--color-blue-main)' }} />
+                     <span style={{ fontWeight: 600 }}>{industry}</span>
+                  </label>
+                ))}
+             </div>
+             
+             <div style={{ marginTop: '30px', paddingTop: '30px', borderTop: '1px solid rgba(0,0,0,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <p style={{ fontSize: '0.9rem', color: 'var(--color-text-muted)' }}>*Selected feeds will be processed by the LLM every 60 minutes.</p>
+                <button className="btn btn-primary" style={{ padding: '12px 24px', fontSize: '1rem' }}>Save Feed Preferences</button>
+             </div>
+          </div>
         </div>
       )}
 
