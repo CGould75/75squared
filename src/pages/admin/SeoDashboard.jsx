@@ -320,7 +320,11 @@ const SeoDashboard = () => {
                      <tbody>
                         {domainData.top_pages.map(page => (
                            <tr key={page.id} style={{ borderBottom: '1px solid rgba(0,0,0,0.02)' }}>
-                              <td style={{ padding: '20px 16px', fontWeight: 600 }}>{page.path}</td>
+                              <td style={{ padding: '20px 16px', fontWeight: 600 }}>
+                                 <Link to="/admin/content" style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--color-blue-main)', textDecoration: 'none' }}>
+                                    <ArrowUpRight size={14}/> {page.path}
+                                 </Link>
+                              </td>
                               <td style={{ padding: '20px 16px', fontWeight: 800 }}>{page.traffic.toLocaleString()}</td>
                               <td style={{ padding: '20px 16px' }}>
                                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -328,6 +332,11 @@ const SeoDashboard = () => {
                                        background: page.friction > 60 ? 'rgba(239, 68, 68, 0.1)' : 'rgba(16, 185, 129, 0.1)', color: page.friction > 60 ? '#EF4444' : '#10B981',
                                        padding: '6px 12px', borderRadius: '6px', fontSize: '0.85rem', fontWeight: 800 
                                     }}>Friction: {page.friction}%</span>
+                                    
+                                    <button onClick={() => navigate('/admin/content')} className="hover-lift" style={{ background: '#3B82F6', color: 'white', border: 'none', borderRadius: '4px', height: '28px', padding: '0 12px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 700 }} title="Optimize with Content Studio">
+                                       <Crosshair size={14} style={{ marginRight: '6px' }} /> Optimize
+                                    </button>
+
                                     {page.friction > 60 && (
                                        <button onClick={() => triggerBackgroundBot(`Thermal Sync: Opening Session Replays for ${page.path}.`)} className="hover-lift" style={{ background: '#EF4444', color: 'white', border: 'none', borderRadius: '4px', width: '28px', height: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }} title="Watch Session Replays">
                                           <MonitorPlay size={14} />
