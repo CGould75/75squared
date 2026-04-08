@@ -195,42 +195,43 @@ const AdminHub = () => {
 
          {/* Actionable Notification Center */}
          <div className="glass-panel" style={{ padding: '0', display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
-            <div style={{ padding: '24px', borderBottom: '1px solid rgba(0,0,0,0.05)', background: 'var(--color-bg-light)' }}>
+            <div style={{ padding: '24px', borderBottom: '1px solid rgba(0,0,0,0.05)', background: 'var(--color-bg-light)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <h3 style={{ fontSize: '1.2rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <ShieldAlert size={18} color="#F59E0B" /> Mission Control Action Queue
+                <ShieldAlert size={18} color="#F59E0B" /> Hive Mind Anomaly Feed
               </h3>
+              <Link to="/admin/action-center" className="btn btn-outline" style={{ padding: '6px 12px', fontSize: '0.8rem', background: 'white' }}>View All In Action Center</Link>
             </div>
             
             <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px', overflowY: 'auto' }}>
                
-               <div style={{ padding: '16px', background: 'rgba(16, 185, 129, 0.05)', borderLeft: '4px solid #10B981', borderRadius: '8px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.8rem', fontWeight: 800, color: '#10B981', marginBottom: '8px' }}>
-                    <Ghost size={14} /> GHOST EDITOR SUCCESS
-                  </div>
-                  <p style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--color-text-main)', marginBottom: '12px', lineHeight: '1.4' }}>
-                    A/B Test "Hero_CTA_Variant_B" generated a 41% conversion lift over 7 days.
-                  </p>
-                  <button className="btn btn-primary" style={{ padding: '8px 16px', fontSize: '0.8rem' }}>Deploy Winner to 100% Traffic</button>
-               </div>
-
                <div style={{ padding: '16px', background: 'rgba(239, 68, 68, 0.05)', borderLeft: '4px solid #EF4444', borderRadius: '8px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.8rem', fontWeight: 800, color: '#EF4444', marginBottom: '8px' }}>
-                    <AlertTriangle size={14} /> CRITICAL GEO REGRESSION
+                    <AlertTriangle size={14} /> TOXIC LINK NODE
                   </div>
                   <p style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--color-text-main)', marginBottom: '8px', lineHeight: '1.4' }}>
-                    Ranking for "SEO Agency Las Vegas" dropped from Pos. 2 to Pos. 5.
+                    14 Russian spam domains linking to your network, negatively impacting trust.
                   </p>
-                  <Link to="/admin/seo" style={{ fontSize: '0.85rem', fontWeight: 700, color: '#EF4444', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px' }}>Analyze Rank Drop <ArrowRight size={12} /></Link>
+                  <Link to="/admin/action-center" style={{ fontSize: '0.85rem', fontWeight: 700, color: '#EF4444', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px' }}>Relay to Action Center <ArrowRight size={12} /></Link>
                </div>
 
-               <div style={{ padding: '16px', background: 'rgba(59, 130, 246, 0.05)', borderLeft: '4px solid var(--color-blue-main)', borderRadius: '8px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.8rem', fontWeight: 800, color: 'var(--color-blue-main)', marginBottom: '8px' }}>
-                    <MessageSquare size={14} /> SOCIAL SENTIMENT
+               <div style={{ padding: '16px', background: 'rgba(245, 158, 11, 0.05)', borderLeft: '4px solid #F59E0B', borderRadius: '8px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.8rem', fontWeight: 800, color: '#F59E0B', marginBottom: '8px' }}>
+                    <TrendingUp size={14} /> CONTENT DECAY DETECTED
                   </div>
                   <p style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--color-text-main)', marginBottom: '8px', lineHeight: '1.4' }}>
-                    Spike in branded mentions detected on LinkedIn regarding "AI Workflows".
+                     Organic traffic to "Library Software" pillar bled 18%.
                   </p>
-                  <Link to="/admin/social" style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--color-blue-main)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px' }}>View Conversations <ArrowRight size={12} /></Link>
+                  <Link to="/admin/action-center" style={{ fontSize: '0.85rem', fontWeight: 700, color: '#F59E0B', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px' }}>Deploy Claude EEAT Patch <ArrowRight size={12} /></Link>
+               </div>
+
+               <div style={{ padding: '16px', background: 'rgba(147, 51, 234, 0.05)', borderLeft: '4px solid var(--color-purple-main)', borderRadius: '8px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.8rem', fontWeight: 800, color: 'var(--color-purple-main)', marginBottom: '8px' }}>
+                    <Globe size={14} /> MISSING SCHEMA TARGET
+                  </div>
+                  <p style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--color-text-main)', marginBottom: '8px', lineHeight: '1.4' }}>
+                    Opponent domain integrated "SoftwareApplication" arrays.
+                  </p>
+                  <Link to="/admin/action-center" style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--color-purple-main)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px' }}>Inject Counter-Schema <ArrowRight size={12} /></Link>
                </div>
 
             </div>

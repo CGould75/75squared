@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { SlidersHorizontal, CalendarDays, Clock, Gauge, Save, AlertTriangle } from 'lucide-react';
+import { SlidersHorizontal, CalendarDays, Clock, Gauge, Save, AlertTriangle, ShieldCheck, Cpu } from 'lucide-react';
 import { supabase } from '../../lib/supabaseClient';
 
 const GlobalConstraints = () => {
@@ -161,6 +161,33 @@ const GlobalConstraints = () => {
                 </div>
              </div>
           </div>
+          {/* Hive Auto-Pilot Bounds */}
+          <div className="glass-panel" style={{ padding: '30px', gridColumn: '1 / -1', borderLeft: '4px solid #10B981', background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.02), transparent)' }}>
+             <h3 style={{ fontSize: '1.3rem', fontWeight: 800, marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '12px', color: 'var(--color-text-main)' }}>
+               <Cpu size={20} color="#10B981" /> Autonomous SRE Engine Bounds
+             </h3>
+             <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9rem', maxWidth: '800px', marginBottom: '24px' }}>
+               These are the strict mathematical bounds placed on the <strong style={{color: '#10B981'}}>Action Center Auto-Pilot</strong>. If Auto-Pilot is engaged, it may not execute physical mutations that exceed these specific boundaries.
+             </p>
+             
+             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px' }}>
+                <div style={{ padding: '16px', background: 'var(--color-bg-light)', borderRadius: '12px', border: '1px solid rgba(0,0,0,0.05)' }}>
+                   <div style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--color-text-muted)', marginBottom: '8px' }}>MAX API SPEND / DAY</div>
+                   <div style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--color-text-main)' }}>$5.00 <span style={{fontSize: '0.9rem', color: 'var(--color-text-muted)'}}>USD</span></div>
+                </div>
+                <div style={{ padding: '16px', background: 'var(--color-bg-light)', borderRadius: '12px', border: '1px solid rgba(0,0,0,0.05)' }}>
+                   <div style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--color-text-muted)', marginBottom: '8px' }}>FATAL BUG AUTO-WAKE</div>
+                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '1rem', fontWeight: 800, color: '#10B981' }}>
+                      <ShieldCheck size={18} /> Enabled 24/7
+                   </div>
+                </div>
+                <div style={{ padding: '16px', background: 'var(--color-bg-light)', borderRadius: '12px', border: '1px solid rgba(0,0,0,0.05)' }}>
+                   <div style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--color-text-muted)', marginBottom: '8px' }}>MAX DAILY COMMITS</div>
+                   <div style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--color-text-main)' }}>12</div>
+                </div>
+             </div>
+          </div>
+
       </div>
     </div>
   );

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Terminal, Activity, ServerCrash, Bot, RefreshCcw, CheckCircle2, ChevronRight, Copy, AlertTriangle, X } from 'lucide-react';
 import { supabase } from '../../lib/supabaseClient';
+import { Link } from 'react-router-dom';
 
 const SystemLogs = () => {
   const [activeTab, setActiveTab] = useState('sre');
@@ -57,7 +58,7 @@ const SystemLogs = () => {
             <Activity size={36} color="var(--color-blue-main)" /> Platform Telemetry
           </h1>
           <p style={{ color: 'var(--color-text-muted)', fontSize: '1.1rem' }}>
-            God-Mode System Logs & Autonomous SRE Resolution queue.
+            God-Mode System Logs & Autonomous SRE Resolution queue. Fatal anomalies are automatically pushed to the <Link to="/admin/action-center" style={{ color: 'var(--color-blue-main)', fontWeight: 700, textDecoration: 'none' }}>Action Center Feed</Link>.
           </p>
         </div>
         

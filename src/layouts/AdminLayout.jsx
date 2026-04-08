@@ -171,8 +171,8 @@ const AdminLayout = () => {
                        <span style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '0.95rem', fontWeight: 500 }}><Mail size={18} color="var(--color-purple-main)"/> "Draft an email to all users who opened the last broadcast"</span>
                        <ArrowRight size={16} color="var(--color-text-muted)"/>
                     </button>
-                    <button onClick={() => handleSimulateNLPExecution('/admin/ghost-editor')} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px', background: 'white', border: '1px solid rgba(0,0,0,0.05)', borderRadius: '12px', cursor: 'pointer', textAlign: 'left' }}>
-                       <span style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '0.95rem', fontWeight: 500 }}><Ghost size={18} color="var(--color-blue-main)"/> "Are there any newly flagged failing metrics on the landing page?"</span>
+                    <button onClick={() => handleSimulateNLPExecution('/admin/action-center')} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px', background: 'white', border: '1px solid rgba(0,0,0,0.05)', borderRadius: '12px', cursor: 'pointer', textAlign: 'left' }}>
+                       <span style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '0.95rem', fontWeight: 500 }}><Target size={18} color="var(--color-blue-main)"/> "Scan the network for any critical failing metrics."</span>
                        <ArrowRight size={16} color="var(--color-text-muted)"/>
                     </button>
                  </div>
