@@ -1,8 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { supabase } from '../../lib/supabaseClient';
-import { MousePointerClick, ArrowRight, Expand, Activity, Video, AlertCircle, Bot, Zap, CheckCircle2, ListVideo, Hand, XCircle } from 'lucide-react';
+import { MousePointerClick, ArrowRight, Expand, Activity, Video, AlertCircle, Bot, Zap, CheckCircle2, ListVideo, Hand, XCircle, Target } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const Heatmaps = () => {
+  const navigate = useNavigate();
   const canvasRef = useRef(null);
   const [events, setEvents] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -396,16 +398,19 @@ const Heatmaps = () => {
                     </div>
                  </div>
 
-                 {/* The Bridge to Ghost Editor */}
+                 {/* The Bridge to Action Center */}
                  {selectedSession.friction === 'High' && (
                     <button 
                        onClick={() => {
                           setSelectedSession(null);
-                          setToastMessage('SEO Sync: Context uploaded. Background Ghost Editor process queued for autonomous DOM remediation.');
-                          setTimeout(() => setToastMessage(''), 5000);
+                          setToastMessage('Alerting SRE: High Friction UI anomaly pushed to Action Center queue for context routing.');
+                          setTimeout(() => {
+                             setToastMessage('');
+                             navigate('/admin/action-center');
+                          }, 1500);
                        }}
                        className="btn hover-lift" style={{ width: '100%', padding: '20px', background: 'var(--color-purple-main)', color: 'white', border: 'none', fontWeight: 800, borderRadius: '16px', fontSize: '1.1rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', boxShadow: '0 10px 30px rgba(147, 51, 234, 0.4)' }}>
-                       <Zap size={22} fill="currentColor" /> Hand to Ghost Editor for Auto-Fix
+                       <Target size={22} /> Push Payload to Action Center
                     </button>
                  )}
                  {selectedSession.friction !== 'High' && (

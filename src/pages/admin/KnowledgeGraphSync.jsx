@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { Globe, ShieldCheck, MapPin, Clock, Phone, Link2, RefreshCw, Code, Network, Copy, CheckCircle2, Zap } from 'lucide-react';
+import { Globe, ShieldCheck, MapPin, Clock, Phone, Link2, RefreshCw, Code, Network, Copy, CheckCircle2, Zap, Target } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import SEOHead from '../../components/SEOHead';
 
 export default function KnowledgeGraphSync() {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('directory'); // 'directory' | 'schema'
   
   // Schema Architecture State
@@ -81,8 +83,9 @@ export default function KnowledgeGraphSync() {
   const handleDeploy = () => {
      setIsDeploying(true);
      setTimeout(() => {
-        alert("JSON-LD Payload perfectly compiled and injected into Edge Network header. Knowledge Panel targets locked.");
+        alert("Alerting SRE: JSON-LD Graph Payload appended to Action Center queue for Edge injection.");
         setIsDeploying(false);
+        navigate('/admin/action-center');
      }, 1500);
   };
 
@@ -269,8 +272,8 @@ export default function KnowledgeGraphSync() {
              </div>
 
              <div style={{ display: 'flex', gap: '16px' }}>
-                <button className="btn btn-primary" onClick={handleDeploy} disabled={isDeploying} style={{ flexGrow: 1, justifyContent: 'center', padding: '16px', fontSize: '1.1rem', background: 'var(--color-purple-main)', boxShadow: '0 8px 25px rgba(147, 51, 234, 0.4)' }}>
-                   {isDeploying ? 'Establishing Edge connection...' : <><Zap size={20} /> Initialize Push & Inject to Edge Server</>}
+                <button className="btn hover-lift" onClick={handleDeploy} disabled={isDeploying} style={{ flexGrow: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px', fontSize: '1.1rem', background: 'var(--color-purple-main)', color: 'white', border: 'none', borderRadius: '12px', fontWeight: 800, cursor: 'pointer', boxShadow: '0 8px 25px rgba(147, 51, 234, 0.4)' }}>
+                   {isDeploying ? 'Packaging Schema for SRE...' : <><Target size={20} /> Push Compiled Schema to Action Center</>}
                 </button>
              </div>
           </div>

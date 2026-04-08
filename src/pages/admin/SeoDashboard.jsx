@@ -1,6 +1,7 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { Globe, Lock, ShieldAlert, Award, Link2, ArrowUpRight, Search, Activity, AlertTriangle, CheckCircle2, AlertOctagon, Bot, Zap, Target, FileText, Database, Code2, LineChart, Hash, Mail, Share2, MonitorPlay, Shield, Crosshair, DollarSign, Layers } from 'lucide-react';
 import { GlobalDomainContext } from '../../layouts/AdminLayout';
+import { Link, useNavigate } from 'react-router-dom';
 
 // MOCK PAYLOADS BY TENANT
 const MOCK_DOMAINS = {
@@ -86,6 +87,7 @@ const MOCK_TRAJECTORY = [
 ];
 
 const SeoDashboard = () => {
+  const navigate = useNavigate();
   const [userTier, setUserTier] = useState('Enterprise'); 
   const [activeTab, setActiveTab] = useState('site explorer');
   
@@ -96,7 +98,10 @@ const SeoDashboard = () => {
 
   const triggerBackgroundBot = (message) => {
      setToastMessage(message);
-     setTimeout(() => setToastMessage(''), 5000);
+     setTimeout(() => {
+        setToastMessage('');
+        navigate('/admin/action-center');
+     }, 1500);
   };
 
   return (
@@ -190,8 +195,8 @@ const SeoDashboard = () => {
                <div className="glass-panel" style={{ padding: '40px', borderLeft: '4px solid #EF4444' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
                      <h3 style={{ fontSize: '1.4rem', fontWeight: 900, display: 'flex', alignItems: 'center', gap: '12px' }}><ShieldAlert size={20} color="#EF4444" /> Toxic SEO Attacks (Disavow Protocol)</h3>
-                     <button onClick={() => triggerBackgroundBot("Generating Google Disavow .txt file formatting 100% of detected toxic root domains.")} className="btn hover-lift" style={{ padding: '10px 20px', background: '#EF4444', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 800, fontSize: '0.9rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <Shield size={16}/> Generate Disavow File
+                     <button onClick={() => triggerBackgroundBot("Alerting SRE: Toxic Link Node appended to Action Center queue.")} className="btn hover-lift" style={{ padding: '10px 20px', background: '#EF4444', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 800, fontSize: '0.9rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <Target size={16}/> Push Payload to Action Center
                      </button>
                   </div>
                   
@@ -348,7 +353,7 @@ const SeoDashboard = () => {
                               <li key={j} style={{ fontWeight: 600, color: 'var(--color-blue-main)', display: 'flex', alignItems: 'center', gap: '8px' }}><ArrowUpRight size={14}/> {dom}</li>
                            ))}
                         </ul>
-                        <button onClick={() => triggerBackgroundBot(`Email Sync: Creating mass link-building outreach template for ${intersect.connecting_domains.length} intersecting targets.`)} className="btn hover-lift" style={{ marginTop: '10px', padding: '10px', background: '#8B5CF6', color: 'white', borderRadius: '8px', border: 'none', fontWeight: 800, cursor: 'pointer', display: 'flex', justifyContent: 'center', gap: '8px' }}><Mail size={16}/> Blast Outreach Pitch</button>
+                        <button onClick={() => triggerBackgroundBot("Alerting SRE: Missing Link Domain payload appended to Action Center queue for outreach validation.")} className="btn hover-lift" style={{ marginTop: '10px', padding: '10px', background: '#8B5CF6', color: 'white', borderRadius: '8px', border: 'none', fontWeight: 800, cursor: 'pointer', display: 'flex', justifyContent: 'center', gap: '8px' }}><Target size={16}/> Push Payload to Action Center</button>
                      </div>
                   </div>
                ))}
@@ -420,8 +425,8 @@ const SeoDashboard = () => {
                              </div>
                           </div>
                           
-                          <button onClick={() => triggerBackgroundBot(`Technical Audit Sync: Generating DOM mutation to autonomously fix '${error.type}' on ${error.path}.`)} className="btn hover-lift" style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 24px', background: 'white', border: '2px solid var(--color-purple-main)', color: 'var(--color-purple-main)', fontWeight: 800, borderRadius: '8px', cursor: 'pointer' }}>
-                             <Bot size={18} /> Send to Ghost Editor Auto-Fix
+                          <button onClick={() => triggerBackgroundBot(`Alerting SRE: '${error.type}' anomaly pushed to Action Center queue for auto-fixing.`)} className="btn hover-lift" style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 24px', background: 'white', border: '2px solid var(--color-purple-main)', color: 'var(--color-purple-main)', fontWeight: 800, borderRadius: '8px', cursor: 'pointer' }}>
+                             <Target size={18} /> Push Payload to Action Center
                           </button>
                        </div>
                     ))}
