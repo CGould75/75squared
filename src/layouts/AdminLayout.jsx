@@ -17,7 +17,7 @@ const AdminLayout = () => {
   const [searchQuery, setSearchQuery] = useState('');
   
   // Phase 14: Global Domain Sub-Routing Architectures
-  const [activeDomain, setActiveDomain] = useState('75squared.com - Primary');
+  const [activeDomain, setActiveDomain] = useState('75squared.com');
   const [availableDomains, setAvailableDomains] = useState([]);
 
   useEffect(() => {
@@ -25,14 +25,19 @@ const AdminLayout = () => {
       const { data } = await supabase.from('nexus_clients').select('*').catch(() => ({ data: null }));
       if (data && data.length > 0) {
         setAvailableDomains(data);
+        
+        // If the initialized domain isn't in DB, default to first DB entry
+        if (!data.find(d => d.domain === '75squared.com')) {
+           setActiveDomain(data[0].domain);
+        }
       } else {
         // Fallback Mock so UI works perfectly if DB is unseeded
         setAvailableDomains([
-          { id: 1, name: '75 Squared', domain: '75squared.com - Primary' },
+          { id: 1, name: '75 Squared', domain: '75squared.com' },
           { id: 2, name: 'LRMS SaaS', domain: 'lrms.com' },
           { id: 3, name: 'Goodys', domain: 'goodyslv.com' }
         ]);
-        setActiveDomain('75squared.com - Primary'); // Defaulting to 75 Squared
+        setActiveDomain('75squared.com'); // Defaulting to 75 Squared
       }
     };
     fetchDomains();
