@@ -32,7 +32,7 @@ const AdminLayout = () => {
           { id: 2, name: 'LRMS SaaS', domain: 'lrms.com' },
           { id: 3, name: 'Goodys', domain: 'goodyslv.com' }
         ]);
-        setActiveDomain('lrms.com'); // Defaulting to LRMS as per user context
+        setActiveDomain('75squared.com - Primary'); // Defaulting to 75 Squared
       }
     };
     fetchDomains();
