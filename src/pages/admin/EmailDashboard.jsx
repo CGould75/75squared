@@ -295,6 +295,9 @@ const EmailDashboard = () => {
               </div>
             </div>
             
+            <button onClick={() => alert("Simulating Claude 3.5 Sonnet payload rewrite: Stripping generic formatting and injecting persona parameters...")} className="btn hover-lift" style={{ width: '100%', justifyContent: 'center', padding: '16px', fontSize: '1rem', background: 'transparent', border: '2px solid var(--color-purple-main)', color: 'var(--color-purple-main)', fontWeight: 800, marginBottom: '16px' }}>
+               Enhance via Claude Persona
+            </button>
             <button className="btn btn-primary" disabled={isSending} onClick={handleDispatch} style={{ width: '100%', justifyContent: 'center', padding: '16px', fontSize: '1.1rem' }}>
                {isSending ? 'Transmitting to SES...' : <><Send size={20} /> Dispatch Broadcast</>}
             </button>

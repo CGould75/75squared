@@ -259,11 +259,14 @@ const GhostEditor = () => {
                  </div>
 
                  <div style={{ display: 'flex', gap: '16px', marginTop: '24px' }}>
-                    <button className="btn btn-outline" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                      <XCircle size={18} /> Reject
+                    <button className="btn btn-outline" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '12px' }}>
+                      <XCircle size={16} /> Reject
                     </button>
-                    <button onClick={() => deployMutationToEdge(selectedAnomaly?.id)} className="btn btn-primary" style={{ flex: 2, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                      <Zap size={18} /> Authorize 50/50 Code Injection
+                    <button onClick={() => alert("Deploying Claude 3.5 Sonnet to autonomously read the localized edge cache and structurally rewrite this UI element to maximize psychological conversion...")} className="btn hover-lift" style={{ flex: 1.5, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', background: 'transparent', border: '2px solid var(--color-purple-main)', color: 'var(--color-purple-main)', borderRadius: '8px', fontWeight: 800, cursor: 'pointer' }}>
+                      <Bot size={16} /> Generate Claude Variant
+                    </button>
+                    <button onClick={() => deployMutationToEdge(selectedAnomaly?.id)} className="btn btn-primary" style={{ flex: 1.5, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                      <Zap size={16} /> Authorize Test
                     </button>
                  </div>
               </div>
