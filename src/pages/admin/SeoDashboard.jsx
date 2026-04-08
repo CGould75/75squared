@@ -95,12 +95,6 @@ const SeoDashboard = () => {
           <p style={{ color: 'var(--color-text-muted)', fontSize: '1.1rem', marginBottom: '16px' }}>
             Ahrefs-grade API telemetry, technical auditing, and keyword opportunity discovery.
           </p>
-
-          <div style={{ padding: '8px 16px', background: 'rgba(16, 185, 129, 0.08)', border: '1px solid rgba(16, 185, 129, 0.2)', borderRadius: '8px', display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ fontSize: '0.8rem', fontWeight: 900, color: 'var(--color-green-main)', textTransform: 'uppercase', letterSpacing: '1px' }}>The One Goal:</span>
-            <span style={{ fontSize: '0.95rem', color: '#111', fontWeight: 800 }}>Make the company the best it can be through using our marketing tools.</span>
-          </div>
-
         </div>
         <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
           <div style={{ padding: '8px 16px', borderRadius: '20px', background: 'rgba(147, 51, 234, 0.1)', color: 'var(--color-purple-dark)', fontWeight: 700, fontSize: '0.85rem' }}>
