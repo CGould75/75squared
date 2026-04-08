@@ -22,23 +22,27 @@ const AdminLayout = () => {
 
   useEffect(() => {
     const fetchDomains = async () => {
-      const { data } = await supabase.from('nexus_clients').select('*').catch(() => ({ data: null }));
-      if (data && data.length > 0) {
-        setAvailableDomains(data);
-        
-        // If the initialized domain isn't in DB, default to first DB entry
-        if (!data.find(d => d.domain === '75squared.com')) {
-           setActiveDomain(data[0].domain);
+      try {
+        const response = await supabase.from('nexus_clients').select('*');
+        if (response.data && response.data.length > 0) {
+          setAvailableDomains(response.data);
+          
+          if (!response.data.find(d => d.domain === '75squared.com')) {
+             setActiveDomain(response.data[0].domain);
+          }
+          return;
         }
-      } else {
-        // Fallback Mock so UI works perfectly if DB is unseeded
-        setAvailableDomains([
-          { id: 1, name: '75 Squared', domain: '75squared.com' },
-          { id: 2, name: 'LRMS SaaS', domain: 'lrms.com' },
-          { id: 3, name: 'Goodys', domain: 'goodyslv.com' }
-        ]);
-        setActiveDomain('75squared.com'); // Defaulting to 75 Squared
+      } catch (err) {
+        console.warn('Supabase fetch failed, defaulting to mock arrays.', err);
       }
+      
+      // Fallback Mock so UI works perfectly if DB is unseeded, offline, or returns empty arrays.
+      setAvailableDomains([
+        { id: 1, name: '75 Squared', domain: '75squared.com' },
+        { id: 2, name: 'LRMS SaaS', domain: 'lrms.com' },
+        { id: 3, name: 'Goodys', domain: 'goodyslv.com' }
+      ]);
+      setActiveDomain('75squared.com');
     };
     fetchDomains();
 
