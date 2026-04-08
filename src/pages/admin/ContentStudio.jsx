@@ -22,6 +22,7 @@ const ContentStudio = () => {
   const [pipelineState, setPipelineState] = useState('idle'); // 'idle' | 'scraping' | 'calculating' | 'drafting' | 'complete'
   const [pipelineLogs, setPipelineLogs] = useState([]);
   const [targetKeyword, setTargetKeyword] = useState('');
+  const [deploymentTarget, setDeploymentTarget] = useState('Ghost Edge');
 
   // structural targets
   const targetWords = 1500;
@@ -263,14 +264,33 @@ const ContentStudio = () => {
               </div>
            )}
 
-           {/* Core Universal Deployment Loop (No WordPress Lock-In) */}
-           <div style={{ padding: '20px', background: 'rgba(0,0,0,0.02)', borderTop: '1px solid rgba(0,0,0,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div style={{ fontSize: '0.9rem', color: 'var(--color-text-muted)', display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 600 }}>
-                 <Network size={16} /> Ready for Universal Network Edge Injection (Supports React, Headless, ASP, etc.)
+           {/* Core Universal Deployment Loop */}
+           <div style={{ padding: '20px', background: 'rgba(0,0,0,0.02)', borderTop: '1px solid rgba(0,0,0,0.05)' }}>
+              
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                <div style={{ fontSize: '0.9rem', color: 'var(--color-text-muted)', display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 700 }}>
+                   <Network size={16} /> Autonomous Network Injection
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                   <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--color-text-muted)' }}>Target Platform:</span>
+                   <select 
+                      value={deploymentTarget} 
+                      onChange={(e) => setDeploymentTarget(e.target.value)}
+                      style={{ padding: '8px 12px', borderRadius: '8px', border: '1px solid rgba(0,0,0,0.1)', background: 'white', fontWeight: 700, outline: 'none' }}
+                   >
+                      <option value="Ghost Edge">Ghost Engine (Edge / ASP / Headless)</option>
+                      <option value="WordPress API">WordPress (REST API)</option>
+                      <option value="Webflow">Webflow CMS</option>
+                      <option value="Shopify">Shopify Liquid</option>
+                   </select>
+                </div>
               </div>
-              <button disabled={pipelineState !== 'complete'} onClick={() => alert("Ghost Editor Edge Injection Initiated. Pushing raw HTML + Schema to live nodes.")} className="btn hover-lift" style={{ padding: '12px 30px', background: pipelineState === 'complete' ? 'black' : 'rgba(0,0,0,0.1)', color: pipelineState === 'complete' ? 'white' : 'rgba(0,0,0,0.4)', border: 'none', borderRadius: '8px', fontWeight: 800, fontSize: '1rem', cursor: pipelineState === 'complete' ? 'pointer' : 'not-allowed', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                 <Globe size={18} /> Push to Domain via Edge Engine
-              </button>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                 <button disabled={pipelineState !== 'complete'} onClick={() => alert(`Deployment Sequence Initiated. Pushing semantic payload vertically to: ${deploymentTarget}.`)} className="btn hover-lift" style={{ padding: '12px 30px', background: pipelineState === 'complete' ? 'var(--color-blue-main)' : 'rgba(0,0,0,0.1)', color: pipelineState === 'complete' ? 'white' : 'rgba(0,0,0,0.4)', border: 'none', borderRadius: '8px', fontWeight: 800, fontSize: '1rem', cursor: pipelineState === 'complete' ? 'pointer' : 'not-allowed', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <Globe size={18} /> Deploy Payload to {deploymentTarget}
+                 </button>
+              </div>
            </div>
          </div>
 
