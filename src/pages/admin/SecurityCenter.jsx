@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { ShieldAlert, Lock, AlertOctagon, FileText, CheckCircle2, ToggleLeft, ToggleRight, Fingerprint, RefreshCcw, PowerOff, ShieldCheck } from 'lucide-react';
+import { ShieldAlert, Lock, AlertOctagon, FileText, CheckCircle2, ToggleLeft, ToggleRight, Fingerprint, RefreshCcw, PowerOff, ShieldCheck, Terminal as TerminalIcon } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const SecurityCenter = () => {
   const [tosSigned, setTosSigned] = useState(false);
@@ -108,6 +109,19 @@ const SecurityCenter = () => {
                <p style={{ color: 'var(--color-text-main)', fontSize: '0.95rem' }}>
                  If the AI tracker attempts an architectural edit and detects an identical DOM crash within 500ms, the remote tracker mathematically severs its own websocket connection for 24 hours. The client's site immediately falls back to original state.
                </p>
+            </div>
+
+            <div className="glass-panel" style={{ padding: '0', border: '1px solid #333', background: '#0a0a0a' }}>
+               <div style={{ padding: '16px 20px', borderBottom: '1px solid #333', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <TerminalIcon size={18} color="#10B981" />
+                  <span style={{ color: '#d4d4d4', fontFamily: 'monospace', fontSize: '0.9rem', fontWeight: 600 }}>/nexus/firewall/api_intercepts.log</span>
+                  <Link to="/admin/constraints" style={{ marginLeft: 'auto', fontSize: '0.75rem', padding: '4px 8px', background: '#333', color: 'white', borderRadius: '4px', textDecoration: 'none', fontFamily: 'sans-serif' }}>Configure Bounds</Link>
+               </div>
+               <div style={{ padding: '20px', fontFamily: 'monospace', fontSize: '0.85rem', color: '#10B981', display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '180px', overflowY: 'auto' }}>
+                  <div><span style={{ color: '#888' }}>[10:41]</span> <span style={{ color: '#F59E0B' }}>WARN:</span> Auto-Pilot requested 200 GPT-4 tokens for 'goodyslv.com'. <span style={{ color: '#EF4444' }}>REJECTED</span> (Max daily commit bound of 12 reached).</div>
+                  <div><span style={{ color: '#888' }}>[08:12]</span> <span style={{ color: '#10B981' }}>INFO:</span> Auto-Pilot API Spend ($3.45) within mathematical $5.00 bound. Authorized.</div>
+                  <div><span style={{ color: '#888' }}>[03:22]</span> <span style={{ color: '#F59E0B' }}>WARN:</span> Ghost Editor attempted payload deploy outside of active window (09:00 AM - 05:00 PM). <span style={{ color: '#EF4444' }}>REJECTED</span>. Payload cached.</div>
+               </div>
             </div>
 
          </div>

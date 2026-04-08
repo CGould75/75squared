@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Users, Shield, Ghost, Key, CheckCircle2, Lock, Unlock, Eye, Sparkles, Code } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 import { supabase } from '../../lib/supabaseClient';
 
@@ -146,16 +146,21 @@ const ClientManagement = () => {
       <div style={{ marginBottom: '40px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div>
           <h1 style={{ fontSize: '2.5rem', fontWeight: 800, marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '16px' }}>
-            <Users size={36} color="var(--color-blue-main)" /> Agency Roster & ACL
+            <Users size={36} color="var(--color-blue-main)" /> Network Tenants & Workspaces
           </h1>
           <p style={{ color: 'var(--color-text-muted)', fontSize: '1.1rem' }}>
-            Manage multi-tenant Role-Based Access Controls (RBAC) and execute client dashboard impersonation.
+            Manage client environment bounds, isolate modules, and execute domain impersonation.
           </p>
         </div>
         
-        <button onClick={handleAddNewClient} className="btn btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 24px', fontSize: '1.05rem', fontWeight: 600 }}>
-          <Sparkles size={18} /> Provision New Client
-        </button>
+        <div style={{ display: 'flex', gap: '12px' }}>
+           <Link to="/admin/users" className="btn btn-outline" style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 24px', fontSize: '1.05rem', fontWeight: 600, background: 'white' }}>
+             <Key size={18} /> Manage Super Users
+           </Link>
+           <button onClick={handleAddNewClient} className="btn btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 24px', fontSize: '1.05rem', fontWeight: 600 }}>
+             <Sparkles size={18} /> Provision New Client
+           </button>
+        </div>
       </div>
 
       <div style={{ marginBottom: '40px' }}>

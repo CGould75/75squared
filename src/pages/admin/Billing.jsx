@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { CreditCard, Check, Zap, Shield, Mail, TrendingUp, MousePointerClick, FileText } from 'lucide-react';
+import { CreditCard, Check, Zap, Shield, Mail, TrendingUp, MousePointerClick, FileText, Cpu, AlertTriangle } from 'lucide-react';
 import { supabase } from '../../lib/supabaseClient';
 
 const Billing = () => {
@@ -94,6 +94,35 @@ const Billing = () => {
             <div style={{ padding: '20px', borderRadius: '12px', background: activeTier === 'enterprise' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)', color: activeTier === 'enterprise' ? 'var(--color-green-main)' : '#ef4444', display: 'flex', alignItems: 'center', gap: '12px', fontWeight: 700 }}>
               <FileText size={20} /> 
               {activeTier === 'enterprise' ? 'Content Studio Active' : 'Content Studio Locked'}
+            </div>
+         </div>
+      </div>
+
+      {/* API Consumption Metrix */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr', marginTop: '40px' }}>
+         <div className="glass-panel" style={{ padding: '40px', borderLeft: '4px solid #F59E0B' }}>
+            <h2 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <Cpu size={24} color="#F59E0B" /> Autonomous Engine API Consumption
+            </h2>
+            <p style={{ color: 'var(--color-text-muted)', marginBottom: '30px', maxWidth: '800px' }}>
+              The Action Center Auto-Pilot is governed by the mathematical limits defined in your Global Constraints. This tracks active Claude/OpenAI payload burn for the current 24-hour window.
+            </p>
+
+            <div style={{ background: 'var(--color-bg-light)', padding: '24px', borderRadius: '16px', border: '1px solid rgba(0,0,0,0.05)' }}>
+               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px', fontWeight: 800, fontSize: '1.1rem' }}>
+                 <span>Current Daily Payload Burn</span>
+                 <span style={{ color: '#F59E0B' }}>$3.45 / $5.00 Limit</span>
+               </div>
+               
+               {/* Progress Bar */}
+               <div style={{ width: '100%', height: '12px', background: 'rgba(0,0,0,0.1)', borderRadius: '6px', overflow: 'hidden', marginBottom: '16px' }}>
+                  <div style={{ width: '69%', height: '100%', background: 'linear-gradient(90deg, #10B981, #F59E0B)', borderRadius: '6px' }}></div>
+               </div>
+
+               <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', fontSize: '0.9rem', color: 'var(--color-text-muted)' }}>
+                 <AlertTriangle size={16} color="#F59E0B" style={{ flexShrink: 0, marginTop: '2px' }}/>
+                 <span>If the budget hits $5.00, the Auto-Pilot will pause execution operations and route all further anomalies to the manual Action Center Queue.</span>
+               </div>
             </div>
          </div>
       </div>
