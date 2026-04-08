@@ -14,6 +14,7 @@ import AdminHub from './pages/admin/AdminHub';
 import Login from './pages/admin/Login';
 import Heatmaps from './pages/admin/Heatmaps';
 import SeoDashboard from './pages/admin/SeoDashboard';
+import RankTracker from './pages/admin/RankTracker';
 import EmailDashboard from './pages/admin/EmailDashboard';
 import ContentStudio from './pages/admin/ContentStudio';
 import Billing from './pages/admin/Billing';
@@ -56,6 +57,7 @@ function App() {
         {/* Sub-modules */}
         <Route path="clients" element={<ClientManagement />} />
         <Route path="seo" element={<SeoDashboard />} />
+        <Route path="rank-tracker" element={<RankTracker />} />
         <Route path="heatmaps" element={<Heatmaps />} />
         <Route path="email" element={<EmailDashboard />} />
         <Route path="content" element={<ContentStudio />} />

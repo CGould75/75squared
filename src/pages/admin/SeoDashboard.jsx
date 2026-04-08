@@ -123,7 +123,7 @@ const SeoDashboard = () => {
 
       {/* Ahrefs/SEMrush-style Navigation Tabs */}
       <div style={{ display: 'flex', background: 'rgba(0,0,0,0.05)', borderRadius: '12px', padding: '6px', marginBottom: '40px', width: 'max-content', gap: '4px' }}>
-        {['Site Explorer', 'Keywords Explorer', 'Rank Tracker', 'Site Audit', 'Link Intersect', 'PPC Spyglass'].map(tab => (
+        {['Site Explorer', 'Keywords Explorer', 'Site Audit', 'Link Intersect', 'PPC Spyglass'].map(tab => (
           <button 
             key={tab}
             onClick={() => setActiveTab(tab.toLowerCase())}
@@ -388,46 +388,7 @@ const SeoDashboard = () => {
       )}
 
       {/* ========================================== */}
-      {/* TAB 5: RANK TRACKER */}
-      {/* ========================================== */}
-      {activeTab === 'rank tracker' && (
-        <div className="fade-in glass-panel" style={{ padding: '40px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px' }}>
-             <h3 style={{ fontSize: '1.4rem', fontWeight: 900, display: 'flex', alignItems: 'center', gap: '12px' }}><LineChart size={24} color="var(--color-blue-main)" /> Top Keywords Trajectory</h3>
-             <button onClick={() => triggerBackgroundBot(`Social Engine Action: Aggregating dropped keywords and scheduling X, LinkedIn, and Facebook auto-posts to surge traffic signals.`)} className="btn hover-lift" style={{ padding: '12px 24px', background: '#3B82F6', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.95rem', cursor: 'pointer', boxShadow: '0 4px 15px rgba(59, 130, 246, 0.3)' }}><Share2 size={18} /> Distribute Declines to Social Engine</button>
-          </div>
-          
-          <div style={{ height: '350px', position: 'relative', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', paddingBottom: '30px', borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
-            {MOCK_TRAJECTORY.map((point, index) => {
-              const heightPercent = 100 - ((point.rank / 20) * 100); 
-              return (
-                <div key={index} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '40px', position: 'relative' }}>
-                  {point.algo_hit && (
-                    <>
-                      <div style={{ position: 'absolute', top: -50, height: '140%', width: '2px', background: 'var(--color-red-main)', zIndex: 10 }}></div>
-                      <div className="pulse-dot" style={{ position: 'absolute', top: -60, background: 'var(--color-red-main)', color: 'white', padding: '6px 12px', borderRadius: '6px', fontSize: '0.8rem', fontWeight: 800, zIndex: 11, whiteSpace: 'nowrap' }}>
-                         ⚠️ {point.algo_name} Detected
-                      </div>
-                    </>
-                  )}
-
-                  <div style={{ 
-                    width: '100%', height: `${heightPercent}%`, minHeight: '30px',
-                    background: 'linear-gradient(to top, rgba(59, 130, 246, 0.2), rgba(59, 130, 246, 0.9))',
-                    borderRadius: '8px 8px 0 0', position: 'relative', boxShadow: '0 4px 10px rgba(59, 130, 246, 0.2)'
-                  }}>
-                    <div style={{ position: 'absolute', top: '-35px', left: '50%', transform: 'translateX(-50%)', fontWeight: 900, fontSize: '1.1rem', color: 'var(--color-blue-main)' }}>#{point.rank}</div>
-                  </div>
-                  <div style={{ marginTop: '16px', fontSize: '0.9rem', color: 'var(--color-text-muted)', fontWeight: 600 }}>Day {point.day}</div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
-
-      {/* ========================================== */}
-      {/* TAB 6: SITE AUDIT */}
+      {/* TAB 5: SITE AUDIT */}
       {/* ========================================== */}
       {activeTab === 'site audit' && (
         <div className="fade-in">

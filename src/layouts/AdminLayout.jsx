@@ -102,6 +102,7 @@ const AdminLayout = () => {
     { name: 'Omnichannel & Reviews', path: '/admin/reputation', icon: <MessageSquare size={20} />, key: 'reputation' },
     { name: 'Local Listings Sync', path: '/admin/directory-sync', icon: <Globe size={20} />, key: 'directory' },
     { name: 'SEO & Analytics', path: '/admin/seo', icon: <LineChart size={20} />, key: 'seo' },
+    { name: 'Rank Tracker Engine', path: '/admin/rank-tracker', icon: <Activity size={20} />, key: 'rank-tracker' },
     { name: 'AI Blog Writer', path: '/admin/content', icon: <FileText size={20} />, key: 'content' },
     { name: 'Heatmaps & Replays', path: '/admin/heatmaps', icon: <MousePointerClick size={20} />, key: 'heatmaps' },
     { name: 'Email Marketing', path: '/admin/email', icon: <Mail size={20} />, key: 'email' },
