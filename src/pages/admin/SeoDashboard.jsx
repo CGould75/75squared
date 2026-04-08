@@ -5,34 +5,26 @@ import { GlobalDomainContext } from '../../layouts/AdminLayout';
 // MOCK PAYLOADS BY TENANT
 const MOCK_DOMAINS = {
   '75squared.com': {
-    overview: { domain_rating: 84, total_backlinks: 14230, organic_traffic: 112000, traffic_value: "$42,500" },
-    audit: { health_score: 92, urls_crawled: 14102, healthy_urls: 13801, broken_urls: 42, redirects: 259,
+    overview: { domain_rating: 1, total_backlinks: 2, organic_traffic: 0, traffic_value: "$0" },
+    audit: { health_score: 98, urls_crawled: 12, healthy_urls: 10, broken_urls: 0, redirects: 2,
              critical_errors: [
-               { id: 1, type: "404 Not Found", path: "/services/old-seo-package", priority: "High" },
-               { id: 2, type: "Missing H1 Tag", path: "/blog/marketing-tips", priority: "Medium" },
-               { id: 3, type: "Slow LCP (>3.5s)", path: "/case-studies", priority: "High" }
+               { id: 1, type: "Missing Sitemap.xml", path: "/sitemap.xml", priority: "High" },
+               { id: 2, type: "No Google Search Console Link", path: "Global", priority: "Medium" }
              ]
     },
     backlinks: [
-      { id: 1, source: "forbes.com/business", authority: 92, type: "DoFollow", anchor: "las vegas seo agency" },
-      { id: 2, source: "techcrunch.com/startups", authority: 89, type: "DoFollow", anchor: "75 squared app development" },
-      { id: 3, source: "lasvegasweekly.com", authority: 66, type: "NoFollow", anchor: "top tech firms" },
-      { id: 4, source: "clutch.co/profile/75squared", authority: 84, type: "DoFollow", anchor: "https://75squared.com" }
+      { id: 1, source: "twitter.com/75squared", authority: 98, type: "NoFollow", anchor: "https://75squared.com" },
+      { id: 2, source: "linkedin.com/company/75-squared", authority: 98, type: "NoFollow", anchor: "75 Squared Digital" }
     ],
     keywords: [
-      { id: 1, keyword: "digital marketing agency las vegas", kd: 45, volume: 3200, cpc: "$15.00", intent: "Commercial" },
-      { id: 2, keyword: "custom saas development", kd: 72, volume: 1400, cpc: "$35.50", intent: "Transactional" },
-      { id: 3, keyword: "edge routing seo meaning", kd: 12, volume: 800, cpc: "$4.00", intent: "Informational" },
-      { id: 4, keyword: "b2b lead generation software", kd: 81, volume: 12400, cpc: "$48.00", intent: "Commercial" }
+      { id: 1, keyword: "75 squared digital marketing", kd: 2, volume: 10, cpc: "$0.00", intent: "Navigational" }
     ],
     competitors: [
-      { domain: "neilpatel.com", overlap: "45%", organic_traffic: 2200000 },
-      { domain: "ignitevisibility.com", overlap: "22%", organic_traffic: 450000 }
+      { domain: "vegasmarketing.com", overlap: "0%", organic_traffic: 52000 },
+      { domain: "national-digital.io", overlap: "0%", organic_traffic: 450000 }
     ],
     top_pages: [
-      { id: 1, path: "/pricing", traffic: 45000, friction: 89, trend: "up" },
-      { id: 2, path: "/agency/seo-services", traffic: 22000, friction: 12, trend: "up" },
-      { id: 3, path: "/blog/what-is-edge-routing", traffic: 18000, friction: 65, trend: "down" }
+      { id: 1, path: "/", traffic: 12, friction: 0, trend: "up" }
     ]
   },
   'goodyslv.com': {
