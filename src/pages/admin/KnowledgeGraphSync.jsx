@@ -1,29 +1,41 @@
-import React, { useState } from 'react';
-import { Globe, ShieldCheck, MapPin, Clock, Phone, Link2, RefreshCw, Code, Network, Copy, CheckCircle2, Zap, Target } from 'lucide-react';
+import React, { useState, useContext, useEffect } from 'react';
+import { Globe, ShieldCheck, MapPin, Clock, Phone, Link2, RefreshCw, Code, Network, Copy, CheckCircle2, Zap, Target, Bot } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { GlobalDomainContext } from '../../layouts/AdminLayout';
 import SEOHead from '../../components/SEOHead';
+
+const MOCK_SCHEMA_DATA = {
+  '75squared.com': {
+     name: "75 Squared", url: "https://75squared.com", logo: "https://75squared.com/logo.png", description: "Advanced Digital Marketing and SEO Operations Nexus.", founder: "Chris Gould", telephone: "+1-555-123-4567",
+     streetAddress: "123 Technology Drive", addressLocality: "Las Vegas", addressRegion: "NV", postalCode: "89101", addressCountry: "US", priceRange: "$$$", socialLinks: "https://linkedin.com/company/75squared\nhttps://twitter.com/75squared"
+  },
+  'goodyslv.com': {
+     name: "Goodys Popcorn", url: "https://goodyslv.com", logo: "https://goodyslv.com/logo.png", description: "Premium gourmet popcorn and corporate gifts.", founder: "Goodys Team", telephone: "+1-702-555-9999",
+     streetAddress: "400 Freemont St", addressLocality: "Las Vegas", addressRegion: "NV", postalCode: "89101", addressCountry: "US", priceRange: "$$", socialLinks: "https://instagram.com/goodyslv"
+  },
+  'lrms.com': {
+     name: "LRMS", url: "https://lrms.com", logo: "https://lrms.com/logo.png", description: "Cloud Library Resource Management System.", founder: "LRMS Inc", telephone: "+1-800-555-0000",
+     streetAddress: "700 Library Way", addressLocality: "Boston", addressRegion: "MA", postalCode: "02108", addressCountry: "US", priceRange: "$$$$", socialLinks: "https://linkedin.com/company/lrms"
+  }
+};
 
 export default function KnowledgeGraphSync() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('directory'); // 'directory' | 'schema'
   
+  const { activeDomain } = useContext(GlobalDomainContext);
+  const normalizedDomain = activeDomain ? String(activeDomain).toLowerCase().trim() : '';
+  const domainKey = ['goodyslv.com', 'lrms.com'].find(key => normalizedDomain.includes(key)) || '75squared.com';
+
   // Schema Architecture State
   const [schemaEntity, setSchemaEntity] = useState('Organization');
-  const [schemaData, setSchemaData] = useState({
-     name: "75 Squared",
-     url: "https://75squared.com",
-     logo: "https://75squared.com/logo.png",
-     description: "Advanced Digital Marketing and SEO Operations Nexus.",
-     founder: "Chris Gould",
-     telephone: "+1-555-123-4567",
-     streetAddress: "123 Technology Drive",
-     addressLocality: "Las Vegas",
-     addressRegion: "NV",
-     postalCode: "89101",
-     addressCountry: "US",
-     priceRange: "$$$",
-     socialLinks: "https://linkedin.com/company/75squared\nhttps://twitter.com/75squared"
-  });
+  const [schemaData, setSchemaData] = useState(MOCK_SCHEMA_DATA[domainKey]);
+  const [autoResolveMode, setAutoResolveMode] = useState(false);
+
+  // Sync state if context changes
+  useEffect(() => {
+     setSchemaData(MOCK_SCHEMA_DATA[domainKey]);
+  }, [domainKey]);
 
   const [copied, setCopied] = useState(false);
   const [isDeploying, setIsDeploying] = useState(false);
@@ -165,9 +177,33 @@ export default function KnowledgeGraphSync() {
                 </div>
              </div>
              
-             <button className="btn btn-primary" style={{ padding: '16px', fontSize: '1.1rem', justifyContent: 'center' }}>
-                <RefreshCw size={20} /> Launch Global Directory Sync
-             </button>
+             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '20px' }}>
+                <div style={{ padding: '16px', background: 'rgba(59, 130, 246, 0.05)', border: '1px solid rgba(59, 130, 246, 0.2)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                   <div>
+                     <div style={{ fontWeight: 800, fontSize: '0.95rem', color: 'var(--color-text-main)', marginBottom: '4px' }}>Autonomous Push Sync</div>
+                     <div style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>If active, Nexus bypassing the SRE validation queue and force maps this directory data straight via Edge API to Yext equivalents.</div>
+                   </div>
+                   <button 
+                      onClick={() => setAutoResolveMode(!autoResolveMode)}
+                      style={{ background: autoResolveMode ? 'var(--color-green-main)' : 'rgba(0,0,0,0.1)', border: 'none', borderRadius: '20px', width: '50px', height: '26px', position: 'relative', cursor: 'pointer', transition: '0.3s' }}>
+                      <div style={{ position: 'absolute', top: '3px', left: autoResolveMode ? '27px' : '3px', width: '20px', height: '20px', background: 'white', borderRadius: '50%', transition: '0.3s', boxShadow: '0 2px 5px rgba(0,0,0,0.2)' }}></div>
+                   </button>
+                </div>
+                
+                <button 
+                  onClick={() => {
+                     if (autoResolveMode) {
+                        alert("Autonomous Force Sync Executed: Pinged 82 minor nodes.");
+                     } else {
+                        alert("Alerting SRE: Sync payload safely transmitted to Action Center for Validation.");
+                        navigate('/admin/action-center');
+                     }
+                  }}
+                  className="btn btn-primary" style={{ padding: '16px', fontSize: '1.1rem', justifyContent: 'center', background: autoResolveMode ? 'var(--color-green-main)' : 'var(--color-purple-main)', border: 'none' }}>
+                   {autoResolveMode ? <Zap size={20} /> : <RefreshCw size={20} />} 
+                   {autoResolveMode ? 'Trigger Edge API Sync (Autonomous)' : 'Submit Sync Payload to Action Center'}
+                </button>
+             </div>
           </div>
 
           {/* Right Column: Connection Status */}

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Sparkles, Layers, ArrowRightLeft, Smartphone, Monitor, Target, CheckCircle2, Save } from 'lucide-react';
+import { Sparkles, Layers, ArrowRightLeft, Smartphone, Monitor, Target, CheckCircle2, Save, AlertTriangle } from 'lucide-react';
 import { supabase } from '../../lib/supabaseClient';
 import { GlobalDomainContext } from '../../layouts/AdminLayout';
 
@@ -129,6 +129,17 @@ const LiquidUI = () => {
                   <p style={{ fontSize: '0.9rem', color: 'var(--color-text-muted)', lineHeight: '1.6' }}>
                     When users matching the above constraints visit the site, the edge node will intercept the physical HTML `&lt;body&gt;` payload and use LLM rendering to inject the <strong>High-Friction</strong> typography and layout scheme before the browser renders the first paint.
                   </p>
+                </div>
+                
+                {/* Global CSS Theme Engine Warning */}
+                <div style={{ marginTop: '20px', padding: '16px', borderRadius: '12px', background: 'rgba(239, 68, 68, 0.05)', border: '1px solid rgba(239, 68, 68, 0.2)', display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+                   <AlertTriangle size={20} color="#EF4444" style={{ flexShrink: 0, marginTop: '2px' }} />
+                   <div>
+                       <div style={{ fontSize: '0.9rem', fontWeight: 800, color: '#B91C1C', marginBottom: '4px' }}>Global Constraints Protocol</div>
+                       <div style={{ fontSize: '0.85rem', color: '#B91C1C', lineHeight: '1.5' }}>
+                           Variant Generation will be hard-constrained to the core brand token CSS (colors, generic fonts). The engine will reject any payload attempting to inject unapproved structural anomalies or off-brand assets in order to maintain universal brand parity.
+                       </div>
+                   </div>
                 </div>
              </div>
 

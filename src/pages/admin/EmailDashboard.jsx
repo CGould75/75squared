@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Mail, Users, Send, MousePointerClick, TrendingUp, Tags, Pencil, Image as ImageIcon, LayoutTemplate, Clock, ShieldCheck, Bug, Zap, Trash2, Save, X, Plus, Target } from 'lucide-react';
+import { Mail, Users, Send, MousePointerClick, TrendingUp, Tags, Pencil, Image as ImageIcon, LayoutTemplate, Clock, ShieldCheck, Bug, Zap, Trash2, Save, X, Plus, Target, MessageCircle, Smartphone, ShoppingCart, Activity } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 import { supabase } from '../../lib/supabaseClient';
@@ -76,7 +76,9 @@ const EmailDashboard = () => {
       status: "Subscribed", 
       tags: [], 
       open_rate: "0%", 
-      ctr: "0%", 
+      ctr: "0%",
+      ltv: "$0",
+      cart_value: "$0" 
     };
 
     // Physical Supabase Insert
@@ -94,10 +96,10 @@ const EmailDashboard = () => {
       <div style={{ marginBottom: '40px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
         <div>
           <h1 style={{ fontSize: '2.5rem', fontWeight: 800, marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '16px' }}>
-            <Mail size={36} color="var(--color-purple-main)" /> Broadcast Network
+            <MessageCircle size={36} color="var(--color-purple-main)" /> Omnichannel Operations Hub
           </h1>
           <p style={{ color: 'var(--color-text-muted)', fontSize: '1.1rem' }}>
-            Audience segmentation and high-conversion campaign dispatch.
+            Klaviyo-level CRM segmentation, Brevo-style visual pipelines, and multi-touch (SMS/WhatsApp/Email) dispatch.
           </p>
         </div>
         
@@ -165,12 +167,12 @@ const EmailDashboard = () => {
               <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
                 <thead>
                   <tr style={{ borderBottom: '2px solid rgba(0,0,0,0.05)', color: 'var(--color-text-muted)' }}>
-                    <th style={{ padding: '12px', fontWeight: 600 }}>Email Address</th>
-                    <th style={{ padding: '12px', fontWeight: 600 }}>Status</th>
-                    <th style={{ padding: '12px', fontWeight: 600 }}><Tags size={16} /> Tags</th>
-                    <th style={{ padding: '12px', fontWeight: 600 }}>Open Rate</th>
-                    <th style={{ padding: '12px', fontWeight: 600 }}>CTR</th>
-                    <th style={{ padding: '12px', fontWeight: 600, textAlign: 'right' }}>Actions</th>
+                    <th style={{ padding: '12px', fontWeight: 600 }}>Identity Profile</th>
+                    <th style={{ padding: '12px', fontWeight: 600 }}>Comms Status</th>
+                    <th style={{ padding: '12px', fontWeight: 600 }}><Tags size={16} /> Segments</th>
+                    <th style={{ padding: '12px', fontWeight: 600 }}><ShoppingCart size={16}/> E-Com Value</th>
+                    <th style={{ padding: '12px', fontWeight: 600 }}>Engagement</th>
+                    <th style={{ padding: '12px', fontWeight: 600, textAlign: 'right' }}>CRM Context</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -178,23 +180,15 @@ const EmailDashboard = () => {
                     <tr key={sub.id} style={{ borderBottom: '1px solid rgba(0,0,0,0.02)' }}>
                       {editingId === sub.id ? (
                         <>
-                          <td style={{ padding: '12px' }}>
-                            <input type="email" value={editForm.email} onChange={e => setEditForm({...editForm, email: e.target.value})} style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid var(--color-blue-main)', outline: 'none' }} placeholder="user@domain.com" autoFocus />
-                          </td>
-                          <td style={{ padding: '12px' }}>
-                            <select value={editForm.status} onChange={e => setEditForm({...editForm, status: e.target.value})} style={{ padding: '8px', borderRadius: '6px', border: '1px solid rgba(0,0,0,0.1)', outline: 'none' }}>
-                               <option value="Subscribed">Subscribed</option>
-                               <option value="Unsubscribed">Unsubscribed</option>
-                               <option value="Bounced">Bounced</option>
-                            </select>
-                          </td>
-                          <td style={{ padding: '12px' }}>
-                            <input type="text" value={editForm.tags} onChange={e => setEditForm({...editForm, tags: e.target.value})} style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid rgba(0,0,0,0.1)', outline: 'none' }} placeholder="VIP, Cold Lead, etc..." />
-                          </td>
-                          <td style={{ padding: '12px', fontWeight: 600, color: 'var(--color-text-muted)' }}>{sub.open_rate}</td>
-                          <td style={{ padding: '12px', fontWeight: 600, color: 'var(--color-text-muted)' }}>{sub.ctr}</td>
-                          <td style={{ padding: '12px', textAlign: 'right' }}>
-                            <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                          <td style={{ padding: '12px' }} colSpan="6">
+                            <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                              <input type="email" value={editForm.email} onChange={e => setEditForm({...editForm, email: e.target.value})} style={{ flex: 1, padding: '8px', borderRadius: '6px', border: '1px solid var(--color-blue-main)', outline: 'none' }} placeholder="user@domain.com" autoFocus />
+                              <select value={editForm.status} onChange={e => setEditForm({...editForm, status: e.target.value})} style={{ padding: '8px', borderRadius: '6px', border: '1px solid rgba(0,0,0,0.1)', outline: 'none' }}>
+                                 <option value="Subscribed">Subscribed</option>
+                                 <option value="Unsubscribed">Unsubscribed</option>
+                                 <option value="Bounced">Bounced</option>
+                              </select>
+                              <input type="text" value={editForm.tags} onChange={e => setEditForm({...editForm, tags: e.target.value})} style={{ flex: 1, padding: '8px', borderRadius: '6px', border: '1px solid rgba(0,0,0,0.1)', outline: 'none' }} placeholder="VIP, Cold Lead, etc..." />
                               <button onClick={() => handleSave(sub.id)} style={{ padding: '6px', background: 'rgba(16, 185, 129, 0.1)', color: '#10B981', border: 'none', borderRadius: '6px', cursor: 'pointer' }}><Save size={16}/></button>
                               <button onClick={handleCancel} style={{ padding: '6px', background: 'rgba(239, 68, 68, 0.1)', color: '#EF4444', border: 'none', borderRadius: '6px', cursor: 'pointer' }}><X size={16}/></button>
                             </div>
@@ -202,26 +196,36 @@ const EmailDashboard = () => {
                         </>
                       ) : (
                         <>
-                          <td style={{ padding: '16px 12px', fontWeight: 700 }}>{sub.email}</td>
-                          <td style={{ padding: '16px 12px' }}>
-                            <span style={{ 
-                              background: sub.status === 'Subscribed' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)',
-                              color: sub.status === 'Subscribed' ? 'var(--color-green-main)' : 'var(--color-text-muted)',
-                              padding: '4px 10px', borderRadius: '12px', fontSize: '0.8rem', fontWeight: 700 
-                            }}>{sub.status}</span>
+                          <td style={{ padding: '12px' }}>
+                            <div style={{ fontWeight: 700, color: '#111' }}>{sub.email}</div>
+                            <div style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>ID: {sub.id.substring(0,8)}...</div>
                           </td>
-                          <td style={{ padding: '16px 12px', display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-                             {sub.tags.map(tag => (
-                               <span key={tag} style={{ background: 'rgba(0,0,0,0.04)', color: 'var(--color-text-muted)', padding: '2px 8px', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 600 }}>{tag}</span>
-                             ))}
+                          <td style={{ padding: '12px' }}>
+                             <span style={{ padding: '4px 8px', background: sub.status === 'Subscribed' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(0,0,0,0.05)', color: sub.status === 'Subscribed' ? '#10B981' : 'var(--color-text-muted)', borderRadius: '6px', fontSize: '0.85rem', fontWeight: 700 }}>{sub.status}</span>
                           </td>
-                          <td style={{ padding: '16px 12px', fontWeight: 600 }}>{sub.open_rate}</td>
-                          <td style={{ padding: '16px 12px', fontWeight: 600 }}>{sub.ctr}</td>
-                          <td style={{ padding: '16px 12px', textAlign: 'right' }}>
-                            <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-                              <button onClick={() => handleEditClick(sub)} style={{ padding: '6px', background: 'transparent', color: 'var(--color-text-muted)', border: 'none', cursor: 'pointer' }} title="Edit Record"><Pencil size={16}/></button>
-                              <button onClick={() => handleDelete(sub.id)} style={{ padding: '6px', background: 'transparent', color: 'rgba(239,68,68,0.5)', border: 'none', cursor: 'pointer' }} title="Delete Record"><Trash2 size={16}/></button>
-                            </div>
+                          <td style={{ padding: '12px', maxWidth: '200px' }}>
+                             <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+                               {sub.tags && sub.tags.length > 0 ? sub.tags.map((t, i) => (
+                                  <span key={i} style={{ fontSize: '0.75rem', fontWeight: 600, background: 'var(--color-bg-light)', padding: '4px 8px', borderRadius: '4px' }}>{t}</span>
+                               )) : <span style={{ color: 'var(--color-text-muted)', fontSize: '0.85rem' }}>General</span>}
+                             </div>
+                          </td>
+                          <td style={{ padding: '12px' }}>
+                             <div style={{ fontWeight: 800, color: 'var(--color-green-main)' }}>{sub.ltv || '$0'} LTV</div>
+                             <div style={{ fontSize: '0.8rem', color: '#EF4444', fontWeight: 600 }}>Cart: {sub.cart_value || '$0'}</div>
+                          </td>
+                          <td style={{ padding: '12px' }}>
+                             <div style={{ fontWeight: 600, color: 'var(--color-purple-main)' }}>Open: {sub.open_rate}</div>
+                             <div style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', fontWeight: 600 }}>Click: {sub.ctr}</div>
+                          </td>
+                          <td style={{ padding: '12px', textAlign: 'right' }}>
+                             <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', alignItems: 'center' }}>
+                               <button onClick={() => alert(`HubSpot Connect: Pulling cross-object CRM records for ${sub.email}. Identifying complete audit trail and Zendesk tickets.`)} className="btn btn-outline" style={{ padding: '6px 12px', fontSize: '0.8rem' }}><Activity size={14}/> View Profile</button>
+                               <div style={{ display: 'flex', borderLeft: '1px solid rgba(0,0,0,0.1)', paddingLeft: '8px', gap: '4px' }}>
+                                 <button onClick={() => handleEditClick(sub)} style={{ padding: '6px', cursor: 'pointer', background: 'transparent', border: 'none', color: 'var(--color-text-muted)' }}><Pencil size={16}/></button>
+                                 <button onClick={() => handleDelete(sub.id)} style={{ padding: '6px', cursor: 'pointer', background: 'transparent', border: 'none', color: '#EF4444' }}><Trash2 size={16}/></button>
+                               </div>
+                             </div>
                           </td>
                         </>
                       )}
@@ -352,14 +356,14 @@ const EmailDashboard = () => {
 
       {activeTab === 'automation' && (
         // ==========================================
-        // TAB 3: VISUAL AUTOMATIONS (ActiveCampaign Clone)
+        // TAB 3: VISUAL AUTOMATIONS (Brevo/ActiveCampaign Clone)
         // ==========================================
         <div className="fade-in glass-panel" style={{ padding: '40px', minHeight: '600px', display: 'flex', flexDirection: 'column', alignItems: 'center', background: '#F8FAFC' }}>
           
           {/* Main Trigger Node */}
           <div style={{ padding: '16px 24px', background: 'white', borderRadius: '12px', border: '1px solid rgba(147, 51, 234, 0.4)', boxShadow: '0 10px 25px rgba(147, 51, 234, 0.1)', width: '300px', textAlign: 'center', zIndex: 2 }}>
-            <span style={{ fontSize: '0.8rem', color: 'var(--color-purple-main)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px' }}>Trigger</span>
-            <div style={{ fontWeight: 800, fontSize: '1.1rem', marginTop: '4px' }}>User Abandons Cart</div>
+            <span style={{ fontSize: '0.8rem', color: 'var(--color-purple-main)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px' }}>Event Trigger</span>
+            <div style={{ fontWeight: 800, fontSize: '1.1rem', marginTop: '4px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px' }}><ShoppingCart size={18}/> Cart Abandoned &gt; $100</div>
           </div>
           
           {/* Line */}
@@ -367,44 +371,44 @@ const EmailDashboard = () => {
           
           {/* Action Node */}
           <div style={{ padding: '16px 24px', background: 'white', borderRadius: '12px', border: '1px solid rgba(0,0,0,0.1)', boxShadow: '0 4px 10px rgba(0,0,0,0.02)', width: '300px', textAlign: 'center', zIndex: 2 }}>
-            <span style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px' }}>Action</span>
-            <div style={{ fontWeight: 700, fontSize: '1.1rem', marginTop: '4px' }}>Wait 2 Hours</div>
+            <span style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px' }}>Time Delay</span>
+            <div style={{ fontWeight: 700, fontSize: '1.1rem', marginTop: '4px' }}><Clock size={16} style={{ display: 'inline', verticalAlign: 'middle'}}/> Wait 45 Minutes</div>
           </div>
 
           {/* Line */}
           <div style={{ width: '2px', height: '40px', background: 'rgba(0,0,0,0.1)' }}></div>
 
           {/* Action Node */}
-          <div style={{ padding: '16px 24px', background: 'white', borderRadius: '12px', border: '1px solid rgba(59, 130, 246, 0.4)', boxShadow: '0 10px 25px rgba(59, 130, 246, 0.1)', width: '300px', textAlign: 'center', zIndex: 2 }}>
-            <span style={{ fontSize: '0.8rem', color: 'var(--color-blue-main)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px' }}>Send Email</span>
-            <div style={{ fontWeight: 700, fontSize: '1.1rem', marginTop: '4px' }}>"Did you forget this?"</div>
+          <div style={{ padding: '16px 24px', background: 'white', borderRadius: '12px', border: '2px solid rgba(37, 211, 102, 0.4)', boxShadow: '0 10px 25px rgba(37, 211, 102, 0.1)', width: '300px', textAlign: 'center', zIndex: 2 }}>
+            <span style={{ fontSize: '0.8rem', color: '#25D366', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px' }}>WhatsApp Direct (If Opted In)</span>
+            <div style={{ fontWeight: 700, fontSize: '1.1rem', marginTop: '4px' }}>"Hey, you left items in your cart."</div>
           </div>
 
           {/* Branching Lines */}
           <div style={{ width: '2px', height: '30px', background: 'rgba(0,0,0,0.1)' }}></div>
           
           <div style={{ padding: '12px', background: 'var(--color-bg-light)', border: '1px solid rgba(0,0,0,0.1)', borderRadius: '20px', fontSize: '0.8rem', fontWeight: 700, color: 'var(--color-text-muted)', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <MousePointerClick size={14} /> If: Link Clicked in Email
+            <Activity size={14} /> If: User checks out from WhatsApp?
           </div>
 
-          <div style={{ display: 'flex', width: '400px', justifyContent: 'space-between', marginTop: '20px', position: 'relative' }}>
-             <div style={{ position: 'absolute', top: '-20px', left: '100px', right: '100px', height: '20px', borderTop: '2px solid rgba(0,0,0,0.1)', borderLeft: '2px solid rgba(0,0,0,0.1)', borderRight: '2px solid rgba(0,0,0,0.1)', borderRadius: '12px 12px 0 0' }}></div>
+          <div style={{ display: 'flex', width: '500px', justifyContent: 'space-between', marginTop: '20px', position: 'relative' }}>
+             <div style={{ position: 'absolute', top: '-20px', left: '120px', right: '120px', height: '20px', borderTop: '2px solid rgba(0,0,0,0.1)', borderLeft: '2px solid rgba(0,0,0,0.1)', borderRight: '2px solid rgba(0,0,0,0.1)', borderRadius: '12px 12px 0 0' }}></div>
              
              {/* Branch Yes */}
-             <div style={{ padding: '16px 24px', background: 'white', borderRadius: '12px', border: '1px solid rgba(16, 185, 129, 0.5)', width: '180px', textAlign: 'center' }}>
-               <span style={{ fontSize: '0.8rem', color: 'var(--color-green-main)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px' }}>Yes</span>
-               <div style={{ fontWeight: 700, fontSize: '0.9rem', marginTop: '4px' }}>Add Tag: "Warm Lead"</div>
+             <div style={{ padding: '16px 24px', background: 'white', borderRadius: '12px', border: '1px solid rgba(16, 185, 129, 0.5)', width: '220px', textAlign: 'center' }}>
+               <span style={{ fontSize: '0.8rem', color: 'var(--color-green-main)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px' }}>Yes (Revenue Recovered)</span>
+               <div style={{ fontWeight: 700, fontSize: '0.9rem', marginTop: '4px' }}>Update HubSpot Deal to "Won"</div>
              </div>
 
              {/* Branch No */}
-             <div style={{ padding: '16px 24px', background: 'white', borderRadius: '12px', border: '1px solid rgba(239, 68, 68, 0.5)', width: '180px', textAlign: 'center' }}>
-               <span style={{ fontSize: '0.8rem', color: '#ef4444', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px' }}>No</span>
-               <div style={{ fontWeight: 700, fontSize: '0.9rem', marginTop: '4px' }}>Send SMS Follow-up</div>
+             <div style={{ padding: '16px 24px', background: 'white', borderRadius: '12px', border: '1px solid rgba(59, 130, 246, 0.4)', width: '220px', textAlign: 'center' }}>
+               <span style={{ fontSize: '0.8rem', color: 'var(--color-blue-main)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px' }}>No (Still Abandoned)</span>
+               <div style={{ fontWeight: 700, fontSize: '0.9rem', marginTop: '4px' }}><Mail size={14} style={{ display: 'inline', verticalAlign: 'middle'}}/> Send Email Series + 10% Discount</div>
              </div>
           </div>
           
           <button style={{ marginTop: '40px', padding: '12px 24px', borderRadius: '24px', background: 'var(--color-bg-light)', border: '1px dashed rgba(0,0,0,0.2)', color: 'var(--color-text-muted)', fontWeight: 600, cursor: 'pointer' }}>
-             + Add Flow Node
+             + Add Logic Node
           </button>
         </div>
       )}

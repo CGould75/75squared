@@ -14,6 +14,7 @@ const Heatmaps = () => {
   
   const [selectedSession, setSelectedSession] = useState(null);
   const [toastMessage, setToastMessage] = useState('');
+  const [autoResolveMode, setAutoResolveMode] = useState(false);
 
   // Fake AI Session Data
   const MOCK_SESSIONS = [
@@ -400,18 +401,42 @@ const Heatmaps = () => {
 
                  {/* The Bridge to Action Center */}
                  {selectedSession.friction === 'High' && (
-                    <button 
-                       onClick={() => {
-                          setSelectedSession(null);
-                          setToastMessage('Alerting SRE: High Friction UI anomaly pushed to Action Center queue for context routing.');
-                          setTimeout(() => {
-                             setToastMessage('');
-                             navigate('/admin/action-center');
-                          }, 1500);
-                       }}
-                       className="btn hover-lift" style={{ width: '100%', padding: '20px', background: 'var(--color-purple-main)', color: 'white', border: 'none', fontWeight: 800, borderRadius: '16px', fontSize: '1.1rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', boxShadow: '0 10px 30px rgba(147, 51, 234, 0.4)' }}>
-                       <Target size={22} /> Push Payload to Action Center
-                    </button>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                       {/* The Autonomous Toggle */}
+                       <div style={{ padding: '16px', background: 'rgba(59, 130, 246, 0.05)', border: '1px solid rgba(59, 130, 246, 0.2)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                          <div>
+                            <div style={{ fontWeight: 800, fontSize: '0.95rem', color: 'var(--color-text-main)', marginBottom: '4px' }}>Autonomous UI Healing</div>
+                            <div style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>If active, Nexus bypasses the Action Center queue and instantly spawns the Ghost Editor to resolve layout friction.</div>
+                          </div>
+                          <button 
+                             onClick={() => setAutoResolveMode(!autoResolveMode)}
+                             style={{ background: autoResolveMode ? 'var(--color-green-main)' : 'rgba(0,0,0,0.1)', border: 'none', borderRadius: '20px', width: '50px', height: '26px', position: 'relative', cursor: 'pointer', transition: '0.3s' }}>
+                             <div style={{ position: 'absolute', top: '3px', left: autoResolveMode ? '27px' : '3px', width: '20px', height: '20px', background: 'white', borderRadius: '50%', transition: '0.3s', boxShadow: '0 2px 5px rgba(0,0,0,0.2)' }}></div>
+                          </button>
+                       </div>
+
+                       <button 
+                          onClick={() => {
+                             setSelectedSession(null);
+                             if (autoResolveMode) {
+                                setToastMessage('Autonomous UI Healing Activated: Booting Ghost Editor subsystem to restructure the payload.');
+                                setTimeout(() => {
+                                   setToastMessage('');
+                                   navigate('/admin/ghost-editor');
+                                }, 2500);
+                             } else {
+                                setToastMessage('Alerting SRE: High Friction UI anomaly pushed to Action Center queue for context routing.');
+                                setTimeout(() => {
+                                   setToastMessage('');
+                                   navigate('/admin/action-center');
+                                }, 1500);
+                             }
+                          }}
+                          className="btn hover-lift" style={{ width: '100%', padding: '20px', background: autoResolveMode ? 'var(--color-green-main)' : 'var(--color-purple-main)', color: 'white', border: 'none', fontWeight: 800, borderRadius: '16px', fontSize: '1.1rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', boxShadow: autoResolveMode ? '0 10px 30px rgba(16, 185, 129, 0.4)' : '0 10px 30px rgba(147, 51, 234, 0.4)' }}>
+                          {autoResolveMode ? <Zap size={22} /> : <Target size={22} />}
+                          {autoResolveMode ? 'Execute Autonomous UI Healing' : 'Push Payload to Action Center'}
+                       </button>
+                    </div>
                  )}
                  {selectedSession.friction !== 'High' && (
                     <div style={{ textAlign: 'center', padding: '20px', color: '#10B981', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', border: '2px dashed rgba(16,185,129,0.3)', borderRadius: '16px', background: 'rgba(16,185,129,0.05)', fontSize: '1.1rem' }}>

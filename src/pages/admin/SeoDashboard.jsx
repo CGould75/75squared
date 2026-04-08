@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { Globe, Lock, ShieldAlert, Award, Link2, ArrowUpRight, Search, Activity, AlertTriangle, CheckCircle2, AlertOctagon, Bot, Zap, Target, FileText, Database, Code2, LineChart, Hash, Mail, Share2, MonitorPlay, Shield, Crosshair, DollarSign, Layers } from 'lucide-react';
+import { Globe, Lock, ShieldAlert, Award, Link2, ArrowUpRight, Search, Activity, AlertTriangle, CheckCircle2, AlertOctagon, Bot, Zap, Target, FileText, Database, Code2, LineChart, Hash, Mail, Share2, MonitorPlay, Shield, Crosshair, DollarSign, Layers, Printer } from 'lucide-react';
 import { GlobalDomainContext } from '../../layouts/AdminLayout';
 import { Link, useNavigate } from 'react-router-dom';
 
@@ -34,6 +34,10 @@ const MOCK_DOMAINS = {
     ],
     link_intersect: [
       { competitor: "vegasmarketing.com", connecting_domains: ["clutch.co", "yelp.com", "vegas-chamber.org"] }
+    ],
+    competitor_gap: [
+      { id: 1, keyword: "b2b saas marketing playbook", search_volume: 4200, kd: 35, present_on: ["vegasmarketing.com"] },
+      { id: 2, keyword: "digital transformation agency", search_volume: 8500, kd: 65, present_on: ["national-digital.io", "vegasmarketing.com"] }
     ]
   },
   'goodyslv.com': {
@@ -73,6 +77,49 @@ const MOCK_DOMAINS = {
     link_intersect: [
       { competitor: "garrettpopcorn.com", connecting_domains: ["foodnetwork.com", "eater.com", "timeout.com"] },
       { competitor: "popcornopolis.com", connecting_domains: ["buzzfeed.com", "thrillist.com"] }
+    ],
+    competitor_gap: [
+      { id: 1, keyword: "cheese and caramel popcorn mix", search_volume: 12400, kd: 12, present_on: ["garrettpopcorn.com", "popcornopolis.com"] }
+    ]
+  },
+  'lrms.com': {
+    overview: { domain_rating: 64, total_backlinks: 840, organic_traffic: 12500, traffic_value: "$4,200" },
+    audit: { health_score: 92, urls_crawled: 154, healthy_urls: 148, broken_urls: 2, redirects: 4,
+             critical_errors: [
+               { id: 1, type: "Orphaned CSS Node", path: "/admin/dashboard", priority: "Medium" }
+             ]
+    },
+    backlinks: [
+      { id: 1, source: "libraryjournal.com/tech", authority: 88, type: "DoFollow", anchor: "lrms SaaS platform" },
+      { id: 2, source: "techcrunch.com/lrms", authority: 92, type: "DoFollow", anchor: "innovative opac" }
+    ],
+    toxic_links: [
+      { id: 1, source: "low-quality-directory.info", score: 82, status: "Active Attack" }
+    ],
+    keywords: [
+      { id: 1, keyword: "library management system", kd: 45, volume: 12000, cpc: "$8.50", intent: "Commercial" },
+      { id: 2, keyword: "opac integration software", kd: 20, volume: 1800, cpc: "$4.10", intent: "Commercial" }
+    ],
+    keyword_clusters: [
+      { parent: "Library Software", volume: 45000, children: ["library software", "cloud lms", "library database system"] }
+    ],
+    competitors: [
+      { domain: "follettlearning.com", overlap: "45%", organic_traffic: 210000 },
+      { domain: "insigniasoftware.com", overlap: "22%", organic_traffic: 85000 }
+    ],
+    top_pages: [
+      { id: 1, path: "/features", traffic: 4200, friction: 8, trend: "up" },
+      { id: 2, path: "/demo-request", traffic: 1200, friction: 12, trend: "up" }
+    ],
+    ppc_ads: [
+      { id: 1, competitor: "follettlearning.com", ad_copy: "Next Gen Library Automation.", cpc: "$6.50", traffic: 12500 }
+    ],
+    link_intersect: [
+      { competitor: "follettlearning.com", connecting_domains: ["ala.org", "edtechmagazine.com"] }
+    ],
+    competitor_gap: [
+      { id: 1, keyword: "how to migrate library software", search_volume: 2400, kd: 18, present_on: ["follettlearning.com"] },
+      { id: 2, keyword: "rfid tags for library catalog", search_volume: 5600, kd: 22, present_on: ["follettlearning.com", "insigniasoftware.com"] }
     ]
   }
 };
@@ -92,7 +139,11 @@ const SeoDashboard = () => {
   const [activeTab, setActiveTab] = useState('site explorer');
   
   const { activeDomain } = useContext(GlobalDomainContext);
-  const domainData = MOCK_DOMAINS[activeDomain] || MOCK_DOMAINS['75squared.com'];
+  
+  // Safe resolution logic to prevent data collisions from UI states
+  const normalizedDomain = activeDomain ? String(activeDomain).toLowerCase().trim() : '';
+  const domainKey = ['goodyslv.com', 'lrms.com'].find(key => normalizedDomain.includes(key)) || '75squared.com';
+  const domainData = MOCK_DOMAINS[domainKey];
 
   const [toastMessage, setToastMessage] = useState('');
 
@@ -120,6 +171,9 @@ const SeoDashboard = () => {
           <div style={{ padding: '8px 16px', borderRadius: '20px', background: 'rgba(147, 51, 234, 0.1)', color: 'var(--color-purple-dark)', fontWeight: 700, fontSize: '0.85rem' }}>
             Target Platform: {activeDomain}
           </div>
+          <button onClick={() => window.print()} className="btn btn-outline" style={{ padding: '10px 20px', fontSize: '0.9rem', background: 'white' }}>
+            <Printer size={16} /> Export PDF Report
+          </button>
           <button className="btn btn-primary" style={{ padding: '10px 20px', fontSize: '0.9rem' }}>
             <Award size={16} /> Tier: {userTier}
           </button>
@@ -128,7 +182,7 @@ const SeoDashboard = () => {
 
       {/* Ahrefs/SEMrush-style Navigation Tabs */}
       <div style={{ display: 'flex', background: 'rgba(0,0,0,0.05)', borderRadius: '12px', padding: '6px', marginBottom: '40px', width: 'max-content', gap: '4px' }}>
-        {['Site Explorer', 'Keywords Explorer', 'Site Audit', 'Link Intersect', 'PPC Spyglass'].map(tab => (
+        {['Site Explorer', 'Keywords Explorer', 'Competitor Gap', 'Site Audit', 'Link Intersect', 'PPC Spyglass'].map(tab => (
           <button 
             key={tab}
             onClick={() => setActiveTab(tab.toLowerCase())}
@@ -151,9 +205,16 @@ const SeoDashboard = () => {
           {/* Top Level Ahrefs Metrics */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px', marginBottom: '30px' }}>
             {Object.entries(domainData.overview).map(([key, value], i) => (
-              <div key={i} className="glass-panel" style={{ padding: '30px' }}>
-                <div style={{ fontSize: '0.95rem', color: 'var(--color-text-muted)', fontWeight: 700, marginBottom: '12px', textTransform: 'uppercase' }}>{key.replace('_', ' ')}</div>
-                <div style={{ fontSize: '2.5rem', fontWeight: 900, color: 'var(--color-text-main)', letterSpacing: '-1px' }}>{value.toLocaleString()}</div>
+              <div key={i} className="glass-panel" style={{ padding: '30px', position: 'relative', overflow: 'hidden' }}>
+                <div style={{ position: 'relative', zIndex: 2 }}>
+                  <div style={{ fontSize: '0.95rem', color: 'var(--color-text-muted)', fontWeight: 700, marginBottom: '12px', textTransform: 'uppercase' }}>{key.replace('_', ' ')}</div>
+                  <div style={{ fontSize: '2.5rem', fontWeight: 900, color: 'var(--color-text-main)', letterSpacing: '-1px' }}>{value.toLocaleString()}</div>
+                </div>
+                {/* SVG Trend Line / Historical Evolution (SpyFu Parity) */}
+                <svg style={{ position: 'absolute', bottom: '-10px', left: 0, width: '100%', height: '60px', zIndex: 1 }} preserveAspectRatio="none" viewBox="0 0 100 100">
+                  <path d={i % 2 === 0 ? "M0,100 L0,50 Q25,20 50,60 T100,20 L100,100 Z" : "M0,100 L0,80 Q25,90 50,40 T100,10 L100,100 Z"} fill="rgba(16, 185, 129, 0.05)" />
+                  <path d={i % 2 === 0 ? "M0,50 Q25,20 50,60 T100,20" : "M0,80 Q25,90 50,40 T100,10"} fill="none" stroke="#10B981" strokeWidth="3" vectorEffect="non-scaling-stroke" />
+                </svg>
               </div>
             ))}
           </div>
@@ -163,7 +224,24 @@ const SeoDashboard = () => {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
                {/* Backlink Profile */}
                <div className="glass-panel" style={{ padding: '40px' }}>
-                 <h3 style={{ fontSize: '1.4rem', fontWeight: 900, marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '12px' }}><Link2 size={20} color="var(--color-blue-main)" /> Backlink Profile Matrix</h3>
+                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '24px' }}>
+                   <h3 style={{ fontSize: '1.4rem', fontWeight: 900, display: 'flex', alignItems: 'center', gap: '12px' }}><Link2 size={20} color="var(--color-blue-main)" /> Backlink Profile Matrix</h3>
+                   
+                   {/* SpyFu Backlink Anatomy Chart */}
+                   <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                     <div style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase' }}>Link Anatomy</div>
+                     <div style={{ display: 'flex', height: '12px', width: '200px', borderRadius: '6px', overflow: 'hidden' }}>
+                        <div style={{ background: '#3B82F6', width: '45%' }} title="Editorial/News"></div>
+                        <div style={{ background: '#10B981', width: '35%' }} title="Directories"></div>
+                        <div style={{ background: '#F59E0B', width: '20%' }} title="Forums/Web2.0"></div>
+                     </div>
+                     <div style={{ display: 'flex', gap: '8px', fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-text-muted)' }}>
+                        <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><div style={{ width: '8px', height: '8px', background: '#3B82F6', borderRadius: '2px' }}></div> Edit. (45%)</span>
+                        <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><div style={{ width: '8px', height: '8px', background: '#10B981', borderRadius: '2px' }}></div> Dir (35%)</span>
+                        <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><div style={{ width: '8px', height: '8px', background: '#F59E0B', borderRadius: '2px' }}></div> UGC (20%)</span>
+                     </div>
+                   </div>
+                 </div>
                  <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
                    <thead>
                      <tr style={{ borderBottom: '2px solid rgba(0,0,0,0.05)', color: 'var(--color-text-muted)', fontSize: '0.85rem', textTransform: 'uppercase' }}>
@@ -277,6 +355,41 @@ const SeoDashboard = () => {
              <h3 style={{ fontSize: '1.5rem', fontWeight: 900, display: 'flex', alignItems: 'center', gap: '12px' }}><Layers size={24} color="#10B981" /> Semantic Topic Clustering</h3>
           </div>
           
+          {/* Semrush Keyword Magic Filters */}
+          <div style={{ display: 'flex', gap: '16px', marginBottom: '30px', padding: '16px', background: 'var(--color-bg-light)', borderRadius: '12px', border: '1px solid rgba(0,0,0,0.05)' }}>
+             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', flex: 1 }}>
+                <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase' }}>Search Intent</span>
+                <select style={{ padding: '10px', borderRadius: '8px', border: '1px solid rgba(0,0,0,0.1)', outline: 'none' }}>
+                   <option>All Intents</option>
+                   <option>Transactional</option>
+                   <option>Commercial</option>
+                   <option>Informational</option>
+                   <option>Navigational</option>
+                </select>
+             </div>
+             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', flex: 1 }}>
+                <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase' }}>Volume Range</span>
+                <select style={{ padding: '10px', borderRadius: '8px', border: '1px solid rgba(0,0,0,0.1)', outline: 'none' }}>
+                   <option>Any Volume</option>
+                   <option>1,000 - 10,000</option>
+                   <option>10,001 - 100,000</option>
+                   <option>100,000+</option>
+                </select>
+             </div>
+             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', flex: 1 }}>
+                <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase' }}>Keyword Difficulty (KD)</span>
+                <select style={{ padding: '10px', borderRadius: '8px', border: '1px solid rgba(0,0,0,0.1)', outline: 'none' }}>
+                   <option>All Difficulties</option>
+                   <option>Easy (0-30)</option>
+                   <option>Possible (31-60)</option>
+                   <option>Hard (61-100)</option>
+                </select>
+             </div>
+             <div style={{ display: 'flex', alignItems: 'flex-end' }}>
+                <button className="btn btn-primary" style={{ height: '40px', padding: '0 20px', display: 'flex', alignItems: 'center', gap: '8px' }}><Target size={16}/> Apply Filters</button>
+             </div>
+          </div>
+          
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', marginBottom: '40px' }}>
              {domainData.keyword_clusters.length === 0 ? (
                 <div style={{ padding: '30px', textAlign: 'center', color: 'var(--color-text-muted)', background: 'rgba(0,0,0,0.02)', borderRadius: '12px' }}>Awaiting enough data density to compute parent clusters.</div>
@@ -358,6 +471,68 @@ const SeoDashboard = () => {
                   </div>
                ))}
             </div>
+         </div>
+      )}
+
+      {/* ========================================== */}
+      {/* TAB 3B: COMPETITOR GAP */}
+      {/* ========================================== */}
+      {activeTab === 'competitor gap' && (
+         <div className="fade-in glass-panel" style={{ padding: '40px' }}>
+            <h3 style={{ fontSize: '1.5rem', fontWeight: 900, marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '12px' }}><Hash size={24} color="var(--color-blue-main)" /> Competitor Topic Gap Analysis</h3>
+            <p style={{ fontSize: '1rem', color: 'var(--color-text-muted)', marginBottom: '30px' }}>Keywords that your competitors rank for, but <strong>{activeDomain}</strong> is missing.</p>
+
+            {/* SpyFu Kombat Venn Diagram Parity */}
+            <div style={{ position: 'relative', width: '300px', height: '300px', margin: '0 auto', marginBottom: '40px' }}>
+               <div style={{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)', width: '200px', height: '200px', borderRadius: '50%', background: 'rgba(59, 130, 246, 0.4)', mixBlendMode: 'multiply', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <span style={{ position: 'absolute', top: '10px', fontWeight: 800, color: '#1d4ed8' }}>{activeDomain}</span>
+               </div>
+               <div style={{ position: 'absolute', bottom: '20px', left: 0, width: '200px', height: '200px', borderRadius: '50%', background: 'rgba(16, 185, 129, 0.4)', mixBlendMode: 'multiply', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <span style={{ position: 'absolute', bottom: '10px', left: '20px', fontWeight: 800, color: '#047857', maxWidth: '140px', overflow: 'hidden', textOverflow: 'ellipsis' }}>{domainData.competitors[0]?.domain || 'Competitor 1'}</span>
+               </div>
+               <div style={{ position: 'absolute', bottom: '20px', right: 0, width: '200px', height: '200px', borderRadius: '50%', background: 'rgba(245, 158, 11, 0.4)', mixBlendMode: 'multiply', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <span style={{ position: 'absolute', bottom: '10px', right: '20px', fontWeight: 800, color: '#b45309', maxWidth: '140px', overflow: 'hidden', textOverflow: 'ellipsis' }}>{domainData.competitors[1]?.domain || 'Competitor 2'}</span>
+               </div>
+               {/* Core Overlap */}
+               <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', fontWeight: 900, zIndex: 10, color: '#111', fontSize: '1.2rem', background: 'white', padding: '4px 8px', borderRadius: '8px', boxShadow: '0 2px 10px rgba(0,0,0,0.1)', whiteSpace: 'nowrap' }}>
+                  Shared: 2,401
+               </div>
+            </div>
+
+            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+               <thead>
+                  <tr style={{ background: 'var(--color-bg-light)', borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
+                    <th style={{ padding: '20px', fontSize: '0.85rem', color: 'var(--color-text-muted)', textTransform: 'uppercase' }}>Missing Topic / Keyword</th>
+                    <th style={{ padding: '20px', fontSize: '0.85rem', color: 'var(--color-text-muted)', textTransform: 'uppercase' }}>Present On</th>
+                    <th style={{ padding: '20px', fontSize: '0.85rem', color: 'var(--color-text-muted)', textTransform: 'uppercase' }}>Volume</th>
+                    <th style={{ padding: '20px', fontSize: '0.85rem', color: 'var(--color-text-muted)', textTransform: 'uppercase' }}>KD</th>
+                    <th style={{ padding: '20px', fontSize: '0.85rem', color: 'var(--color-text-muted)', textTransform: 'uppercase' }}>Hive Mind Automation</th>
+                  </tr>
+               </thead>
+               <tbody>
+                  {domainData.competitor_gap && domainData.competitor_gap.map(gap => (
+                     <tr key={gap.id} style={{ borderBottom: '1px solid rgba(0,0,0,0.05)', background: 'white' }}>
+                        <td style={{ padding: '20px', fontWeight: 700, fontSize: '1.05rem', color: '#EF4444' }}>{gap.keyword}</td>
+                        <td style={{ padding: '20px' }}>
+                           <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                             {gap.present_on.map((comp, i) => (
+                                <span key={i} style={{ fontSize: '0.75rem', fontWeight: 700, background: 'rgba(0,0,0,0.05)', padding: '4px 8px', borderRadius: '4px' }}>{comp}</span>
+                             ))}
+                           </div>
+                        </td>
+                        <td style={{ padding: '20px', fontWeight: 700 }}>{gap.search_volume.toLocaleString()}</td>
+                        <td style={{ padding: '20px' }}>
+                           <div style={{ width: '30px', height: '30px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: gap.kd > 60 ? 'rgba(239, 68, 68, 0.1)' : gap.kd > 30 ? 'rgba(245, 158, 11, 0.1)' : 'rgba(16, 185, 129, 0.1)', color: gap.kd > 60 ? '#EF4444' : gap.kd > 30 ? '#F59E0B' : '#10B981', fontWeight: 900, fontSize: '0.85rem' }}>{gap.kd}</div>
+                        </td>
+                        <td style={{ padding: '20px' }}>
+                           <button onClick={() => triggerBackgroundBot(`Alerting SRE: Pipeline constrained. Gap Topic "${gap.keyword}" pushed to Content Studio array for Claude 3.5 synthesis.`)} className="btn hover-lift" style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', background: 'var(--color-purple-main)', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer', boxShadow: '0 4px 15px rgba(147, 51, 234, 0.3)' }}>
+                              <Bot size={16} /> Auto-Draft Gap Content
+                           </button>
+                        </td>
+                     </tr>
+                  ))}
+               </tbody>
+            </table>
          </div>
       )}
 

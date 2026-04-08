@@ -9,6 +9,7 @@ const GhostEditor = () => {
   const [anomalies, setAnomalies] = useState([]);
   const [selectedAnomaly, setSelectedAnomaly] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [apiLimitsReached, setApiLimitsReached] = useState(false);
 
   // New Telemetry + Actions UI State
   const [openDropdownId, setOpenDropdownId] = useState(null);
@@ -116,13 +117,17 @@ const GhostEditor = () => {
             </div>
           </div>
 
-          <div style={{ marginBottom: '30px', padding: '12px 24px', background: 'var(--color-bg-light)', border: '1px solid rgba(0,0,0,0.05)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', fontWeight: 600, color: '#10B981', fontSize: '0.9rem' }}>
-                <ShieldCheck size={18} /> Global Constraints Engine: Active
+          <div style={{ marginBottom: '30px', padding: '12px 24px', background: 'var(--color-bg-light)', border: apiLimitsReached ? '1px solid #EF4444' : '1px solid rgba(0,0,0,0.05)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', fontWeight: 600, color: apiLimitsReached ? '#EF4444' : '#10B981', fontSize: '0.9rem' }}>
+                {apiLimitsReached ? <AlertTriangle size={18} /> : <ShieldCheck size={18} />} Global Constraints Engine: {apiLimitsReached ? 'BLOCKED' : 'Active'}
              </div>
              <div style={{ display: 'flex', alignItems: 'center', gap: '20px', fontSize: '0.85rem', color: 'var(--color-text-muted)', fontWeight: 600 }}>
-                <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Database size={14} /> Daily Budget: $1.42 / $5.00 limit</span>
-                <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Zap size={14} /> Rate: 13ms (Throttled)</span>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
+                   <input type="checkbox" checked={apiLimitsReached} onChange={() => setApiLimitsReached(!apiLimitsReached)} style={{ cursor: 'pointer' }} />
+                   Simulate Daily API Overrun
+                </label>
+                <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Database size={14} /> Daily Budget: {apiLimitsReached ? '$5.00 / $5.00 limit' : '$1.42 / $5.00 limit'}</span>
+                <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Zap size={14} /> Rate: {apiLimitsReached ? '0ms (Blocked)' : '13ms (Throttled)'}</span>
              </div>
           </div>
 
@@ -272,8 +277,18 @@ const GhostEditor = () => {
                     <button className="btn btn-outline" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '12px' }}>
                       <XCircle size={16} /> Reject
                     </button>
-                    <button onClick={() => alert("Global Constraints Verified. Deploying Claude 3.5 Sonnet to autonomously read the localized edge cache and structurally rewrite this UI element to maximize psychological conversion within the $5.00 daily budget...")} className="btn hover-lift" style={{ flex: 1.5, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', background: 'transparent', border: '2px solid var(--color-purple-main)', color: 'var(--color-purple-main)', borderRadius: '8px', fontWeight: 800, cursor: 'pointer' }}>
-                      <Bot size={16} /> Generate Claude Variant
+                    <button 
+                      onClick={() => {
+                          if (apiLimitsReached) {
+                              alert("SRE CONSTRAINT MET: Your $5.00 daily budget for Generative UI edits is maxed out. Action blocked to prevent billing overrun.");
+                          } else {
+                              alert("Global Constraints Verified. Deploying Claude 3.5 Sonnet to autonomously read the localized edge cache and structurally rewrite this UI element to maximize psychological conversion within the $5.00 daily budget...");
+                          }
+                      }} 
+                      className="btn hover-lift" 
+                      style={{ flex: 1.5, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', background: 'transparent', border: apiLimitsReached ? '2px solid #EF4444' : '2px solid var(--color-purple-main)', color: apiLimitsReached ? '#EF4444' : 'var(--color-purple-main)', borderRadius: '8px', fontWeight: 800, cursor: apiLimitsReached ? 'not-allowed' : 'pointer', opacity: apiLimitsReached ? 0.6 : 1 }}
+                    >
+                      {apiLimitsReached ? <AlertTriangle size={16} /> : <Bot size={16} />} {apiLimitsReached ? "API Limit Exceeded" : "Generate Claude Variant"}
                     </button>
                     <button onClick={() => deployMutationToEdge(selectedAnomaly?.id)} className="btn btn-primary" style={{ flex: 1.5, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
                       <Zap size={16} /> Authorize Test

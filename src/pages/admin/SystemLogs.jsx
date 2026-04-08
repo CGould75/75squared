@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Terminal, Activity, ServerCrash, Bot, RefreshCcw, CheckCircle2, ChevronRight, Copy, AlertTriangle, X } from 'lucide-react';
+import { Terminal, Activity, ServerCrash, Bot, RefreshCcw, CheckCircle2, ChevronRight, Copy, AlertTriangle, X, User } from 'lucide-react';
 import { supabase } from '../../lib/supabaseClient';
 import { Link } from 'react-router-dom';
 
@@ -164,10 +164,16 @@ const SystemLogs = () => {
 
                      {/* Right: The SRE Auto-Healing */}
                      <div style={{ flex: 1, padding: '24px', display: 'flex', flexDirection: 'column', background: log.status === 'escalated' ? 'rgba(239, 68, 68, 0.02)' : 'rgba(147, 51, 234, 0.02)' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-                           <Bot size={18} color="var(--color-purple-main)"/>
-                           <span style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--color-purple-main)' }}>SRE Action</span>
-                        </div>
+                        {(() => {
+                           const isHuman = log.sre_action?.includes('Super Admin') || log.sre_action?.includes('Human');
+                           return (
+                             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+                                {isHuman ? <User size={18} color="var(--color-blue-main)"/> : <Bot size={18} color="var(--color-purple-main)"/>}
+                                <span style={{ fontSize: '0.9rem', fontWeight: 700, color: isHuman ? 'var(--color-blue-main)' : 'var(--color-purple-main)' }}>{isHuman ? 'Human SRE Validate' : 'Nexus SRE Agent'}</span>
+                                <div style={{ background: isHuman ? 'rgba(59, 130, 246, 0.2)' : 'rgba(147, 51, 234, 0.2)', color: isHuman ? 'var(--color-blue-main)' : 'var(--color-purple-main)', fontSize: '0.65rem', padding: '3px 8px', borderRadius: '4px', textTransform: 'uppercase', fontWeight: 900 }}>{isHuman ? 'Human' : 'Agentic'}</div>
+                             </div>
+                           );
+                        })()}
                         <div style={{ fontSize: '1rem', lineHeight: '1.6', flexGrow: 1, fontWeight: 500 }}>
                           {log.sre_action}
                         </div>

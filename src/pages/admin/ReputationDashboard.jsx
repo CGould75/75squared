@@ -1,12 +1,15 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { MessageSquare, Star, Reply, Zap, Settings, Globe, Shield, Activity, Smartphone, Mail, Settings2, ShieldAlert, Sparkles } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import SEOHead from '../../components/SEOHead';
 import { supabase } from '../../lib/supabaseClient';
 import { GlobalDomainContext } from '../../layouts/AdminLayout';
 
 export default function ReputationDashboard() {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('inbox');
   const [reviews, setReviews] = useState([]);
+  const [claudePreReview, setClaudePreReview] = useState(true);
   const { activeDomain } = useContext(GlobalDomainContext);
 
   useEffect(() => {
@@ -19,6 +22,15 @@ export default function ReputationDashboard() {
     };
     fetchReviews();
   }, [activeDomain]);
+
+  const handleAIDraft = (review) => {
+     if (claudePreReview) {
+         alert(`Claude Semantic Engine Engaged: Generating and mathematically guaranteeing brand safety for response to ${review.author}.\n\nAuto-publishing variant to Google My Business.`);
+     } else {
+         alert(`Draft generated. Routing payload to SRE Action Center for final Human Validation before publishing.`);
+         navigate('/admin/action-center');
+     }
+  };
 
   return (
     <div className="fade-in">
@@ -106,7 +118,7 @@ export default function ReputationDashboard() {
                      
                      <div style={{ display: 'flex', gap: '12px' }}>
                         <button className="btn btn-outline" style={{ background: 'white', padding: '8px 16px', fontSize: '0.85rem' }}><Reply size={14}/> Fast Reply</button>
-                        <button className="btn btn-outline" style={{ background: 'rgba(59, 130, 246, 0.05)', border: '1px solid rgba(59, 130, 246, 0.2)', color: 'var(--color-blue-main)', padding: '8px 16px', fontSize: '0.85rem' }}><Sparkles size={14}/> Draft via AI</button>
+                        <button onClick={() => handleAIDraft(review)} className="btn btn-outline" style={{ background: 'rgba(59, 130, 246, 0.05)', border: '1px solid rgba(59, 130, 246, 0.2)', color: 'var(--color-blue-main)', padding: '8px 16px', fontSize: '0.85rem', cursor: 'pointer' }}><Sparkles size={14}/> Draft via AI</button>
                         {review.rating === 1 && (
                             <button className="btn btn-outline" style={{ background: 'rgba(239, 68, 68, 0.05)', border: '1px solid rgba(239, 68, 68, 0.2)', color: '#EF4444', padding: '8px 16px', fontSize: '0.85rem' }}><Activity size={14}/> Push SRE Alert</button>
                         )}
@@ -159,6 +171,16 @@ export default function ReputationDashboard() {
             <h3 style={{ fontSize: '1.4rem', fontWeight: 800, marginBottom: '24px' }}>Notification & Alert Thresholds</h3>
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px', border: '1px solid rgba(0,0,0,0.05)', borderRadius: '12px', background: '#FAFAFA' }}>
+                  <div>
+                     <div style={{ fontWeight: 700, fontSize: '1.1rem', marginBottom: '4px' }}>Claude Semantic Pre-Review</div>
+                     <div style={{ color: 'var(--color-text-muted)', fontSize: '0.9rem', maxWidth: '500px', lineHeight: '1.4' }}>When active, Claude 3.5 Sonnet structurally reviews all AI-drafted replies for brand-safety and mathematically authorizes auto-publishing directly to GMB without humans. If disabled, all drafts route to the SRE Action Center for human validation.</div>
+                  </div>
+                  <div onClick={() => setClaudePreReview(!claudePreReview)} style={{ width: '48px', height: '26px', background: claudePreReview ? '#10B981' : '#CCC', borderRadius: '13px', position: 'relative', cursor: 'pointer', transition: '0.3s' }}>
+                     <div style={{ width: '22px', height: '22px', background: 'white', borderRadius: '50%', position: 'absolute', right: claudePreReview ? '2px' : '24px', top: '2px', boxShadow: '0 1px 3px rgba(0,0,0,0.2)', transition: '0.3s' }}></div>
+                  </div>
+               </div>
+
                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px', border: '1px solid rgba(0,0,0,0.05)', borderRadius: '12px', background: '#FAFAFA' }}>
                   <div>
                      <div style={{ fontWeight: 700, fontSize: '1.1rem', marginBottom: '4px' }}>Critical 1-Star Alert (SMS)</div>
