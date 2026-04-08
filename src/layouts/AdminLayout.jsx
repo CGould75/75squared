@@ -1,6 +1,6 @@
 import React, { useState, useEffect, createContext } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, LineChart, MousePointerClick, Mail, Settings, LogOut, Search, PanelLeftClose, PanelLeftOpen, Shield, User, FileText, CreditCard, Share2, Ghost, Sparkles, Command, Blocks, ShieldAlert, Activity, SlidersHorizontal, Users, AlertTriangle, MessageSquare, Globe, Network } from 'lucide-react';
+import { LayoutDashboard, LineChart, MousePointerClick, Mail, Settings, LogOut, Search, PanelLeftClose, PanelLeftOpen, Shield, User, FileText, CreditCard, Share2, Ghost, Sparkles, Command, Blocks, ShieldAlert, Activity, SlidersHorizontal, Users, AlertTriangle, MessageSquare, Globe, Network, Target, Key } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 
 export const GlobalDomainContext = createContext();
@@ -93,6 +93,8 @@ const AdminLayout = () => {
 
   const navItems = [
     { name: 'Dashboard Home', path: '/admin', icon: <LayoutDashboard size={20} /> },
+    { name: 'Hive Action Center', path: '/admin/action-center', icon: <Target size={20} /> },
+    { name: 'Super User Matrix', path: '/admin/users', icon: <Key size={20} />, adminOnly: true },
     { name: 'Client Management', path: '/admin/clients', icon: <Users size={20} />, adminOnly: true },
     { name: 'Security Center', path: '/admin/security', icon: <ShieldAlert size={20} />, adminOnly: true },
     { name: 'System Errors & Logs', path: '/admin/system-logs', icon: <Activity size={20} />, key: 'systemLogs' },

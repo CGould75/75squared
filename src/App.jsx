@@ -29,6 +29,8 @@ import PlatformGuide from './pages/PlatformGuide';
 import ClientManagement from './pages/admin/ClientManagement';
 import ReputationDashboard from './pages/admin/ReputationDashboard';
 import KnowledgeGraphSync from './pages/admin/KnowledgeGraphSync';
+import UserManagement from './pages/admin/UserManagement';
+import ActionCenter from './pages/admin/ActionCenter';
 
 // Layout Wrapper for the public agency site
 const PublicLayout = ({ children }) => (
@@ -71,6 +73,8 @@ function App() {
         <Route path="billing" element={<Billing />} />
         <Route path="reputation" element={<ReputationDashboard />} />
         <Route path="directory-sync" element={<KnowledgeGraphSync />} />
+        <Route path="users" element={<UserManagement />} />
+        <Route path="action-center" element={<ActionCenter />} />
       </Route>
     </Routes>
   );
