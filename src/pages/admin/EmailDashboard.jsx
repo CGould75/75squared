@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Mail, Users, Send, MousePointerClick, TrendingUp, Tags, Pencil, Image as ImageIcon, LayoutTemplate, Clock, ShieldCheck, Bug, Zap, Trash2, Save, X, Plus, Target, MessageCircle, Smartphone, ShoppingCart, Activity } from 'lucide-react';
+import { Mail, Users, Send, MousePointer2, TrendingUp, Tags, Pencil, Image as ImageIcon, Layout, Clock, ShieldCheck, Bug, Zap, Trash2, Save, X, Plus, Target, MessageCircle, Smartphone, ShoppingCart, Activity } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 import { supabase } from '../../lib/supabaseClient';
@@ -143,7 +143,7 @@ const EmailDashboard = () => {
             {[
               { label: 'Total Subscribers', value: '4,289', icon: <Users size={20} color="var(--color-blue-main)"/> },
               { label: 'Avg. Open Rate', value: '64.2%', icon: <TrendingUp size={20} color="var(--color-green-main)"/> },
-              { label: 'Avg. Click Rate', value: '18.5%', icon: <MousePointerClick size={20} color="var(--color-purple-main)"/> },
+              { label: 'Avg. Click Rate', value: '18.5%', icon: <MousePointer2 size={20} color="var(--color-purple-main)"/> },
               { label: 'Unsubscribed', value: '12', icon: <Mail size={20} color="var(--color-text-muted)"/> }
             ].map((metric, i) => (
               <div key={i} className="glass-panel" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -291,10 +291,10 @@ const EmailDashboard = () => {
                   <ImageIcon size={20} color="var(--color-text-muted)" /> Image
                 </button>
                 <button style={{ padding: '16px', borderRadius: '8px', border: '1px dashed rgba(0,0,0,0.2)', background: 'transparent', cursor: 'grab', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', color: 'var(--color-text-main)', fontWeight: 600 }}>
-                  <MousePointerClick size={20} color="var(--color-text-muted)" /> Button
+                  <MousePointer2 size={20} color="var(--color-text-muted)" /> Button
                 </button>
                 <button style={{ padding: '16px', borderRadius: '8px', border: '1px dashed rgba(0,0,0,0.2)', background: 'transparent', cursor: 'grab', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', color: 'var(--color-text-main)', fontWeight: 600 }}>
-                  <LayoutTemplate size={20} color="var(--color-text-muted)" /> Spacer
+                  <Layout size={20} color="var(--color-text-muted)" /> Spacer
                 </button>
               </div>
             </div>
