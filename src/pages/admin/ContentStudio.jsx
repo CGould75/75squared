@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { PenTool, CheckCircle, Target, Type, Image as ImageIcon, Link as LinkIcon, Sparkles, Terminal, Globe, Code2, Network, Bot, ChevronRight, Activity, Cpu } from 'lucide-react';
+import { PenTool, CheckCircle, Target, Type, Image as ImageIcon, Link as LinkIcon, Sparkles, Terminal, Globe, Code2, Network, Bot, ChevronRight, Activity, Cpu, CheckCircle2, AlertTriangle } from 'lucide-react';
 import { GlobalDomainContext } from '../../layouts/AdminLayout';
 import { useNavigate } from 'react-router-dom';
 

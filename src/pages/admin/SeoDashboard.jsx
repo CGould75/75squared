@@ -468,14 +468,14 @@ const SeoDashboard = () => {
                      <div style={{ padding: '20px', background: 'rgba(139, 92, 246, 0.05)', borderBottom: '1px solid rgba(0,0,0,0.1)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <h4 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#111' }}>Lost to: {intersect.competitor}</h4>
                      </div>
-                     <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                     <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '12px', flexGrow: 1 }}>
                         <div style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase' }}>Intersecting Domains You Are Missing</div>
                         <ul style={{ listStyleType: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '8px' }}>
                            {intersect.connecting_domains.map((dom, j) => (
                               <li key={j} style={{ fontWeight: 600, color: 'var(--color-blue-main)', display: 'flex', alignItems: 'center', gap: '8px' }}><ArrowUpRight size={14}/> {dom}</li>
                            ))}
                         </ul>
-                        <button onClick={() => triggerBackgroundBot("Alerting SRE: Missing Link Domain payload appended to Action Center queue for outreach validation.")} className="btn hover-lift" style={{ marginTop: '10px', padding: '10px', background: '#8B5CF6', color: 'white', borderRadius: '8px', border: 'none', fontWeight: 800, cursor: 'pointer', display: 'flex', justifyContent: 'center', gap: '8px' }}><Target size={16}/> Push Payload to Action Center</button>
+                        <button onClick={() => triggerBackgroundBot("Alerting SRE: Missing Link Domain payload appended to Action Center queue for outreach validation.")} className="btn hover-lift" style={{ marginTop: 'auto', padding: '10px', background: '#8B5CF6', color: 'white', borderRadius: '8px', border: 'none', fontWeight: 800, cursor: 'pointer', display: 'flex', justifyContent: 'center', gap: '8px' }}><Target size={16}/> Push Payload</button>
                      </div>
                   </div>
                ))}
@@ -494,13 +494,13 @@ const SeoDashboard = () => {
             {/* SpyFu Kombat Venn Diagram Parity */}
             <div style={{ position: 'relative', width: '300px', height: '300px', margin: '0 auto', marginBottom: '40px' }}>
                <div style={{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)', width: '200px', height: '200px', borderRadius: '50%', background: 'rgba(59, 130, 246, 0.4)', mixBlendMode: 'multiply', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <span style={{ position: 'absolute', top: '10px', fontWeight: 800, color: '#1d4ed8' }}>{activeDomain}</span>
+                  <span style={{ position: 'absolute', top: '-25px', width: '100%', textAlign: 'center', fontWeight: 800, color: '#1d4ed8' }}>{activeDomain}</span>
                </div>
                <div style={{ position: 'absolute', bottom: '20px', left: 0, width: '200px', height: '200px', borderRadius: '50%', background: 'rgba(16, 185, 129, 0.4)', mixBlendMode: 'multiply', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <span style={{ position: 'absolute', bottom: '10px', left: '20px', fontWeight: 800, color: '#047857', maxWidth: '140px', overflow: 'hidden', textOverflow: 'ellipsis' }}>{domainData.competitors[0]?.domain || 'Competitor 1'}</span>
+                  <span style={{ position: 'absolute', bottom: '-25px', width: '100%', textAlign: 'center', fontWeight: 800, color: '#047857' }}>{domainData.competitors[0]?.domain || 'Competitor 1'}</span>
                </div>
                <div style={{ position: 'absolute', bottom: '20px', right: 0, width: '200px', height: '200px', borderRadius: '50%', background: 'rgba(245, 158, 11, 0.4)', mixBlendMode: 'multiply', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <span style={{ position: 'absolute', bottom: '10px', right: '20px', fontWeight: 800, color: '#b45309', maxWidth: '140px', overflow: 'hidden', textOverflow: 'ellipsis' }}>{domainData.competitors[1]?.domain || 'Competitor 2'}</span>
+                  <span style={{ position: 'absolute', bottom: '-25px', width: '100%', textAlign: 'center', fontWeight: 800, color: '#b45309' }}>{domainData.competitors[1]?.domain || 'Competitor 2'}</span>
                </div>
                {/* Core Overlap */}
                <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', fontWeight: 900, zIndex: 10, color: '#111', fontSize: '1.2rem', background: 'white', padding: '4px 8px', borderRadius: '8px', boxShadow: '0 2px 10px rgba(0,0,0,0.1)', whiteSpace: 'nowrap' }}>
