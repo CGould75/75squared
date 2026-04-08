@@ -198,14 +198,14 @@ const EmailDashboard = () => {
                         <>
                           <td style={{ padding: '12px' }}>
                             <div style={{ fontWeight: 700, color: '#111' }}>{sub.email}</div>
-                            <div style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>ID: {sub.id.substring(0,8)}...</div>
+                            <div style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>ID: {String(sub.id).substring(0,8)}...</div>
                           </td>
                           <td style={{ padding: '12px' }}>
                              <span style={{ padding: '4px 8px', background: sub.status === 'Subscribed' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(0,0,0,0.05)', color: sub.status === 'Subscribed' ? '#10B981' : 'var(--color-text-muted)', borderRadius: '6px', fontSize: '0.85rem', fontWeight: 700 }}>{sub.status}</span>
                           </td>
                           <td style={{ padding: '12px', maxWidth: '200px' }}>
                              <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
-                               {sub.tags && sub.tags.length > 0 ? sub.tags.map((t, i) => (
+                               {sub.tags && Array.isArray(sub.tags) && sub.tags.length > 0 ? sub.tags.map((t, i) => (
                                   <span key={i} style={{ fontSize: '0.75rem', fontWeight: 600, background: 'var(--color-bg-light)', padding: '4px 8px', borderRadius: '4px' }}>{t}</span>
                                )) : <span style={{ color: 'var(--color-text-muted)', fontSize: '0.85rem' }}>General</span>}
                              </div>
