@@ -58,22 +58,22 @@ const ContentStudio = () => {
 
     setTimeout(() => {
        setPipelineState('drafting');
-       addLog(`[NEURAL] Generating long-form semantic clusters...`);
+       addLog(`[GPT ENGINE] Translating clusters into high-volume semantic mass...`);
        simulateDrafting();
     }, 6000);
   };
 
   const simulateClaudeEEAT = (rawText) => {
      setTimeout(() => {
-        addLog(`[CLAUDE] Purging generic structural parameters (the 'delve' problem)...`);
+        addLog(`[CLAUDE 3.5 SONNET] Purging generic GPT structural parameters (e.g. 'delve', 'moreover')...`);
      }, 2000);
      setTimeout(() => {
-        addLog(`[CLAUDE] Injecting senior expert persona and EEAT tactical markers...`);
+        addLog(`[CLAUDE 3.5 SONNET] Injecting senior expert persona and EEAT cognitive framing...`);
      }, 4000);
      setTimeout(() => {
-        setContent(rawText + `\n\n> Note from Claude Cognitive Node: I have restructured the localized layouts to match the tone of an enterprise CIO. The generic semantic fluff has been purged and replaced with high-friction authoritative framing to guarantee maximum Information Gain (EEAT).`);
+        setContent(rawText + `\n\n> Note from Claude 3.5 Sonnet Cognitive Engine: I have intercepted the raw GPT data source and restructured it to match the tone of an enterprise CIO. The generic semantic fluff has been purged and mathematically replaced with high-friction authoritative framing to guarantee maximum Information Gain (EEAT).`);
         setPipelineState('complete');
-        addLog(`[SUCCESS] Neural draft completed. Payload EEAT optimized.`);
+        addLog(`[SUCCESS] Neural draft completed via Two-Stage Dual-Model Pipeline.`);
      }, 6000);
   };
 
@@ -97,7 +97,7 @@ const ContentStudio = () => {
         } else {
            clearInterval(interval);
            setPipelineState('claude_intercept');
-           addLog(`[COGNITIVE] Intercepting payload... Deploying Claude 3.5 Sonnet EEAT Node.`);
+           addLog(`[COGNITIVE INTERCEPT] GPT payload generation finished. Handing payload to Claude 3.5 Sonnet...`);
            simulateClaudeEEAT(currentText);
         }
      }, 1500);
@@ -145,10 +145,10 @@ const ContentStudio = () => {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '10px' }}>
         <div>
           <h1 style={{ fontSize: '2.5rem', fontWeight: 800, marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '16px' }}>
-            <Bot size={36} color="var(--color-purple-main)" /> Content Studio
+            <Bot size={36} color="var(--color-purple-main)" /> Dual-Stage Content Studio
           </h1>
           <p style={{ color: 'var(--color-text-muted)', fontSize: '1.1rem' }}>
-            Autonomous Neural Generation and Technical Schema Structuring.
+            GPT-4 Volume Cannon passing into Claude 3.5 Sonnet Cognitive EEAT Intercept.
           </p>
         </div>
         

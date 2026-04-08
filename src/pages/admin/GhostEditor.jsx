@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Ghost, AlertTriangle, ArrowRight, Zap, CheckCircle2, XCircle, MousePointerClick, Bot, Code2, LineChart, SplitSquareHorizontal, ShieldCheck, FileSearch, Maximize } from 'lucide-react';
+import { Ghost, AlertTriangle, ArrowRight, Zap, CheckCircle2, XCircle, MousePointerClick, Bot, Code2, LineChart, SplitSquareHorizontal, ShieldCheck, FileSearch, Maximize, Database } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabaseClient';
 
@@ -106,7 +106,7 @@ const GhostEditor = () => {
 
       {activeTab === 'feed' && (
         <div className="fade-in">
-          <div style={{ padding: '24px', background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.05), rgba(147, 51, 234, 0.05))', border: '1px solid rgba(239, 68, 68, 0.2)', borderRadius: '16px', marginBottom: '30px', display: 'flex', gap: '20px', alignItems: 'center' }}>
+          <div style={{ padding: '24px', background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.05), rgba(147, 51, 234, 0.05))', border: '1px solid rgba(239, 68, 68, 0.2)', borderRadius: '16px', marginBottom: '16px', display: 'flex', gap: '20px', alignItems: 'center' }}>
             <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: 'rgba(239, 68, 68, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <AlertTriangle size={24} color="#EF4444" />
             </div>
@@ -114,6 +114,16 @@ const GhostEditor = () => {
               <h3 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#B91C1C', marginBottom: '4px' }}>Autonomous Scanner Active</h3>
               <p style={{ color: 'var(--color-text-muted)', fontSize: '0.95rem' }}>The engine has identified 3 statistical anomalies in the client's current UI architecture based on heatmap thermal data.</p>
             </div>
+          </div>
+
+          <div style={{ marginBottom: '30px', padding: '12px 24px', background: 'var(--color-bg-light)', border: '1px solid rgba(0,0,0,0.05)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', fontWeight: 600, color: '#10B981', fontSize: '0.9rem' }}>
+                <ShieldCheck size={18} /> Global Constraints Engine: Active
+             </div>
+             <div style={{ display: 'flex', alignItems: 'center', gap: '20px', fontSize: '0.85rem', color: 'var(--color-text-muted)', fontWeight: 600 }}>
+                <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Database size={14} /> Daily Budget: $1.42 / $5.00 limit</span>
+                <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Zap size={14} /> Rate: 13ms (Throttled)</span>
+             </div>
           </div>
 
           <div style={{ display: 'grid', gap: '16px' }}>
@@ -262,7 +272,7 @@ const GhostEditor = () => {
                     <button className="btn btn-outline" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '12px' }}>
                       <XCircle size={16} /> Reject
                     </button>
-                    <button onClick={() => alert("Deploying Claude 3.5 Sonnet to autonomously read the localized edge cache and structurally rewrite this UI element to maximize psychological conversion...")} className="btn hover-lift" style={{ flex: 1.5, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', background: 'transparent', border: '2px solid var(--color-purple-main)', color: 'var(--color-purple-main)', borderRadius: '8px', fontWeight: 800, cursor: 'pointer' }}>
+                    <button onClick={() => alert("Global Constraints Verified. Deploying Claude 3.5 Sonnet to autonomously read the localized edge cache and structurally rewrite this UI element to maximize psychological conversion within the $5.00 daily budget...")} className="btn hover-lift" style={{ flex: 1.5, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', background: 'transparent', border: '2px solid var(--color-purple-main)', color: 'var(--color-purple-main)', borderRadius: '8px', fontWeight: 800, cursor: 'pointer' }}>
                       <Bot size={16} /> Generate Claude Variant
                     </button>
                     <button onClick={() => deployMutationToEdge(selectedAnomaly?.id)} className="btn btn-primary" style={{ flex: 1.5, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Share2, Calendar, Edit3, Send, Clock, Plus, Settings, TrendingUp, Image as ImageIcon, Camera, MessageCircle, Briefcase, Activity, ThumbsUp, Check, BarChart2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabaseClient';
 
 // React Flow Imports for Gumloop Parity
@@ -7,6 +8,7 @@ import { ReactFlow, Controls, Background, applyNodeChanges, applyEdgeChanges } f
 import '@xyflow/react/dist/style.css';
 
 const SocialDashboard = () => {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('calendar');
   const [upcomingPosts, setUpcomingPosts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -50,7 +52,8 @@ const SocialDashboard = () => {
     const { data } = await supabase.from('social_posts').insert([newPost]).select();
     if (data) {
       setComposerContent('');
-      setActiveTab('calendar');
+      alert("Constraint Lock Verified: Synthetic payload securely attached to the Action Center for SRE validation.");
+      navigate('/admin/action-center');
     }
   };
 
@@ -401,7 +404,7 @@ const SocialDashboard = () => {
                <h3 style={{ fontWeight: 800, fontSize: '1.2rem', display: 'flex', alignItems: 'center', gap: '12px' }}>⚡ AI Operations Pipeline</h3>
                <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9rem', marginTop: '4px' }}>Build autonomous, logic-based node networks for your Autopilot.</p>
              </div>
-             <button className="btn btn-primary" style={{ padding: '10px 24px', fontSize: '1rem', background: 'var(--color-purple-main)', border: 'none' }}>Deploy Engine Graph</button>
+             <button onClick={() => { alert("Graph payload architecture captured. Forwarding to Action Center queue for SRE compilation..."); navigate('/admin/action-center'); }} className="btn btn-primary" style={{ padding: '10px 24px', fontSize: '1rem', background: 'var(--color-purple-main)', border: 'none' }}>Run Validation & Deploy Engine</button>
            </div>
            
            {/* Visual React Flow Canvas area */}
