@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { Globe, Lock, ShieldAlert, Award, Link2, ArrowUpRight, Search, Activity, AlertTriangle, CheckCircle2, AlertOctagon, Bot, Zap, Target, FileText, Database, Code2, LineChart, Hash } from 'lucide-react';
+import { Globe, Lock, ShieldAlert, Award, Link2, ArrowUpRight, Search, Activity, AlertTriangle, CheckCircle2, AlertOctagon, Bot, Zap, Target, FileText, Database, Code2, LineChart, Hash, Mail, Share2, MonitorPlay } from 'lucide-react';
 import { GlobalDomainContext } from '../../layouts/AdminLayout';
 
 // MOCK PAYLOADS BY TENANT
@@ -28,6 +28,11 @@ const MOCK_DOMAINS = {
     competitors: [
       { domain: "neilpatel.com", overlap: "45%", organic_traffic: 2200000 },
       { domain: "ignitevisibility.com", overlap: "22%", organic_traffic: 450000 }
+    ],
+    top_pages: [
+      { id: 1, path: "/pricing", traffic: 45000, friction: 89, trend: "up" },
+      { id: 2, path: "/agency/seo-services", traffic: 22000, friction: 12, trend: "up" },
+      { id: 3, path: "/blog/what-is-edge-routing", traffic: 18000, friction: 65, trend: "down" }
     ]
   },
   'goodyslv.com': {
@@ -48,6 +53,10 @@ const MOCK_DOMAINS = {
     competitors: [
       { domain: "popcornopolis.com", overlap: "15%", organic_traffic: 120000 },
       { domain: "garrettpopcorn.com", overlap: "12%", organic_traffic: 240000 }
+    ],
+    top_pages: [
+      { id: 1, path: "/products/cheddar", traffic: 3200, friction: 14, trend: "up" },
+      { id: 2, path: "/corporate-gifts", traffic: 1800, friction: 72, trend: "down" }
     ]
   }
 };
@@ -83,9 +92,15 @@ const SeoDashboard = () => {
           <h1 style={{ fontSize: '2.5rem', fontWeight: 800, marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '16px' }}>
             <Globe size={36} color="var(--color-blue-main)" /> Intelligence Engine
           </h1>
-          <p style={{ color: 'var(--color-text-muted)', fontSize: '1.1rem' }}>
+          <p style={{ color: 'var(--color-text-muted)', fontSize: '1.1rem', marginBottom: '16px' }}>
             Ahrefs-grade API telemetry, technical auditing, and keyword opportunity discovery.
           </p>
+
+          <div style={{ padding: '8px 16px', background: 'rgba(16, 185, 129, 0.08)', border: '1px solid rgba(16, 185, 129, 0.2)', borderRadius: '8px', display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ fontSize: '0.8rem', fontWeight: 900, color: 'var(--color-green-main)', textTransform: 'uppercase', letterSpacing: '1px' }}>The One Goal:</span>
+            <span style={{ fontSize: '0.95rem', color: '#111', fontWeight: 800 }}>Make the company the best it can be through using our marketing tools.</span>
+          </div>
+
         </div>
         <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
           <div style={{ padding: '8px 16px', borderRadius: '20px', background: 'rgba(147, 51, 234, 0.1)', color: 'var(--color-purple-dark)', fontWeight: 700, fontSize: '0.85rem' }}>
@@ -160,21 +175,61 @@ const SeoDashboard = () => {
               </table>
             </div>
 
-            {/* Competitor Gap */}
-            <div className="glass-panel" style={{ padding: '40px' }}>
-              <h3 style={{ fontSize: '1.4rem', fontWeight: 900, marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '12px' }}><Target size={20} color="var(--color-purple-main)" /> Content Gap Analysis</h3>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                 {domainData.competitors.map((comp, i) => (
-                    <div key={i} style={{ padding: '20px', border: '1px solid rgba(0,0,0,0.05)', borderRadius: '12px', background: 'var(--color-bg-light)' }}>
-                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-                          <h4 style={{ fontSize: '1.1rem', fontWeight: 800 }}>{comp.domain}</h4>
-                          <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#F59E0B', background: 'rgba(245, 158, 11, 0.1)', padding: '4px 8px', borderRadius: '6px' }}>Overlap: {comp.overlap}</span>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
+               {/* Competitor Gap & Email Synergy */}
+               <div className="glass-panel" style={{ padding: '40px' }}>
+                 <h3 style={{ fontSize: '1.4rem', fontWeight: 900, marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '12px' }}><Target size={20} color="var(--color-purple-main)" /> Content Gap Analysis</h3>
+                 <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                    {domainData.competitors.map((comp, i) => (
+                       <div key={i} style={{ padding: '20px', border: '1px solid rgba(0,0,0,0.05)', borderRadius: '12px', background: 'var(--color-bg-light)' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                             <h4 style={{ fontSize: '1.1rem', fontWeight: 800 }}>{comp.domain}</h4>
+                             <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#F59E0B', background: 'rgba(245, 158, 11, 0.1)', padding: '4px 8px', borderRadius: '6px' }}>Overlap: {comp.overlap}</span>
+                          </div>
+                          <p style={{ fontSize: '0.9rem', color: 'var(--color-text-muted)' }}>This competitor outranks you on <strong style={{ color: '#111' }}>{comp.organic_traffic.toLocaleString()}</strong> organic keywords.</p>
+                          <div style={{ display: 'flex', gap: '8px', marginTop: '16px' }}>
+                             <button className="btn hover-lift" style={{ flex: 1, padding: '10px', background: 'white', border: '1px solid rgba(0,0,0,0.1)', fontWeight: 700, borderRadius: '8px', cursor: 'pointer' }}>View Keyword Gap</button>
+                             <button onClick={() => triggerBackgroundBot(`Email Pipeline: Generating outreach drip campaign to ${comp.domain} referring domains.`)} className="btn hover-lift" style={{ flex: 1, padding: '10px', background: 'var(--color-purple-main)', color: 'white', border: 'none', fontWeight: 700, borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}><Mail size={16}/> Launch Link Outreach</button>
+                          </div>
                        </div>
-                       <p style={{ fontSize: '0.9rem', color: 'var(--color-text-muted)' }}>This competitor outranks you on <strong style={{ color: '#111' }}>{comp.organic_traffic.toLocaleString()}</strong> organic keywords.</p>
-                       <button className="btn hover-lift" style={{ width: '100%', marginTop: '16px', padding: '10px', background: 'white', border: '1px solid rgba(0,0,0,0.1)', fontWeight: 700, borderRadius: '8px', cursor: 'pointer' }}>View Missing Keywords</button>
-                    </div>
-                 ))}
-              </div>
+                    ))}
+                 </div>
+               </div>
+
+               {/* Top UI Pages & Thermal Synergy */}
+               <div className="glass-panel" style={{ padding: '40px' }}>
+                  <h3 style={{ fontSize: '1.4rem', fontWeight: 900, marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '12px' }}><Activity size={20} color="#10B981" /> Top Organic Pages (Thermal Sync)</h3>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+                     <thead>
+                        <tr style={{ borderBottom: '2px solid rgba(0,0,0,0.05)', color: 'var(--color-text-muted)', fontSize: '0.85rem', textTransform: 'uppercase' }}>
+                           <th style={{ padding: '16px' }}>URL Path</th>
+                           <th style={{ padding: '16px' }}>Traffic</th>
+                           <th style={{ padding: '16px' }}>Thermal Risk</th>
+                        </tr>
+                     </thead>
+                     <tbody>
+                        {domainData.top_pages.map(page => (
+                           <tr key={page.id} style={{ borderBottom: '1px solid rgba(0,0,0,0.02)' }}>
+                              <td style={{ padding: '20px 16px', fontWeight: 600 }}>{page.path}</td>
+                              <td style={{ padding: '20px 16px', fontWeight: 800 }}>{page.traffic.toLocaleString()}</td>
+                              <td style={{ padding: '20px 16px' }}>
+                                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                    <span style={{ 
+                                       background: page.friction > 60 ? 'rgba(239, 68, 68, 0.1)' : 'rgba(16, 185, 129, 0.1)', color: page.friction > 60 ? '#EF4444' : '#10B981',
+                                       padding: '6px 12px', borderRadius: '6px', fontSize: '0.85rem', fontWeight: 800 
+                                    }}>Friction: {page.friction}%</span>
+                                    {page.friction > 60 && (
+                                       <button onClick={() => triggerBackgroundBot(`Thermal Sync: Opening Session Replays for ${page.path}.`)} className="hover-lift" style={{ background: '#EF4444', color: 'white', border: 'none', borderRadius: '4px', width: '28px', height: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }} title="Watch Session Replays">
+                                          <MonitorPlay size={14} />
+                                       </button>
+                                    )}
+                                 </div>
+                              </td>
+                           </tr>
+                        ))}
+                     </tbody>
+                  </table>
+               </div>
             </div>
           </div>
         </div>
@@ -287,7 +342,10 @@ const SeoDashboard = () => {
       {/* ========================================== */}
       {activeTab === 'rank tracker' && (
         <div className="fade-in glass-panel" style={{ padding: '40px' }}>
-          <h3 style={{ fontSize: '1.4rem', fontWeight: 900, marginBottom: '40px', display: 'flex', alignItems: 'center', gap: '12px' }}><LineChart size={24} color="var(--color-blue-main)" /> Top Keywords Trajectory</h3>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px' }}>
+             <h3 style={{ fontSize: '1.4rem', fontWeight: 900, display: 'flex', alignItems: 'center', gap: '12px' }}><LineChart size={24} color="var(--color-blue-main)" /> Top Keywords Trajectory</h3>
+             <button onClick={() => triggerBackgroundBot(`Social Engine Action: Aggregating dropped keywords and scheduling X, LinkedIn, and Facebook auto-posts to surge traffic signals.`)} className="btn hover-lift" style={{ padding: '12px 24px', background: '#3B82F6', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.95rem', cursor: 'pointer', boxShadow: '0 4px 15px rgba(59, 130, 246, 0.3)' }}><Share2 size={18} /> Distribute Declines to Social Engine</button>
+          </div>
           
           <div style={{ height: '350px', position: 'relative', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', paddingBottom: '30px', borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
             {MOCK_TRAJECTORY.map((point, index) => {
