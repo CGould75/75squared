@@ -285,7 +285,14 @@ const AdminLayout = () => {
                <Network size={16} color="var(--color-text-muted)" />
                <select 
                  value={activeDomain}
-                 onChange={(e) => setActiveDomain(e.target.value)}
+                 onChange={(e) => {
+                    const selVal = e.target.value;
+                    setActiveDomain(selVal);
+                    const activeClient = availableDomains.find(d => d.domain === selVal);
+                    if (activeClient) {
+                      setClientName(activeClient.name);
+                    }
+                 }}
                  style={{ background: 'transparent', border: 'none', fontWeight: 800, fontSize: '0.9rem', color: 'var(--color-text-main)', outline: 'none', cursor: 'pointer' }}
                >
                  {availableDomains.map(d => (
