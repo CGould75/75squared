@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Users, Shield, Ghost, Key, CheckCircle2, Lock, Unlock, Eye, Sparkles, Code } from 'lucide-react';
+import { Users, Shield, Ghost, Key, CheckCircle2, Lock, Unlock, Eye, Sparkles, Code, Trash2, Edit, Save } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
 
 import { supabase } from '../../lib/supabaseClient';
@@ -12,6 +12,9 @@ const ClientManagement = () => {
   const [showGeoModal, setShowGeoModal] = useState(false);
   const [geoTargetClient, setGeoTargetClient] = useState(null);
   const [geoData, setGeoData] = useState({ address: '', city: '', zip: '' });
+
+  const [showClientModal, setShowClientModal] = useState(false);
+  const [clientFormData, setClientFormData] = useState({ id: null, companyName: '', contactName: '', alertEmail: '', alertPhone: '', timezone: 'America/Los_Angeles', domain: '', status: 'suspended', tier: 'standard' });
 
   // Natively pull from Supabase Vault instead of hardcoded state
   React.useEffect(() => {
@@ -69,22 +72,69 @@ const ClientManagement = () => {
      setGeoData({ address: '', city: '', zip: '' });
   };
 
-  const handleAddNewClient = async () => {
-     const newId = `CLIENT-NX-${Math.floor(Math.random() * 900) + 100}`;
-     const newClient = {
-        id: newId,
-        name: 'New Client Target',
-        domain: 'pending-domain.com',
-        status: 'suspended',
-        modules: {
-          seo: false, heatmaps: false, email: false, content: false, social: false,
-          ghostEditor: false, liquidUI: false, constraints: false, systemLogs: false, integrations: false, billing: true
-        }
-     };
+  const openClientModal = (client = null) => {
+    if (client) {
+       setClientFormData({ 
+          id: client.id, 
+          companyName: client.company_name || client.name || '', 
+          contactName: client.contact_name || '', 
+          alertEmail: client.alert_email || '', 
+          alertPhone: client.alert_phone || '',
+          timezone: client.timezone || 'America/Los_Angeles',
+          domain: client.domain, 
+          status: client.status, 
+          tier: client.tier || 'standard' 
+       });
+    } else {
+       setClientFormData({ id: null, companyName: '', contactName: '', alertEmail: '', alertPhone: '', timezone: 'America/Los_Angeles', domain: '', status: 'suspended', tier: 'standard' });
+    }
+    setShowClientModal(true);
+  };
 
-     const { data } = await supabase.from('nexus_clients').insert([newClient]).select();
-     if (data && data[0]) {
-        setClients([...clients, data[0]]);
+  const saveClientProfile = async () => {
+    const payload = {
+       name: clientFormData.companyName, // Keep 'name' backwards compatible for UI cards mapping
+       company_name: clientFormData.companyName,
+       contact_name: clientFormData.contactName,
+       alert_email: clientFormData.alertEmail,
+       alert_phone: clientFormData.alertPhone,
+       timezone: clientFormData.timezone,
+       domain: clientFormData.domain,
+       status: clientFormData.status,
+       tier: clientFormData.tier
+    };
+
+    if (clientFormData.id) {
+       // Update
+       const { data } = await supabase.from('nexus_clients').update(payload).eq('id', clientFormData.id).select();
+       if (data && data[0]) {
+          setClients(prev => prev.map(c => c.id === clientFormData.id ? { ...c, ...payload } : c));
+       }
+    } else {
+       // Create
+       const newId = `CLIENT-NX-${Math.floor(Math.random() * 900) + 100}`;
+       const newClient = {
+          id: newId,
+          ...payload,
+          name: clientFormData.companyName || 'New Client Target',
+          modules: {
+            seo: false, heatmaps: false, email: false, content: false, social: false,
+            ghostEditor: false, liquidUI: false, constraints: false, systemLogs: false, integrations: false, billing: true
+          }
+       };
+
+       const { data } = await supabase.from('nexus_clients').insert([newClient]).select();
+       if (data && data[0]) {
+          setClients([...clients, data[0]]);
+       }
+    }
+    setShowClientModal(false);
+  };
+
+  const handleDeleteClient = async (id) => {
+     if (window.confirm('Are you certain you want to delete this client? This will remove all their access to the environment.')) {
+        await supabase.from('nexus_clients').delete().eq('id', id);
+        setClients(prev => prev.filter(c => c.id !== id));
      }
   };
 
@@ -143,6 +193,86 @@ const ClientManagement = () => {
         </div>
       )}
 
+      {/* Client Profile Modal */}
+      {showClientModal && (
+        <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.5)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+           <div className="glass-panel" style={{ width: '450px', background: 'white', padding: '30px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--color-blue-main)', marginBottom: '12px' }}>
+                 <Users size={24} />
+              </div>
+              <h3 style={{ fontSize: '1.4rem', fontWeight: 800, marginBottom: '8px' }}>
+                 {clientFormData.id ? 'Edit Client Profile' : 'Create New Client'}
+              </h3>
+              <p style={{ fontSize: '0.9rem', color: 'var(--color-text-muted)', marginBottom: '20px' }}>
+                Define the core identifiers and environment status for this tenant.
+              </p>
+              
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, marginBottom: '6px' }}>Company / Org Name</label>
+                  <input type="text" value={clientFormData.companyName} onChange={(e) => setClientFormData({...clientFormData, companyName: e.target.value})} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid rgba(0,0,0,0.1)' }} placeholder="e.g. Acme Corp" />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, marginBottom: '6px' }}>Technical Contact Name</label>
+                  <input type="text" value={clientFormData.contactName} onChange={(e) => setClientFormData({...clientFormData, contactName: e.target.value})} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid rgba(0,0,0,0.1)' }} placeholder="e.g. John Doe" />
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, marginBottom: '6px' }}>Alert Email</label>
+                  <input type="email" value={clientFormData.alertEmail} onChange={(e) => setClientFormData({...clientFormData, alertEmail: e.target.value})} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid rgba(0,0,0,0.1)' }} placeholder="e.g. alerts@acmecorp.com" />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, marginBottom: '6px' }}>Alert Phone (SMS/Voice)</label>
+                  <input type="tel" value={clientFormData.alertPhone} onChange={(e) => setClientFormData({...clientFormData, alertPhone: e.target.value})} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid rgba(0,0,0,0.1)' }} placeholder="e.g. (555) 123-4567" />
+                </div>
+              </div>
+
+              <div style={{ marginBottom: '16px' }}>
+                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, marginBottom: '6px' }}>Global Marketing Timezone</label>
+                <select value={clientFormData.timezone} onChange={(e) => setClientFormData({...clientFormData, timezone: e.target.value})} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid rgba(0,0,0,0.1)', background: 'white' }}>
+                   <option value="America/Los_Angeles">America/Los_Angeles (Pacific Time)</option>
+                   <option value="America/New_York">America/New_York (Eastern Time)</option>
+                   <option value="Europe/London">Europe/London (GMT)</option>
+                   <option value="Asia/Tokyo">Asia/Tokyo (JST)</option>
+                </select>
+              </div>
+
+              <div style={{ marginBottom: '16px' }}>
+                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, marginBottom: '6px' }}>Primary Domain</label>
+                <input type="text" value={clientFormData.domain} onChange={(e) => setClientFormData({...clientFormData, domain: e.target.value})} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid rgba(0,0,0,0.1)' }} placeholder="e.g. acme.com" />
+              </div>
+
+              <div style={{ marginBottom: '16px' }}>
+                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, marginBottom: '6px' }}>Hardware / Service Tier</label>
+                <select value={clientFormData.tier} onChange={(e) => setClientFormData({...clientFormData, tier: e.target.value})} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid rgba(0,0,0,0.1)', background: 'white' }}>
+                   <option value="freemium">Freemium Sandbox</option>
+                   <option value="standard">Standard Node</option>
+                   <option value="professional">Professional Network</option>
+                   <option value="enterprise">Enterprise Cluster</option>
+                   <option value="partner">Agency Partner</option>
+                </select>
+              </div>
+
+              <div style={{ marginBottom: '24px' }}>
+                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, marginBottom: '6px' }}>System Status</label>
+                <select value={clientFormData.status} onChange={(e) => setClientFormData({...clientFormData, status: e.target.value})} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid rgba(0,0,0,0.1)', background: 'white' }}>
+                   <option value="suspended">Suspended / Draft</option>
+                   <option value="active">Active (Receiving Traffic)</option>
+                </select>
+              </div>
+
+              <div style={{ display: 'flex', gap: '12px' }}>
+                 <button onClick={() => setShowClientModal(false)} className="btn hover-lift" style={{ flex: 1, padding: '12px', background: 'var(--color-bg-light)', color: 'var(--color-text-main)', border: 'none', fontWeight: 700, borderRadius: '8px', cursor: 'pointer' }}>Cancel</button>
+                 <button onClick={saveClientProfile} className="btn hover-lift btn-primary" style={{ flex: 1, padding: '12px', display: 'flex', justifyContent: 'center', border: 'none', fontWeight: 700, borderRadius: '8px', cursor: 'pointer' }}>
+                   <Save size={18}/> {clientFormData.id ? 'Save Updates' : 'Create Tenant'}
+                 </button>
+              </div>
+           </div>
+        </div>
+      )}
+
       <div style={{ marginBottom: '40px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div>
           <h1 style={{ fontSize: '2.5rem', fontWeight: 800, marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '16px' }}>
@@ -157,8 +287,8 @@ const ClientManagement = () => {
            <Link to="/admin/users" className="btn btn-outline" style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 24px', fontSize: '1.05rem', fontWeight: 600, background: 'white' }}>
              <Key size={18} /> Manage Super Users
            </Link>
-           <button onClick={handleAddNewClient} className="btn btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 24px', fontSize: '1.05rem', fontWeight: 600 }}>
-             <Sparkles size={18} /> Provision New Client
+           <button onClick={() => openClientModal(null)} className="btn btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 24px', fontSize: '1.05rem', fontWeight: 600 }}>
+             <Sparkles size={18} /> Create New Client
            </button>
         </div>
       </div>
@@ -201,16 +331,48 @@ const ClientManagement = () => {
                      <span style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#EF4444', padding: '4px 8px', borderRadius: '12px', fontSize: '0.7rem', fontWeight: 800 }}>OFFLINE</span>
                   )}
                 </div>
-                <div style={{ fontFamily: 'monospace', fontSize: '0.9rem', color: 'var(--color-text-muted)' }}>{client.id} · {client.domain}</div>
+                <div style={{ fontFamily: 'monospace', fontSize: '0.9rem', color: 'var(--color-text-muted)' }}>
+                  {(() => {
+                    const tierLabels = {
+                      freemium: 'Freemium Sandbox',
+                      standard: 'Standard Node',
+                      professional: 'Professional Network',
+                      enterprise: 'Enterprise Cluster',
+                      partner: 'Agency Partner'
+                    };
+                    const mappedTier = tierLabels[client.tier] || 'Standard Node';
+                    return (
+                      <>
+                        {client.id} · {client.domain} · <span style={{ fontWeight: 700, color: 'var(--color-purple-dark)' }}>{mappedTier}</span>
+                      </>
+                    );
+                  })()}
+                </div>
               </div>
               
-              <button 
-                onClick={() => handleImpersonate(client)}
-                className="btn btn-primary" 
-                style={{ padding: '12px 24px', display: 'flex', alignItems: 'center', gap: '8px' }}
-              >
-                <Eye size={18} /> View as Client
-              </button>
+              <div style={{ display: 'flex', gap: '12px' }}>
+                <button 
+                  onClick={() => openClientModal(client)}
+                  className="btn btn-outline" 
+                  style={{ padding: '10px 14px', display: 'flex', alignItems: 'center', gap: '8px', background: 'white', border: '1px solid rgba(0,0,0,0.1)' }}
+                >
+                  <Edit size={16} /> Edit
+                </button>
+                <button 
+                  onClick={() => handleDeleteClient(client.id)}
+                  className="btn btn-outline" 
+                  style={{ padding: '10px 14px', display: 'flex', alignItems: 'center', gap: '8px', background: 'white', border: '1px solid rgba(239, 68, 68, 0.3)', color: '#EF4444' }}
+                >
+                  <Trash2 size={16} />
+                </button>
+                <button 
+                  onClick={() => handleImpersonate(client)}
+                  className="btn btn-primary" 
+                  style={{ padding: '10px 20px', display: 'flex', alignItems: 'center', gap: '8px' }}
+                >
+                  <Eye size={18} /> View as Client
+                </button>
+              </div>
             </div>
 
             {/* Matrix of Module Toggles */}

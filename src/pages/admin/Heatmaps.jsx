@@ -317,7 +317,8 @@ const Heatmaps = () => {
             background: 'var(--color-bg-light)', 
             borderRadius: isFullscreen ? '0' : '16px', 
             border: isFullscreen ? 'none' : '1px solid rgba(0,0,0,0.05)',
-            overflow: 'hidden'
+            overflowX: 'auto',
+            overflowY: 'hidden'
           }}>
             {isLoading && (
               <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.8)', zIndex: 10 }}>
@@ -325,6 +326,7 @@ const Heatmaps = () => {
               </div>
             )}
 
+          <div style={{ position: 'relative', width: isFullscreen ? '100%' : '1440px', height: '100%', minWidth: '100%' }}>
             <iframe 
               src={activeDomain.includes('75squared.com') ? `https://75squared.com${activePath === '/' ? '' : activePath}` : `https://${activeDomain.split(' ')[0]}${activePath === '/' ? '' : activePath}`}
               title={`Heatmap for ${activeDomain}`}
@@ -347,6 +349,7 @@ const Heatmaps = () => {
               ref={canvasRef}
               style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '8000px', pointerEvents: 'none', opacity: 0.8, transform: `translateY(-${viewerScrollY}px)`, transition: 'transform 0.1s ease-out' }}
             />
+          </div>
           </div>
         </div>
       )}
@@ -499,14 +502,14 @@ const Heatmaps = () => {
                     Live Coordinate Engine Active
                  </div>
                  
-                 <div style={{ width: '80%', height: '65%', border: '1px solid rgba(255,255,255,0.05)', background: 'rgba(255,255,255,0.02)', borderRadius: '16px', position: 'relative', overflow: 'hidden', boxShadow: '0 20px 40px rgba(0,0,0,0.4)' }}>
+                 <div style={{ width: '80%', height: '65%', border: '1px solid rgba(255,255,255,0.05)', background: 'rgba(255,255,255,0.02)', borderRadius: '16px', position: 'relative', overflowX: 'auto', overflowY: 'hidden', boxShadow: '0 20px 40px rgba(0,0,0,0.4)' }}>
                     <div style={{ position: 'sticky', top: 0, zIndex: 5, height: '40px', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', gap: '8px', padding: '0 16px', alignItems: 'center', background: '#111' }}>
                        <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: 'rgba(255,255,255,0.2)' }}></div>
                        <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: 'rgba(255,255,255,0.2)' }}></div>
                        <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: 'rgba(255,255,255,0.2)' }}></div>
                     </div>
                     
-                    <div style={{ position: 'relative', width: '100%', height: 'calc(100% - 40px)' }}>
+                    <div style={{ position: 'relative', width: '1440px', minWidth: '100%', height: 'calc(100% - 40px)' }}>
                        <iframe 
                          ref={replayIframeRef}
                          src={activeDomain.includes('75squared.com') ? `https://75squared.com${activePath === '/' ? '' : activePath}` : `https://${activeDomain.split(' ')[0]}${activePath === '/' ? '' : activePath}`}
