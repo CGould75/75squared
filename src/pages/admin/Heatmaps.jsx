@@ -467,12 +467,11 @@ const Heatmaps = () => {
                        <option value="100 visitors">100 visitors</option>
                      </select>
                    </div>
-                    </div>
                  </div>
                </div>
              </div>
+             </div>
 
-          </div>
           <button className="btn btn-primary hover-lift" style={{ marginTop: '40px' }} onClick={handleApplyTrackerConfig}>Apply Configuration to Edge Trackers</button>
         </div>
       )}
