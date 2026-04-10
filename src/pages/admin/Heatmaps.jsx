@@ -23,6 +23,9 @@ const Heatmaps = () => {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [activePath, setActivePath] = useState('/');
 
+  const [viewerScrollY, setViewerScrollY] = useState(0);
+  const [replayScrollY, setReplayScrollY] = useState(0);
+
   // Physical Session Data Algorithm
   const physicalSessions = React.useMemo(() => {
      if (!events || events.length === 0) return [];
@@ -314,8 +317,7 @@ const Heatmaps = () => {
             background: 'var(--color-bg-light)', 
             borderRadius: isFullscreen ? '0' : '16px', 
             border: isFullscreen ? 'none' : '1px solid rgba(0,0,0,0.05)',
-            overflowY: 'auto',
-            overflowX: 'hidden'
+            overflow: 'hidden'
           }}>
             {isLoading && (
               <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.8)', zIndex: 10 }}>
@@ -323,19 +325,28 @@ const Heatmaps = () => {
               </div>
             )}
 
-            <div style={{ position: 'relative', width: '100%', height: '4000px' }}>
-              <iframe 
-                src={activeDomain.includes('75squared.com') ? `https://75squared.com${activePath === '/' ? '' : activePath}` : `https://${activeDomain.split(' ')[0]}${activePath === '/' ? '' : activePath}`}
-                title={`Heatmap for ${activeDomain}`}
-                sandbox="allow-scripts allow-same-origin"
-                style={{ width: '100%', height: '100%', border: 'none', pointerEvents: 'none', background: 'white' }}
-              />
+            <iframe 
+              src={activeDomain.includes('75squared.com') ? `https://75squared.com${activePath === '/' ? '' : activePath}` : `https://${activeDomain.split(' ')[0]}${activePath === '/' ? '' : activePath}`}
+              title={`Heatmap for ${activeDomain}`}
+              sandbox="allow-scripts allow-same-origin"
+              onLoad={(e) => {
+                 try {
+                     const win = e.target.contentWindow;
+                     setViewerScrollY(win.scrollY);
+                     win.addEventListener('scroll', () => {
+                         setViewerScrollY(win.scrollY);
+                     });
+                 } catch(err) {
+                     console.warn("Iframe cross-origin scroll bind restricted");
+                 }
+              }}
+              style={{ width: '100%', height: '100%', border: 'none', background: 'white' }}
+            />
 
-              <canvas 
-                ref={canvasRef}
-                style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none', opacity: 0.8 }}
-              />
-            </div>
+            <canvas 
+              ref={canvasRef}
+              style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '8000px', pointerEvents: 'none', opacity: 0.8, transform: `translateY(-${viewerScrollY}px)`, transition: 'transform 0.1s ease-out' }}
+            />
           </div>
         </div>
       )}
@@ -488,25 +499,34 @@ const Heatmaps = () => {
                     Live Coordinate Engine Active
                  </div>
                  
-                 <div style={{ width: '80%', height: '65%', border: '1px solid rgba(255,255,255,0.05)', background: 'rgba(255,255,255,0.02)', borderRadius: '16px', position: 'relative', overflowY: 'auto', overflowX: 'hidden', boxShadow: '0 20px 40px rgba(0,0,0,0.4)' }}>
+                 <div style={{ width: '80%', height: '65%', border: '1px solid rgba(255,255,255,0.05)', background: 'rgba(255,255,255,0.02)', borderRadius: '16px', position: 'relative', overflow: 'hidden', boxShadow: '0 20px 40px rgba(0,0,0,0.4)' }}>
                     <div style={{ position: 'sticky', top: 0, zIndex: 5, height: '40px', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', gap: '8px', padding: '0 16px', alignItems: 'center', background: '#111' }}>
                        <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: 'rgba(255,255,255,0.2)' }}></div>
                        <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: 'rgba(255,255,255,0.2)' }}></div>
                        <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: 'rgba(255,255,255,0.2)' }}></div>
                     </div>
                     
-                    <div style={{ position: 'relative', width: '100%', height: '4000px' }}>
+                    <div style={{ position: 'relative', width: '100%', height: 'calc(100% - 40px)' }}>
                        <iframe 
                          ref={replayIframeRef}
                          src={activeDomain.includes('75squared.com') ? `https://75squared.com${activePath === '/' ? '' : activePath}` : `https://${activeDomain.split(' ')[0]}${activePath === '/' ? '' : activePath}`}
                          title="Session Playback Environment"
                          sandbox="allow-scripts allow-same-origin"
-                         style={{ width: '100%', height: '100%', border: 'none', pointerEvents: 'none', opacity: 1.0, background: 'white' }}
+                         onLoad={(e) => {
+                             try {
+                                 const win = e.target.contentWindow;
+                                 setReplayScrollY(win.scrollY);
+                                 win.addEventListener('scroll', () => {
+                                     setReplayScrollY(win.scrollY);
+                                 });
+                             } catch(err) {}
+                         }}
+                         style={{ width: '100%', height: '100%', border: 'none', opacity: 1.0, background: 'white' }}
                        />
                        
                        <canvas 
                          ref={replayCanvasRef}
-                         style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none' }}
+                         style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '8000px', pointerEvents: 'none', transform: `translateY(-${replayScrollY}px)`, transition: 'transform 0.1s ease-out' }}
                        />
                     </div>
                  </div>
