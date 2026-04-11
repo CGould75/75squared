@@ -736,6 +736,8 @@ const EmailDashboard = () => {
                       </div>
                    </div>
                 </div>
+              )}
+
               {showCreateListModal && (
                 <div style={{ position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                    <div className="fade-in" style={{ width: '380px', background: 'white', borderRadius: '16px', padding: '30px', boxShadow: '0 25px 50px rgba(0,0,0,0.25)' }}>
