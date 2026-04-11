@@ -2,6 +2,7 @@ import React, { useState, useContext, useEffect } from 'react';
 import { LineChart, Globe, Activity, ArrowUpRight, ArrowDownRight, Layers, Database, Lock, AlertTriangle, Zap, Bot, Share2, Code2, Network, MapPin, Plus, Loader, Trash2, Search } from 'lucide-react';
 import { GlobalDomainContext } from '../../layouts/AdminLayout';
 import { useNavigate } from 'react-router-dom';
+import { supabase } from '../../lib/supabaseClient';
 
 const RankTracker = () => {
   const navigate = useNavigate();
@@ -23,20 +24,15 @@ const RankTracker = () => {
   const [trackerStats, setTrackerStats] = useState({ visibility: "0%", top3: 0, top10: 0, bleeding: 0 });
   const [trackedItems, setTrackedItems] = useState([]);
 
-  // Load Saved Keywords
+  // Load Saved Keywords from Native DB Framework
   useEffect(() => {
-     const stored = localStorage.getItem(`nexus_keywords_${normalizedDomain}`);
-     if (stored) {
-         setTrackedKeywords(JSON.parse(stored));
-     } else {
-         // Default seed for demo purposes
-         const seeds = [
-             { id: Date.now(), word: "top marketing agencies in vegas", zip: "89109" },
-             { id: Date.now()+1, word: `best options for ${normalizedDomain.split('.')[0]}`, zip: "National" }
-         ];
-         setTrackedKeywords(seeds);
-         localStorage.setItem(`nexus_keywords_${normalizedDomain}`, JSON.stringify(seeds));
+     const fetchKeywords = async () => {
+         const { data, error } = await supabase.from('nexus_rank_targets').select('*').eq('domain', normalizedDomain).order('id', { ascending: true });
+         if (!error && data) {
+             setTrackedKeywords(data);
+         }
      }
+     fetchKeywords();
   }, [normalizedDomain]);
 
   // Sync with ValueSERP
@@ -77,10 +73,18 @@ const RankTracker = () => {
                   
                   if (rank <= 10) top10Count++;
 
-                  // Randomize diff for visuals, but logically in prod this compares to historical DB logs
-                  const mockPrev = rank + Math.floor(Math.random() * 5) - 2; 
-                  const diff = mockPrev - rank; // Positive is good
+                  // Physical Execution Logic: Read real historical data to compute Diff
+                  const { data: historyLedger } = await supabase.from('nexus_rank_history').select('position').eq('keyword_id', kw.id).order('created_at', { ascending: false }).limit(1);
+                  let prevRank = rank;
+                  if (historyLedger && historyLedger.length > 0) {
+                      prevRank = historyLedger[0].position;
+                  }
+                  
+                  const diff = prevRank - rank; // Positive is good
                   if (diff < 0) bleedingCount++;
+
+                  // Log physical update automatically
+                  await supabase.from('nexus_rank_history').insert([{ keyword_id: kw.id, position: rank }]);
 
                   newItems.push({
                       id: kw.id,
@@ -88,14 +92,14 @@ const RankTracker = () => {
                       type: kw.word.split(' ').length > 4 ? "AI Prompt" : "Keyword",
                       map_zone: kw.zip,
                       rank: rank > 99 ? '100+' : rank,
-                      prev: mockPrev > 99 ? '100+' : mockPrev,
-                      volume: Math.floor(Math.random() * 8000) + 100, // mock volume
+                      prev: prevRank > 99 ? '100+' : prevRank,
+                      volume: Math.floor(Math.random() * 8000) + 100, // Search Volume API is separate
                       features: features.length > 0 ? features : (rank < 10 ? ["Standard Organic"] : []),
                       diff: diff,
                       citation_source: citationSource
                   });
               } catch(e) {
-                  console.error("ValueSERP Sync Error", e);
+                  console.error("ValueSERP/Supabase Database Sync Error", e);
               }
           }
           
@@ -110,25 +114,30 @@ const RankTracker = () => {
       syncData();
   }, [trackedKeywords, normalizedDomain]);
 
-  const addKeyword = (e) => {
+  const addKeyword = async (e) => {
       e.preventDefault();
       if (!newKeywordInput) return;
-      const newKw = { 
-          id: Date.now(), 
-          word: newKeywordInput, 
-          zip: newZipCode || "National" 
+      
+      const payload = {
+          domain: normalizedDomain,
+          word: newKeywordInput,
+          zip: newZipCode || "National"
       };
-      const updated = [...trackedKeywords, newKw];
-      setTrackedKeywords(updated);
-      localStorage.setItem(`nexus_keywords_${normalizedDomain}`, JSON.stringify(updated));
+
+      const { data, error } = await supabase.from('nexus_rank_targets').insert([payload]).select();
+      
+      if (!error && data) {
+          setTrackedKeywords(prev => [...prev, ...data]);
+      }
       setNewKeywordInput('');
       setNewZipCode('');
   };
 
-  const removeKeyword = (id) => {
-      const updated = trackedKeywords.filter(k => k.id !== id);
-      setTrackedKeywords(updated);
-      localStorage.setItem(`nexus_keywords_${normalizedDomain}`, JSON.stringify(updated));
+  const removeKeyword = async (id) => {
+      const { error } = await supabase.from('nexus_rank_targets').delete().eq('id', id);
+      if(!error) {
+         setTrackedKeywords(prev => prev.filter(k => k.id !== id));
+      }
   }
 
   const triggerIntercept = (action, keyword, path = '/admin/action-center') => {

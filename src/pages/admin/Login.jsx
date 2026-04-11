@@ -82,6 +82,15 @@ const Login = () => {
         setAuthError(error.message);
         setIsAuthenticating(false);
       } else {
+        // Simultaneously mirror user payload to custom RBAC schema
+        await supabase.from('nexus_users').insert([{
+           email: email,
+           role: isVipInvite ? 'Client Admin' : 'Viewer (Read-Only)',
+           domain: generatedTenantName,
+           status: 'Active',
+           mfa: false
+        }]);
+
         if (isVipInvite) {
            setAuthError("VIP Registration successful! You have been granted Enterprise tier access. Check your email to verify your account.");
         } else {

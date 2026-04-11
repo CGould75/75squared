@@ -45,7 +45,7 @@ const ContentStudio = () => {
 
   const [uiError, setUiError] = useState('');
 
-  const triggerHiveMind = () => {
+  const triggerHiveMind = async () => {
     if(!targetKeyword) {
        setUiError("Target Keyword is physically required to authorize Hive Mind crawler spin-up.");
        setTimeout(() => setUiError(''), 4000);
@@ -56,76 +56,50 @@ const ContentStudio = () => {
     setPipelineLogs([]);
     setContent('');
     addLog(`[SYSTEM] Initializing Hive Mind for topic: "${targetKeyword}"`);
-    addLog(`[NETWORK] Deploying phantom crawlers to top 10 Google SERP positions...`);
+    addLog(`[NETWORK] Scaling GPT-4o Volume Cannon to architecture...`);
 
-    // Simulated Pipeline Timing
-    setTimeout(() => {
-       setPipelineState('calculating');
-       addLog(`[ALGORITHM] Extracted 4,200 data points. Reverse-engineering TF-IDF structural densities...`);
-       addLog(`[SCHEMA] Generating Article and LocalBusiness JSON-LD markup blocks...`);
-    }, 3000);
+    try {
+        setPipelineState('drafting');
+        addLog(`[GPT ENGINE] Translating structural vectors into high-volume semantic mass...`);
+        
+        // STAGE 1: GPT-4o Cannon
+        const gptReq = await fetch('/api/generate-blog', {
+             method: 'POST',
+             headers: { 'Content-Type': 'application/json' },
+             body: JSON.stringify({ model: 'gpt', topic: targetKeyword, domain: activeDomain })
+        });
+        const gptRes = await gptReq.json();
+        
+        if (!gptReq.ok || !gptRes.success) throw new Error(gptRes.error || "GPT Pipeline failed");
+        
+        const rawPayload = gptRes.text;
+        setContent(rawPayload);
+        addLog(`[GPT ENGINE] Massive payload generated successfully.`);
+        
+        setPipelineState('claude_intercept');
+        addLog(`[COGNITIVE INTERCEPT] Handing payload to Claude 3.5 Sonnet...`);
+        addLog(`[CLAUDE 3.5 SONNET] Purging generic structural parameters...`);
+        addLog(`[CLAUDE 3.5 SONNET] Injecting CIO-level EEAT cognitive framework...`);
 
-    setTimeout(() => {
-       setPipelineState('drafting');
-       addLog(`[GPT ENGINE] Translating clusters into high-volume semantic mass...`);
-       simulateDrafting();
-    }, 6000);
-  };
+        // STAGE 2: Claude Sonnet Filter
+        const claudeReq = await fetch('/api/generate-blog', {
+             method: 'POST',
+             headers: { 'Content-Type': 'application/json' },
+             body: JSON.stringify({ model: 'claude', payload: rawPayload, domain: activeDomain })
+        });
+        const claudeRes = await claudeReq.json();
 
-  // Timer References for Strict Component Unmounting
-  const intervalRef = useRef(null);
-  const timeoutsRef = useRef([]);
+        if (!claudeReq.ok || !claudeRes.success) throw new Error(claudeRes.error || "Claude Pipeline failed");
 
-  useEffect(() => {
-     return () => {
-        // Strict cleanup to prevent ghost memory leaks
-        if (intervalRef.current) clearInterval(intervalRef.current);
-        timeoutsRef.current.forEach(t => clearTimeout(t));
-     };
-  }, []);
-
-  const simulateClaudeEEAT = (rawText) => {
-     const t1 = setTimeout(() => {
-        addLog(`[CLAUDE 3.5 SONNET] Purging generic GPT structural parameters (e.g. 'delve', 'moreover')...`);
-     }, 2000);
-     const t2 = setTimeout(() => {
-        addLog(`[CLAUDE 3.5 SONNET] Injecting senior expert persona and EEAT cognitive framing...`);
-     }, 4000);
-     const t3 = setTimeout(() => {
-        setContent(rawText + `\n\n> Note from Claude 3.5 Sonnet Cognitive Engine: I have intercepted the raw GPT data source and restructured it to match the tone of an enterprise CIO. The generic semantic fluff has been purged and mathematically replaced with high-friction authoritative framing to guarantee maximum Information Gain (EEAT).`);
+        setContent(claudeRes.text);
         setPipelineState('complete');
-        addLog(`[SUCCESS] Neural draft completed via Two-Stage Dual-Model Pipeline.`);
-     }, 6000);
-     timeoutsRef.current.push(t1, t2, t3);
-  };
+        addLog(`[SUCCESS] Neural draft completed via Two-Stage Dual-Model Architecture.`);
 
-  const simulateDrafting = () => {
-     const draftArray = [
-        `# The Ultimate Guide to ${targetKeyword}\n\n`,
-        `Modern digital ecosystems require immense structural efficiency. When examining the landscape of library automation, the ability to seamlessly manage massive catalogs is paramount. `,
-        `In an era where K-12 districts demand instant accessibility, legacy circulation software simply cannot keep pace with the influx of digital and physical media. `,
-        `By leveraging advanced OPAC integration, administrators can fluidly transition between data migration tasks and patron management protocols without losing critical uptime.\n\n`,
-        `## Engineering the Future\n\n`,
-        `The difference between success and failure often hinges on the technological choices made at the foundation. Utilizing cutting-edge architecture ensures your system remains fully resilient against load spikes.`
-     ];
-     
-     let i = 0;
-     let currentText = '';
-     
-     if (intervalRef.current) clearInterval(intervalRef.current);
-     
-     intervalRef.current = setInterval(() => {
-        if(i < draftArray.length) {
-           currentText += draftArray[i];
-           setContent(currentText);
-           i++;
-        } else {
-           clearInterval(intervalRef.current);
-           setPipelineState('claude_intercept');
-           addLog(`[COGNITIVE INTERCEPT] GPT payload generation finished. Handing payload to Claude 3.5 Sonnet...`);
-           simulateClaudeEEAT(currentText);
-        }
-     }, 1500);
+    } catch(err) {
+        setUiError(err.message);
+        setPipelineState('idle');
+        addLog(`[FATAL EXCEPTION] ${err.message}`);
+    }
   };
 
   // Real-time NLP Analysis Algorithm

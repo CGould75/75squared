@@ -198,7 +198,7 @@ const SettingsHub = () => {
                        </>
                      )}
                    </div>
-                   <button className="btn btn-primary" style={{ padding: '8px 16px', fontSize: '0.9rem' }}><Plus size={16}/> Add Domain</button>
+                   <button onClick={() => alert("Component Feature arriving in v2.0")} className="btn btn-primary" style={{ padding: '8px 16px', fontSize: '0.9rem' }}><Plus size={16}/> Add Domain</button>
                  </div>
 
                  <div>
@@ -215,7 +215,7 @@ const SettingsHub = () => {
                         </div>
                         <span style={{ flex: 1, color: '#10B981', fontSize: '0.85rem', fontWeight: 700 }}>SECURED</span>
                         <div style={{ flex: 1, textAlign: 'right' }}>
-                          <button style={{ background: 'none', border: 'none', color: 'var(--color-text-muted)', cursor: 'pointer' }}><Settings size={18}/></button>
+                          <button onClick={() => alert("Component Feature arriving in v2.0")} style={{ background: 'none', border: 'none', color: 'var(--color-text-muted)', cursor: 'pointer' }}><Settings size={18}/></button>
                         </div>
                       </div>
                     ))}

@@ -229,7 +229,7 @@ const SeoDashboard = () => {
           <button onClick={() => window.print()} className="btn btn-outline" style={{ padding: '10px 20px', fontSize: '0.9rem', background: 'white' }}>
             <Printer size={16} /> Export PDF Report
           </button>
-          <button className="btn btn-primary" style={{ padding: '10px 20px', fontSize: '0.9rem' }}>
+          <button onClick={() => alert("Billing Management arriving in v2.0")} className="btn btn-primary" style={{ padding: '10px 20px', fontSize: '0.9rem' }}>
             <Award size={16} /> Tier: {userTier}
           </button>
         </div>
@@ -526,7 +526,7 @@ const SeoDashboard = () => {
                 </select>
              </div>
              <div style={{ display: 'flex', alignItems: 'flex-end' }}>
-                <button className="btn btn-primary" style={{ height: '40px', padding: '0 20px', display: 'flex', alignItems: 'center', gap: '8px' }}><Target size={16}/> Apply Filters</button>
+                <button onClick={() => alert("Advanced Data Filters arriving in v2.0")} className="btn btn-primary" style={{ height: '40px', padding: '0 20px', display: 'flex', alignItems: 'center', gap: '8px' }}><Target size={16}/> Apply Filters</button>
              </div>
           </div>
           
@@ -729,7 +729,7 @@ const SeoDashboard = () => {
             <div className="glass-panel" style={{ padding: '30px' }}>
                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
                   <h3 style={{ fontSize: '1.2rem', fontWeight: 900, display: 'flex', alignItems: 'center', gap: '8px' }}><ShieldAlert size={18} color="#EF4444" /> Technical Errors & Warnings</h3>
-                  <button className="btn btn-primary shadow-hover" style={{ padding: '8px 16px', fontSize: '0.85rem' }}><Code2 size={16}/> Export Dev Tickets</button>
+                  <button onClick={() => alert("Jira Integration arriving in v2.0")} className="btn btn-primary shadow-hover" style={{ padding: '8px 16px', fontSize: '0.85rem' }}><Code2 size={16}/> Export Dev Tickets</button>
                </div>
 
                <div style={{ display: 'flex', gap: '16px', marginBottom: '30px' }}>
@@ -817,8 +817,8 @@ const SeoDashboard = () => {
                      {generatedPrompt}
                   </div>
                   <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
-                     <button className="btn" style={{ background: '#111', color: 'white', padding: '10px 20px', borderRadius: '8px', fontSize: '0.9rem', fontWeight: 700, border: 'none' }}>Copy Prompt</button>
-                     <button className="btn" style={{ background: 'white', color: '#111', border: '1px solid rgba(0,0,0,0.1)', padding: '10px 20px', borderRadius: '8px', fontSize: '0.9rem', fontWeight: 700 }}>Execute in Sandbox</button>
+                     <button onClick={() => { navigator.clipboard.writeText(generatedPrompt); alert("Copied to clipboard!"); }} className="btn" style={{ background: '#111', color: 'white', padding: '10px 20px', borderRadius: '8px', fontSize: '0.9rem', fontWeight: 700, border: 'none', cursor: 'pointer' }}>Copy Prompt</button>
+                     <button onClick={() => alert("Live Execution Sandbox arriving in v2.0")} className="btn" style={{ background: 'white', color: '#111', border: '1px solid rgba(0,0,0,0.1)', padding: '10px 20px', borderRadius: '8px', fontSize: '0.9rem', fontWeight: 700, cursor: 'pointer' }}>Execute in Sandbox</button>
                   </div>
                </div>
             )}

@@ -177,7 +177,7 @@ const SocialDashboard = () => {
 
   React.useEffect(() => {
     const fetchPosts = async () => {
-      const { data } = await supabase.from('social_posts').select('*').order('id', { ascending: false });
+      const { data } = await supabase.from('social_posts').select('*').eq('domain', activeDomain).order('id', { ascending: false });
       if (data) setUpcomingPosts(data);
       setLoading(false);
     };
@@ -187,6 +187,7 @@ const SocialDashboard = () => {
   const dispatchPhysicalPost = async () => {
     const postDateObj = composerSchedule ? new Date(composerSchedule) : new Date();
     const newPost = {
+      domain: activeDomain,
       platform: composerPlatform,
       content: composerContent,
       time: postDateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
@@ -213,6 +214,7 @@ const SocialDashboard = () => {
          const generatedScript = data.success ? data.text : `Viral trend intercepted: ${trendTopic}. Scripting deferred to manual override.`;
          
          const newPost = {
+            domain: activeDomain,
             platform: 'tiktok',
             content: generatedScript,
             time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
@@ -297,7 +299,7 @@ const SocialDashboard = () => {
                    <div style={{ padding: '8px', background: 'rgba(255,255,255,0.2)', borderRadius: '8px' }}><Camera size={20} /></div>
                    <div style={{ padding: '8px', background: 'rgba(255,255,255,0.2)', borderRadius: '8px' }}><MessageCircle size={20} /></div>
                    <div style={{ padding: '8px', background: 'rgba(255,255,255,0.2)', borderRadius: '8px' }}><Briefcase size={20} /></div>
-                   <button style={{ padding: '8px', background: 'transparent', border: '1px dashed rgba(255,255,255,0.4)', borderRadius: '8px', color: 'white' }}><Plus size={20} /></button>
+                   <button onClick={() => alert("Component Feature arriving in v2.0")} style={{ padding: '8px', background: 'transparent', border: '1px dashed rgba(255,255,255,0.4)', borderRadius: '8px', color: 'white' }}><Plus size={20} /></button>
                 </div>
              </div>
           </div>
@@ -328,8 +330,8 @@ const SocialDashboard = () => {
                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
                  <h3 style={{ fontSize: '1.2rem', fontWeight: 700 }}>{monthName}</h3>
                  <div style={{ display: 'flex', gap: '8px' }}>
-                   <button className="btn btn-outline" style={{ padding: '8px 16px' }}>Week</button>
-                   <button className="btn btn-outline" style={{ padding: '8px 16px', background: 'rgba(0,0,0,0.05)' }}>Month</button>
+                   <button onClick={() => alert("Component Feature arriving in v2.0")} className="btn btn-outline" style={{ padding: '8px 16px' }}>Week</button>
+                   <button onClick={() => alert("Component Feature arriving in v2.0")} className="btn btn-outline" style={{ padding: '8px 16px', background: 'rgba(0,0,0,0.05)' }}>Month</button>
                  </div>
                </div>
                
@@ -387,9 +389,9 @@ const SocialDashboard = () => {
              
              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--color-text-muted)', marginBottom: '8px' }}>Select Target Networks</label>
              <div style={{ display: 'flex', gap: '12px', marginBottom: '24px' }}>
-                <button style={{ flex: 1, padding: '12px', background: 'var(--color-bg-light)', border: '2px solid var(--color-blue-main)', borderRadius: '8px', color: 'var(--color-blue-main)', display: 'flex', justifyContent: 'center' }}><Briefcase size={20}/></button>
-                <button style={{ flex: 1, padding: '12px', background: 'var(--color-bg-light)', border: '2px solid rgba(0,0,0,0.1)', borderRadius: '8px', color: 'var(--color-text-muted)', display: 'flex', justifyContent: 'center' }}><MessageCircle size={20}/></button>
-                <button style={{ flex: 1, padding: '12px', background: 'var(--color-bg-light)', border: '2px solid var(--color-purple-main)', borderRadius: '8px', color: 'var(--color-purple-main)', display: 'flex', justifyContent: 'center' }}><Camera size={20}/></button>
+                <button onClick={() => alert("Component Feature arriving in v2.0")} style={{ flex: 1, padding: '12px', background: 'var(--color-bg-light)', border: '2px solid var(--color-blue-main)', borderRadius: '8px', color: 'var(--color-blue-main)', display: 'flex', justifyContent: 'center' }}><Briefcase size={20}/></button>
+                <button onClick={() => alert("Component Feature arriving in v2.0")} style={{ flex: 1, padding: '12px', background: 'var(--color-bg-light)', border: '2px solid rgba(0,0,0,0.1)', borderRadius: '8px', color: 'var(--color-text-muted)', display: 'flex', justifyContent: 'center' }}><MessageCircle size={20}/></button>
+                <button onClick={() => alert("Component Feature arriving in v2.0")} style={{ flex: 1, padding: '12px', background: 'var(--color-bg-light)', border: '2px solid var(--color-purple-main)', borderRadius: '8px', color: 'var(--color-purple-main)', display: 'flex', justifyContent: 'center' }}><Camera size={20}/></button>
              </div>
 
              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--color-text-muted)', marginBottom: '8px' }}>Content Payload</label>
@@ -400,10 +402,10 @@ const SocialDashboard = () => {
              />
 
              <div style={{ display: 'flex', gap: '12px', marginBottom: '30px', flexWrap: 'wrap' }}>
-               <button style={{ padding: '12px 16px', borderRadius: '8px', border: '1px dashed rgba(0,0,0,0.2)', background: 'transparent', color: 'var(--color-text-main)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+               <button onClick={() => alert("Component Feature arriving in v2.0")} style={{ padding: '12px 16px', borderRadius: '8px', border: '1px dashed rgba(0,0,0,0.2)', background: 'transparent', color: 'var(--color-text-main)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
                  <ImageIcon size={18}/> Attach Media
                </button>
-               <button style={{ padding: '12px 16px', borderRadius: '8px', border: '1px dashed rgba(0,0,0,0.2)', background: 'transparent', color: 'var(--color-text-main)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+               <button onClick={() => alert("Component Feature arriving in v2.0")} style={{ padding: '12px 16px', borderRadius: '8px', border: '1px dashed rgba(0,0,0,0.2)', background: 'transparent', color: 'var(--color-text-main)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
                  # Hashtag Suggest
                </button>
                <a href="https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=US&is_targeted_country=false&media_type=all&q=dr%20squatch&search_type=keyword_unordered&sort_data[direction]=desc&sort_data[mode]=total_impressions" target="_blank" rel="noreferrer" style={{ textDecoration: 'none', padding: '12px 16px', borderRadius: '8px', border: '1px solid rgba(59, 130, 246, 0.3)', background: 'rgba(59, 130, 246, 0.05)', color: 'var(--color-blue-main)', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
@@ -418,7 +420,7 @@ const SocialDashboard = () => {
                    onChange={e => setComposerSchedule(e.target.value)}
                    style={{ padding: '12px', border: '1px solid rgba(0,0,0,0.1)', borderRadius: '8px', color: 'var(--color-text-main)', outline: 'none' }}
                 />
-                <button className="btn btn-outline" style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px' }}>
+                <button onClick={() => alert("Component Feature arriving in v2.0")} className="btn btn-outline" style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px' }}>
                   <Calendar size={18} /> Schedule For Later
                 </button>
              </div>
@@ -459,7 +461,7 @@ const SocialDashboard = () => {
 
                {/* Planable Client Buttons overlay at bottom */}
                <div style={{ background: 'var(--color-bg-main)', borderTop: '1px solid rgba(0,0,0,0.1)', padding: '16px', display: 'flex', gap: '8px' }}>
-                  <button className="btn btn-outline" style={{ flex: 1, padding: '8px', fontSize: '0.8rem' }}>Request Edit</button>
+                  <button onClick={() => alert("Component Feature arriving in v2.0")} className="btn btn-outline" style={{ flex: 1, padding: '8px', fontSize: '0.8rem' }}>Request Edit</button>
                   <button onClick={dispatchPhysicalPost} className="btn btn-primary" style={{ flex: 1, padding: '8px', fontSize: '0.8rem', background: 'var(--color-green-main)', border: 'none' }}><Check size={14}/> Approve & Post</button>
                </div>
             </div>
@@ -646,6 +648,7 @@ const SocialDashboard = () => {
                      
                      if (data.targets && data.targets.length > 0) {
                          const posts = data.targets.map(t => ({
+                             domain: activeDomain,
                              platform: 'linkedin', 
                              content: `Connection Request Dispatch: ${t.name} (${t.role}) | ${t.intelligence}`, 
                              time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), 

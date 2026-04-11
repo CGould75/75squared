@@ -48,8 +48,8 @@ export default function ReputationDashboard() {
         </div>
         
         <div style={{ display: 'flex', gap: '12px' }}>
-          <button className="btn btn-outline" style={{ background: 'white' }}><Settings size={18} /> Provider Config</button>
-          <button className="btn btn-primary"><Zap size={18} /> Launch Generation Campaign</button>
+          <button onClick={() => alert("Provider Configuration arriving in v2.0")} className="btn btn-outline" style={{ background: 'white' }}><Settings size={18} /> Provider Config</button>
+          <button onClick={() => alert("Launch Sequence arriving in v2.0")} className="btn btn-primary"><Zap size={18} /> Launch Generation Campaign</button>
         </div>
       </div>
 
@@ -117,10 +117,10 @@ export default function ReputationDashboard() {
                      <p style={{ color: 'var(--color-text-main)', fontSize: '1rem', lineHeight: '1.6', marginBottom: '16px' }}>"{review.content}"</p>
                      
                      <div style={{ display: 'flex', gap: '12px' }}>
-                        <button className="btn btn-outline" style={{ background: 'white', padding: '8px 16px', fontSize: '0.85rem' }}><Reply size={14}/> Fast Reply</button>
+                        <button onClick={() => alert("Fast Reply arriving in v2.0")} className="btn btn-outline" style={{ background: 'white', padding: '8px 16px', fontSize: '0.85rem' }}><Reply size={14}/> Fast Reply</button>
                         <button onClick={() => handleAIDraft(review)} className="btn btn-outline" style={{ background: 'rgba(59, 130, 246, 0.05)', border: '1px solid rgba(59, 130, 246, 0.2)', color: 'var(--color-blue-main)', padding: '8px 16px', fontSize: '0.85rem', cursor: 'pointer' }}><Sparkles size={14}/> Draft via AI</button>
                         {review.rating === 1 && (
-                            <button className="btn btn-outline" style={{ background: 'rgba(239, 68, 68, 0.05)', border: '1px solid rgba(239, 68, 68, 0.2)', color: '#EF4444', padding: '8px 16px', fontSize: '0.85rem' }}><Activity size={14}/> Push SRE Alert</button>
+                            <button onClick={() => alert("SRE Alert System arriving in v2.0")} className="btn btn-outline" style={{ background: 'rgba(239, 68, 68, 0.05)', border: '1px solid rgba(239, 68, 68, 0.2)', color: '#EF4444', padding: '8px 16px', fontSize: '0.85rem' }}><Activity size={14}/> Push SRE Alert</button>
                         )}
                      </div>
                   </div>
@@ -145,7 +145,7 @@ export default function ReputationDashboard() {
                      Hi {'{{first_name}}'}, thanks for choosing {'{{business_name}}'}! How did we do? Click here to drop a quick review: {'{{review_link}}'}
                   </div>
                </div>
-               <button className="btn btn-primary" style={{ width: '100%', justifyContent: 'center' }}><Settings2 size={16}/> Configure Twilio Webhook</button>
+               <button onClick={() => alert("Twilio Webhooks arriving in v2.0")} className="btn btn-primary" style={{ width: '100%', justifyContent: 'center' }}><Settings2 size={16}/> Configure Twilio Webhook</button>
             </div>
 
             <div className="glass-panel" style={{ padding: '30px' }}>
@@ -161,7 +161,7 @@ export default function ReputationDashboard() {
                      [Standard Liquid UI Layout Applied]
                   </div>
                </div>
-               <button className="btn btn-outline" style={{ width: '100%', justifyContent: 'center', background: 'white' }}><Settings2 size={16}/> Edit Matrix</button>
+               <button onClick={() => alert("Configuration Matrix arriving in v2.0")} className="btn btn-outline" style={{ width: '100%', justifyContent: 'center', background: 'white' }}><Settings2 size={16}/> Edit Matrix</button>
             </div>
          </div>
       )}

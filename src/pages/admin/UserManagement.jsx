@@ -24,10 +24,10 @@ export default function UserManagement() {
      setLoading(true);
      // Connects to global users schema. If empty/fails, falls back to mockup arrays for demonstration
      const { data, error } = await supabase.from('nexus_users').select('*').order('id', { ascending: false });
-     if (error || !data || data.length === 0) {
+     if (error) {
         setUsers(fallbackUsers);
      } else {
-        setUsers(data);
+        setUsers(data || []);
      }
      setLoading(false);
   };
@@ -66,9 +66,7 @@ export default function UserManagement() {
      if(window.confirm("Are you sure you want to completely sever this user's RBAC privileges?")) {
         setUsers(users.filter(u => u.id !== id));
         // Push physical deletion
-        if (typeof id !== 'string' || !id.startsWith('usr_')) {
-           await supabase.from('nexus_users').delete().eq('id', id);
-        }
+        await supabase.from('nexus_users').delete().eq('id', id);
      }
   };
 
@@ -141,7 +139,7 @@ export default function UserManagement() {
                <Search size={18} color="var(--color-text-muted)" style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)' }}/>
                <input type="text" placeholder="Search users by email or ID..." style={{ width: '100%', padding: '12px 12px 12px 48px', borderRadius: '8px', border: '1px solid rgba(0,0,0,0.1)', background: 'var(--color-bg-light)', outline: 'none' }} />
             </div>
-            <button className="btn btn-outline" style={{ padding: '12px 20px', background: 'white' }}>Filter Users</button>
+            <button onClick={() => alert("User Filtering Engine arriving in v2.0")} className="btn btn-outline" style={{ padding: '12px 20px', background: 'white' }}>Filter Users</button>
          </div>
 
          <div style={{ flexGrow: 1, overflowY: 'auto' }}>

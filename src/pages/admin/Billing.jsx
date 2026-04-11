@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { CreditCard, Check, Zap, Shield, Mail, TrendingUp, MousePointerClick, FileText, Cpu, AlertTriangle } from 'lucide-react';
 import { supabase } from '../../lib/supabaseClient';
+import { GlobalDomainContext } from '../../layouts/AdminLayout';
 
 const Billing = () => {
+  const { activeDomain } = useContext(GlobalDomainContext);
   const [activeTier, setActiveTier] = useState('starter'); // 'starter' | 'agency' | 'enterprise'
   const [tiers, setTiers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -23,10 +25,19 @@ const Billing = () => {
       } else {
         setTiers(data);
       }
+      const { data: clientData } = await supabase.from('nexus_clients').select('billing_tier').eq('domain', activeDomain).single();
+      if (clientData && clientData.billing_tier) {
+         setActiveTier(clientData.billing_tier);
+      }
       setLoading(false);
     };
     fetchBillingPlans();
-  }, []);
+  }, [activeDomain]);
+
+  const updateBillingTier = async (tierId) => {
+     setActiveTier(tierId);
+     await supabase.from('nexus_clients').update({ billing_tier: tierId }).eq('domain', activeDomain);
+  };
 
   return (
     <div>
@@ -64,7 +75,7 @@ const Billing = () => {
             <button 
               className={tier.id === activeTier ? 'btn' : tier.highlight ? 'btn btn-primary' : 'btn btn-outline'} 
               style={{ width: '100%', justifyContent: 'center', marginBottom: '40px', background: tier.id === activeTier ? 'rgba(16, 185, 129, 0.1)' : '', color: tier.id === activeTier ? 'var(--color-green-main)' : '', border: tier.id === activeTier ? '1px solid rgba(16, 185, 129, 0.4)' : '' }}
-              onClick={() => setActiveTier(tier.id)}
+              onClick={() => updateBillingTier(tier.id)}
             >
               {tier.id === activeTier ? 'Current Plan' : 'Select Plan'}
             </button>

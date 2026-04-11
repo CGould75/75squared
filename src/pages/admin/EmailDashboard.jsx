@@ -1476,8 +1476,8 @@ const EmailDashboard = () => {
               <div style={{ padding: '24px', border: '1px solid rgba(0,0,0,0.05)', borderRadius: '16px', background: 'var(--color-bg-light)' }}>
                 <h3 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '16px' }}>RSVP Module</h3>
                 <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
-                  <button style={{ flexGrow: 1, padding: '12px', background: 'white', border: '1px solid rgba(16, 185, 129, 0.3)', borderRadius: '8px', color: 'var(--color-green-main)', fontWeight: 600 }}>Yes, I'll be there!</button>
-                  <button style={{ flexGrow: 1, padding: '12px', background: 'white', border: '1px solid rgba(239, 68, 68, 0.3)', borderRadius: '8px', color: '#ef4444', fontWeight: 600 }}>No, I can't sync.</button>
+                  <button onClick={() => alert("Component Feature arriving in v2.0")} style={{ flexGrow: 1, padding: '12px', background: 'white', border: '1px solid rgba(16, 185, 129, 0.3)', borderRadius: '8px', color: 'var(--color-green-main)', fontWeight: 600 }}>Yes, I'll be there!</button>
+                  <button onClick={() => alert("Component Feature arriving in v2.0")} style={{ flexGrow: 1, padding: '12px', background: 'white', border: '1px solid rgba(239, 68, 68, 0.3)', borderRadius: '8px', color: '#ef4444', fontWeight: 600 }}>No, I can't sync.</button>
                 </div>
                 <button onClick={() => handleInsertBlock('RSVP Event Module')} className="btn btn-primary" style={{ width: '100%', justifyContent: 'center' }}>Insert into Campaign</button>
               </div>
@@ -1717,7 +1717,7 @@ const EmailDashboard = () => {
                     <h3 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '8px' }}>{formConfig.headline}</h3>
                     <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9rem', marginBottom: '24px' }}>{formConfig.subtext}</p>
                     <input type="email" placeholder="Email Address" style={{ width: '100%', padding: '12px 16px', border: '1px solid rgba(0,0,0,0.1)', borderRadius: '8px', marginBottom: '12px', outline: 'none' }} />
-                    <button style={{ width: '100%', padding: '12px', background: formConfig.color, color: 'white', border: 'none', borderRadius: '8px', fontWeight: 700, cursor: 'pointer' }}>{formConfig.ctaText}</button>
+                    <button onClick={() => alert("Component Feature arriving in v2.0")} style={{ width: '100%', padding: '12px', background: formConfig.color, color: 'white', border: 'none', borderRadius: '8px', fontWeight: 700, cursor: 'pointer' }}>{formConfig.ctaText}</button>
                  </div>
                ) : (
                  <div style={{ width: '100%', height: '100%', minHeight: '400px', background: 'white', borderRadius: '16px', border: '1px solid rgba(0,0,0,0.05)', position: 'relative', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -1733,14 +1733,13 @@ const EmailDashboard = () => {
                           <h3 style={{ fontSize: formConfig.style === 'flyout' ? '1.2rem' : '1.5rem', fontWeight: 800, marginBottom: '8px' }}>{formConfig.headline}</h3>
                           <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9rem', marginBottom: '24px' }}>{formConfig.subtext}</p>
                           <input type="email" placeholder="Email Address" style={{ width: '100%', padding: '12px 16px', border: '1px solid rgba(0,0,0,0.1)', borderRadius: '8px', marginBottom: '12px', outline: 'none' }} />
-                          <button style={{ width: '100%', padding: '14px', background: formConfig.color, color: 'white', border: 'none', borderRadius: '8px', fontWeight: 800, cursor: 'pointer', fontSize: '1.05rem', boxShadow: `0 8px 20px ${formConfig.color}40` }}>{formConfig.ctaText}</button>
+                          <button onClick={() => alert("Component Feature arriving in v2.0")} style={{ width: '100%', padding: '14px', background: formConfig.color, color: 'white', border: 'none', borderRadius: '8px', fontWeight: 800, cursor: 'pointer', fontSize: '1.05rem', boxShadow: `0 8px 20px ${formConfig.color}40` }}>{formConfig.ctaText}</button>
                        </div>
                     </div>
                  </div>
                )}
             </div>
           </div>
-        </div>
         </div>
       )}
 

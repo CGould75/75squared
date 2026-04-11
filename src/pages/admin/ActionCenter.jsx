@@ -1,23 +1,27 @@
-import React, { useState } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { Target, Zap, CheckCircle2, AlertTriangle, ShieldAlert, Cpu, Bot, Search, BarChart3, LineChart } from 'lucide-react';
 import SEOHead from '../../components/SEOHead';
 import { supabase } from '../../lib/supabaseClient';
+import { GlobalDomainContext } from '../../layouts/AdminLayout';
 
 export default function ActionCenter() {
+  const { activeDomain } = useContext(GlobalDomainContext);
   const [autoPilotEnabled, setAutoPilotEnabled] = useState(false);
-  const defaultMockFeed = [
-     { id: 'act_1', type: 'critical', title: 'Toxic Link Node Detected', description: 'Deep-crawlers found 14 Russian spam domains linking to goodyslv.com, negatively impacting trust metrics by -4.2%.', actionLabel: 'Generate & Submit Disavow List via AI API', solved: false },
-     { id: 'act_2', type: 'warning', title: 'API Budget Cap Breached (GlobalConstraints)', description: 'The ContentStudio generative action has been halted. The algorithmic budget cap for the target domain was exceeded by $12.40.', actionLabel: 'Authorize Override & Deploy', solved: false },
-     { id: 'act_3', type: 'critical', title: 'Reputation Engine: Pre-Review Gateway Failed', description: 'Claude 3.5 Sonnet detected an off-brand semantic tone in an auto-drafted response to a 1-star Google My Business review. Deployment halted.', actionLabel: 'Manually Revise Reply', solved: false },
-     { id: 'act_4', type: 'opportunity', title: 'Missing Schema Target (Competitor Gap)', description: 'Your competitors recently updated their JSON-LD to include Product rating arrays. You are missing out on rich snippets.', actionLabel: 'Inject Counter-Schema to Edge', solved: false }
-  ];
+  const [feed, setFeed] = useState([]);
+  const [toasts, setToasts] = useState([]);
+  const [superAdminOverride, setSuperAdminOverride] = useState(false);
 
-  const [feed, setFeed] = useState(defaultMockFeed);
-
-  React.useEffect(() => {
+  useEffect(() => {
+     let isMounted = true;
      const fetchFatalAnomalies = async () => {
-        const { data, error } = await supabase.from('sre_logs').select('*').in('severity', ['fatal', 'critical', 'opportunity']).neq('status', 'archived');
-        if (data && data.length > 0) {
+        const { data, error } = await supabase
+           .from('sre_logs')
+           .select('*')
+           .eq('tenant_domain', activeDomain) // Secured global leakage
+           .in('severity', ['fatal', 'critical', 'opportunity'])
+           .neq('status', 'archived');
+           
+        if (data && data.length > 0 && isMounted) {
            const telemetryMappedFeed = data.map(log => {
               let parsedPayload = {};
               try {
@@ -34,14 +38,18 @@ export default function ActionCenter() {
                  sre_payload: parsedPayload 
               };
            });
-           setFeed(prev => [...telemetryMappedFeed, ...defaultMockFeed]);
+           setFeed(telemetryMappedFeed);
+        } else if (isMounted) {
+           setFeed([]); // Force empty cleanly
         }
      };
-     fetchFatalAnomalies();
-  // eslint-disable-next-line
-  }, []);
 
-  const [toasts, setToasts] = useState([]);
+     if (activeDomain) {
+         fetchFatalAnomalies();
+     }
+
+     return () => { isMounted = false; };
+  }, [activeDomain]);
 
   const addToast = (msg) => {
     const id = Date.now();
@@ -52,36 +60,25 @@ export default function ActionCenter() {
   };
 
   const handleSolve = async (id) => {
+    // Optimistically update UI
     setFeed(feed.map(item => item.id === id ? { ...item, solved: true } : item));
     addToast('Executing autonomous sequence pipeline via API...');
     
-    // Check if real telemetry event
-    if (typeof id === 'number' || (typeof id === 'string' && !id.startsWith('act_'))) {
-       const targetLog = feed.find(f => f.id === id);
+    const targetLog = feed.find(f => f.id === id);
+    if (!targetLog) return;
        
-       if (targetLog && targetLog.type === 'opportunity' && targetLog.sre_payload?.social_id) {
-          // Physically approve the pending drafts!
-          await supabase.from('social_posts').update({ status: 'Scheduled' }).eq('id', targetLog.sre_payload.social_id);
-          addToast('Verified: Social Post algorithms promoted to Scheduled matrix.');
-       }
-       
-       await supabase.from('sre_logs').update({ status: 'resolved', sre_action: 'Silently patched via Action Center Auto-Healing sequence.' }).eq('id', id);
-       addToast(`Success! SRE Anomaly permanently mathematically resolved.`);
+    // Live Supabase Execution Router
+    if (targetLog.type === 'opportunity' && targetLog.sre_payload?.social_id) {
+       // Physically approve the pending drafts!
+       await supabase.from('social_posts').update({ status: 'Scheduled' }).eq('id', targetLog.sre_payload.social_id);
+       addToast('Verified: Social Post algorithms promoted to Scheduled matrix.');
+    }
+    
+    const { error } = await supabase.from('sre_logs').update({ status: 'resolved', sre_action: 'Silently patched via Action Center Auto-Healing sequence.' }).eq('id', id);
+    if (error) {
+       addToast(`Error mitigating anomaly: ${error.message}`);
     } else {
-       // Physical AI Action Simulation for Mock events
-       const targetAction = feed.find(f => f.id === id);
-       if (targetAction && targetAction.type === 'opportunity') {
-          const newDraft = {
-             domain: localStorage.getItem('nexus_tenant_domain') || '75squared.com',
-             title: `AI Auto-Draft: ${targetAction.title}`,
-             subject_line: `Action Required: Mitigating ${targetAction.title} constraints`,
-             body_content: `<div style="padding: 20px;"><h1>Autonomous Action Executed</h1><p>The Hive Mind automatically handled the following alert: ${targetAction.description}</p></div>`,
-             status: 'Draft',
-             target_segment: 'Internal Admins'
-          };
-          await supabase.from('email_campaigns').insert([newDraft]);
-          addToast(`Success! Draft compiled and sent to Campaign Vault.`);
-       }
+       addToast(`Success! SRE Anomaly permanently mathematically resolved.`);
     }
   };
 
@@ -89,15 +86,10 @@ export default function ActionCenter() {
      if(!autoPilotEnabled) {
         setAutoPilotEnabled(true);
         addToast('WARNING: Autonomous Engine Online. The system will now fix these issues silently in the background.');
-        setTimeout(() => {
-           setFeed(feed.map(item => ({ ...item, solved: true })));
-        }, 1500);
      } else {
         setAutoPilotEnabled(false);
      }
   };
-
-  const [superAdminOverride, setSuperAdminOverride] = useState(false);
 
   return (
     <div className="fade-in" style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
@@ -130,7 +122,6 @@ export default function ActionCenter() {
                <div style={{ fontWeight: 800, color: autoPilotEnabled ? '#10B981' : 'var(--color-text-main)' }}>Master AUTO-PILOT</div>
              </div>
              
-             {/* Custom Toggle Switch */}
              <div onClick={toggleAutoPilot} style={{ width: '48px', height: '26px', background: autoPilotEnabled ? '#10B981' : '#CBD5E1', borderRadius: '13px', position: 'relative', cursor: 'pointer', transition: 'background 0.3s' }}>
                 <div style={{ position: 'absolute', top: '3px', left: autoPilotEnabled ? '25px' : '3px', width: '20px', height: '20px', background: 'white', borderRadius: '50%', boxShadow: '0 2px 5px rgba(0,0,0,0.2)', transition: 'left 0.3s' }}></div>
              </div>
@@ -176,7 +167,7 @@ export default function ActionCenter() {
             </div>
          ))}
          
-         {feed.every(i => i.solved) && (
+         {(feed.length === 0 || feed.every(i => i.solved)) && (
             <div style={{ textAlign: 'center', padding: '60px', color: 'var(--color-text-muted)' }}>
                <CheckCircle2 size={48} color="#10B981" style={{ marginBottom: '16px', opacity: 0.5 }} />
                <h3 style={{ fontSize: '1.2rem', fontWeight: 700 }}>Zero Active Vulnerabilities</h3>

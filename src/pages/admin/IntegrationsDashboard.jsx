@@ -1,14 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Blocks, Key, RefreshCw, UploadCloud, DownloadCloud, CheckCircle2, AlertCircle, Database, Workflow, Mail, MessageSquare } from 'lucide-react';
 import { supabase } from '../../lib/supabaseClient';
+import { GlobalDomainContext } from '../../layouts/AdminLayout';
 
 const IntegrationsDashboard = () => {
+  const { activeDomain } = useContext(GlobalDomainContext);
   const [activeTab, setActiveTab] = useState('marketplace');
   const [connectionStatuses, setConnectionStatuses] = useState({});
 
   useEffect(() => {
     const fetchConnections = async () => {
-      const { data } = await supabase.from('api_integrations').select('*');
+      const { data } = await supabase.from('api_integrations').select('*').eq('domain', activeDomain);
       if (data && data.length > 0) {
         const statuses = {};
         data.forEach(conn => {
@@ -24,8 +26,8 @@ const IntegrationsDashboard = () => {
     // Simulating OAuth popup resolution
     const fakeKey = `api_${Math.random().toString(36).substr(2, 9)}`;
     const { error } = await supabase.from('api_integrations').upsert([
-      { app_id: appId, auth_status: 'connected', api_key: fakeKey }
-    ], { onConflict: 'app_id' });
+      { domain: activeDomain, app_id: appId, auth_status: 'connected', api_key: fakeKey }
+    ], { onConflict: 'domain, app_id' });
     
     if (!error) {
        setConnectionStatuses(prev => ({...prev, [appId]: 'connected'}));
@@ -143,7 +145,7 @@ const IntegrationsDashboard = () => {
                        <Key size={16} /> Enter API Key
                      </button>
                   ) : (
-                     <button className="btn btn-primary" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '12px', background: integration.status === 'error' ? 'var(--color-bg-light)' : 'var(--color-purple-main)', color: integration.status === 'error' ? 'var(--color-text-main)' : 'white', border: integration.status === 'error' ? '1px solid rgba(0,0,0,0.1)' : 'none' }}>
+                     <button onClick={() => alert("Component Feature arriving in v2.0")} className="btn btn-primary" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '12px', background: integration.status === 'error' ? 'var(--color-bg-light)' : 'var(--color-purple-main)', color: integration.status === 'error' ? 'var(--color-text-main)' : 'white', border: integration.status === 'error' ? '1px solid rgba(0,0,0,0.1)' : 'none' }}>
                        <RefreshCw size={16} /> {integration.status === 'error' ? 'Re-Authenticate' : 'Force Server Sync'}
                      </button>
                   )}
@@ -197,7 +199,7 @@ const IntegrationsDashboard = () => {
                    </div>
                  </div>
 
-                 <button className="btn btn-primary" style={{ width: '100%', padding: '16px', fontSize: '1rem', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '12px' }}>
+                 <button onClick={() => alert("Component Feature arriving in v2.0")} className="btn btn-primary" style={{ width: '100%', padding: '16px', fontSize: '1rem', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '12px' }}>
                    <Database size={20}/> Execute Database Merge
                  </button>
                  

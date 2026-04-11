@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { Ghost, AlertTriangle, ArrowRight, Zap, CheckCircle2, XCircle, MousePointerClick, Bot, Code2, LineChart, SplitSquareHorizontal, ShieldCheck, FileSearch, Maximize, Database } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabaseClient';
 import TelemetryEngine from '../../lib/telemetry';
+import { GlobalDomainContext } from '../../layouts/AdminLayout';
 
 const GhostEditor = () => {
+  const { activeDomain } = useContext(GlobalDomainContext);
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('feed');
   const [anomalies, setAnomalies] = useState([]);
@@ -24,9 +26,9 @@ const GhostEditor = () => {
   React.useEffect(() => {
     const fetchAnomalies = async () => {
       // Pull Omnichannel Data Sources for A/B Convergence
-      const { data: domData } = await supabase.from('ab_mutations').select('*').order('id', { ascending: true });
-      const { data: emailData } = await supabase.from('email_campaigns').select('*').limit(1);
-      const { data: socialData } = await supabase.from('social_posts').select('*').limit(1);
+      const { data: domData } = await supabase.from('ab_mutations').select('*').eq('domain', activeDomain).order('id', { ascending: true });
+      const { data: emailData } = await supabase.from('email_campaigns').select('*').eq('domain', activeDomain).limit(1);
+      const { data: socialData } = await supabase.from('social_posts').select('*').eq('domain', activeDomain).limit(1);
       
       let unifiedAnomalies = [];
       if (domData && domData.length > 0) {
@@ -77,7 +79,7 @@ const GhostEditor = () => {
       setLoading(false);
     };
     fetchAnomalies();
-  }, [activeTab]);
+  }, [activeTab, activeDomain]);
 
   const deployMutationToEdge = async (anomalyId) => {
     const target = anomalies.find(a => a.id === anomalyId);
@@ -335,7 +337,7 @@ const GhostEditor = () => {
                  </div>
 
                  <div style={{ display: 'flex', gap: '16px', marginTop: '24px' }}>
-                    <button className="btn btn-outline" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '12px' }}>
+                    <button onClick={() => alert("Component Feature arriving in v2.0")} className="btn btn-outline" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '12px' }}>
                       <XCircle size={16} /> Reject
                     </button>
                     <button 
@@ -500,7 +502,7 @@ const GhostEditor = () => {
                  {/* The Injected Component Visualized in Full Context */}
                  <div style={{ display: 'inline-block', position: 'relative' }}>
                     <div style={{ position: 'absolute', top: '-40px', right: '-30px', background: 'var(--color-purple-main)', color: 'white', padding: '6px 12px', borderRadius: '8px', fontSize: '0.75rem', fontWeight: 800, transform: 'rotate(8deg)', boxShadow: '0 8px 20px rgba(147, 51, 234, 0.4)', zIndex: 10 }}>AI Variant B</div>
-                    <button className="btn btn-primary hover-lift" style={{ padding: '24px 48px', fontSize: '1.3rem', background: 'var(--color-purple-main)', color: 'white', borderRadius: '40px', boxShadow: '0 20px 40px rgba(147, 51, 234, 0.3)', border: 'none', cursor: 'pointer', fontWeight: 800 }}>
+                    <button onClick={() => alert("Component Feature arriving in v2.0")} className="btn btn-primary hover-lift" style={{ padding: '24px 48px', fontSize: '1.3rem', background: 'var(--color-purple-main)', color: 'white', borderRadius: '40px', boxShadow: '0 20px 40px rgba(147, 51, 234, 0.3)', border: 'none', cursor: 'pointer', fontWeight: 800 }}>
                        Start Your 14-Day Free Trial
                     </button>
                     <p style={{ marginTop: '16px', fontSize: '0.85rem', color: 'var(--color-text-muted)', fontWeight: 600 }}>No credit card required. Cancel anytime.</p>

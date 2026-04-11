@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { Terminal, Activity, ServerCrash, Bot, RefreshCcw, CheckCircle2, ChevronRight, Copy, AlertTriangle, X, User } from 'lucide-react';
 import { supabase } from '../../lib/supabaseClient';
 import { Link } from 'react-router-dom';
+import { GlobalDomainContext } from '../../layouts/AdminLayout';
 
 const SystemLogs = () => {
+  const { activeDomain } = useContext(GlobalDomainContext);
   const [activeTab, setActiveTab] = useState('sre');
   const [copiedId, setCopiedId] = useState(null);
   const [logs, setLogs] = useState([]);
@@ -12,14 +14,14 @@ const SystemLogs = () => {
   // Natively pull from Supabase Vault instead of hardcoded state
   React.useEffect(() => {
     const fetchLogs = async () => {
-      const { data, error } = await supabase.from('sre_logs').select('*').neq('status', 'archived').order('id', { ascending: false });
+      const { data, error } = await supabase.from('sre_logs').select('*').neq('status', 'archived').eq('domain', activeDomain).order('id', { ascending: false });
       if (data) {
         setLogs(data);
       }
       setLoading(false);
     };
     fetchLogs();
-  }, []);
+  }, [activeDomain]);
 
   const handleCopy = (payload, id) => {
     navigator.clipboard.writeText(payload).then(() => {

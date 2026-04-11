@@ -68,7 +68,7 @@ const LiquidUI = () => {
                    </div>
                 </div>
              ))}
-             <button className="btn btn-outline" style={{ marginTop: '16px', borderStyle: 'dashed' }}>
+             <button onClick={() => alert("Component Feature arriving in v2.0")} className="btn btn-outline" style={{ marginTop: '16px', borderStyle: 'dashed' }}>
                + Create New Liquid Rule
              </button>
           </div>
@@ -77,7 +77,7 @@ const LiquidUI = () => {
           <div className="glass-panel" style={{ padding: '40px' }}>
              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
                <h2 style={{ fontSize: '1.5rem', fontWeight: 800 }}>Rule Configuration Node</h2>
-               <button className="btn btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+               <button onClick={() => alert("Component Feature arriving in v2.0")} className="btn btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                  <Save size={16} /> Deploy to Edge
                </button>
              </div>
