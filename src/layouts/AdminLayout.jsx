@@ -374,7 +374,7 @@ const AdminLayout = () => {
         </div>
 
         {/* Dynamic Outlet bounded by Global Context */}
-        <GlobalDomainContext.Provider value={{ activeDomain, setActiveDomain, clientName }}>
+        <GlobalDomainContext.Provider value={{ activeDomain, setActiveDomain, clientName, availableDomains, userRole }}>
            <ErrorBoundary>
               <Outlet />
            </ErrorBoundary>
