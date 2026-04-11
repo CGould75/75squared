@@ -42,6 +42,12 @@ const EmailDashboard = () => {
   const [isGeneratingElement, setIsGeneratingElement] = useState(false);
   const [automationNodes, setAutomationNodes] = useState([]);
   const [previewDevice, setPreviewDevice] = useState('desktop'); // 'desktop' | 'tablet' | 'mobile'
+  
+  // Mailing Lists State
+  const [emailLists, setEmailLists] = useState([{ name: 'Master Newsletter' }]);
+  const [showCreateListModal, setShowCreateListModal] = useState(false);
+  const [newListName, setNewListName] = useState('');
+  const [newSubscriberTargetList, setNewSubscriberTargetList] = useState('Master Newsletter');
 
   // Physical Spam Sandbox Regex Matrix
   React.useEffect(() => {
@@ -87,7 +93,15 @@ const EmailDashboard = () => {
          setCampaigns(patchedData);
       }
 
-      // 4. Fetch Client-Specific Visual Automations (Fallback to local if schema syncing)
+      // 4. Fetch Mailing Lists (Segments)
+      const { data: listsData } = await supabase.from('email_lists').select('*').eq('domain', activeDomain).order('id', { ascending: true });
+      if (listsData && listsData.length > 0) {
+         setEmailLists(listsData);
+      } else {
+         setEmailLists([{ name: 'Master Newsletter' }]);
+      }
+
+      // 5. Fetch Client-Specific Visual Automations (Fallback to local if schema syncing)
       const storedAutomations = localStorage.getItem(`nexus_automations_${activeDomain}`);
       if (storedAutomations) {
           setAutomationNodes(JSON.parse(storedAutomations));
@@ -453,7 +467,7 @@ const EmailDashboard = () => {
       email: newEmail, 
       status: "Subscribed", 
       tags: [],
-      lists: ['Master Newsletter'], 
+      lists: [newSubscriberTargetList], 
       open_rate: "0%", 
       ctr: "0%"
     };
@@ -472,6 +486,42 @@ const EmailDashboard = () => {
     }
     setShowNewModal(false);
     setNewEmail('');
+  };
+
+  const handleCreateList = async () => {
+    if (!newListName.trim()) return;
+    const { data, error } = await supabase.from('email_lists').insert([{ domain: activeDomain, name: newListName.trim() }]).select();
+    if (error) {
+      alert("Error creating list: " + error.message);
+      return;
+    }
+    if (data && data[0]) {
+      setEmailLists(prev => [...prev, data[0]]);
+    }
+    setNewListName('');
+    setShowCreateListModal(false);
+  };
+
+  const handleDeleteList = async (listId, listName) => {
+    // 1. Physically delete from explicit email_lists table
+    if (listName !== 'Master Newsletter') {
+      await supabase.from('email_lists').delete().eq('id', listId);
+      setEmailLists(prev => prev.filter(l => l.id !== listId));
+    }
+
+    // 2. Scrub the list dynamically from all subscriber records
+    const updatedAudience = audience.map(sub => {
+       if (sub.lists && sub.lists.includes(listName)) {
+           return { ...sub, lists: sub.lists.filter(l => l !== listName) };
+       }
+       return sub;
+    });
+    setAudience(updatedAudience);
+
+    // Run batch background update across the DB physically
+    updatedAudience.forEach(async (sub) => {
+       await supabase.from('email_subscribers').update({ lists: sub.lists }).eq('id', sub.id);
+    });
   };
 
   return (
@@ -668,11 +718,39 @@ const EmailDashboard = () => {
                          value={newEmail}
                          onChange={(e) => setNewEmail(e.target.value)}
                          placeholder="subscriber@domain.com"
-                         style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid rgba(0,0,0,0.1)', marginBottom: '20px', fontSize: '1rem', outline: 'none' }}
+                         style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid rgba(0,0,0,0.1)', marginBottom: '16px', fontSize: '1rem', outline: 'none' }}
                       />
+                      <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--color-text-muted)', marginBottom: '8px', textAlign: 'left' }}>Assign to Mailing List</label>
+                      <select 
+                         value={newSubscriberTargetList} 
+                         onChange={(e) => setNewSubscriberTargetList(e.target.value)}
+                         style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid rgba(0,0,0,0.1)', marginBottom: '24px', fontSize: '0.95rem', background: 'var(--color-bg-light)', outline: 'none' }}
+                      >
+                         {emailLists.map(l => (
+                            <option key={l.id || l.name} value={l.name}>{l.name}</option>
+                         ))}
+                      </select>
                       <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
                          <button onClick={() => { setShowNewModal(false); setNewEmail(''); }} style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', background: 'rgba(0,0,0,0.05)', cursor: 'pointer', fontWeight: 600 }}>Cancel</button>
                          <button onClick={handleAddNew} className="btn btn-primary" style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', cursor: 'pointer', fontWeight: 600 }}>Create Record</button>
+                      </div>
+                   </div>
+                </div>
+              {showCreateListModal && (
+                <div style={{ position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                   <div className="fade-in" style={{ width: '380px', background: 'white', borderRadius: '16px', padding: '30px', boxShadow: '0 25px 50px rgba(0,0,0,0.25)' }}>
+                      <h3 style={{ fontSize: '1.2rem', fontWeight: 800, marginBottom: '20px' }}>Create Mailing List</h3>
+                      <input 
+                         autoFocus
+                         type="text" 
+                         value={newListName}
+                         onChange={(e) => setNewListName(e.target.value)}
+                         placeholder="e.g. VIP Customers"
+                         style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid rgba(0,0,0,0.1)', marginBottom: '24px', fontSize: '1rem', outline: 'none' }}
+                      />
+                      <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
+                         <button onClick={() => { setShowCreateListModal(false); setNewListName(''); }} style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', background: 'rgba(0,0,0,0.05)', cursor: 'pointer', fontWeight: 600 }}>Cancel</button>
+                         <button onClick={handleCreateList} className="btn btn-primary" style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', cursor: 'pointer', fontWeight: 600 }}>Save List</button>
                       </div>
                    </div>
                 </div>
@@ -858,24 +936,31 @@ const EmailDashboard = () => {
             {/* Advanced Segmentation Sidebar */}
             <div style={{ width: '320px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
               <div className="glass-panel" style={{ padding: '24px' }}>
-                <h3 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '16px' }}>Active Segments</h3>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '16px' }}>Mailing Lists</h3>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                  {Array.from(dynamicSegments).map(segment => {
-                    const count = audience.filter(sub => (sub.lists && sub.lists.includes(segment)) || (sub.tags && sub.tags.includes(segment))).length;
+                  {emailLists.map(list => {
+                    const count = audience.filter(sub => sub.lists && sub.lists.includes(list.name)).length;
                     return (
-                      <button key={segment} style={{ padding: '12px', borderRadius: '8px', background: 'var(--color-bg-light)', border: '1px solid rgba(0,0,0,0.05)', textAlign: 'left', display: 'flex', justifyContent: 'space-between', fontWeight: 600 }}>
-                        <span>{segment}</span>
-                        <span style={{ color: 'var(--color-text-muted)', fontSize: '0.9rem' }}>{count}</span>
-                      </button>
+                      <div key={list.id || list.name} style={{ padding: '12px', borderRadius: '8px', background: 'var(--color-bg-light)', border: '1px solid rgba(0,0,0,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div style={{ fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                           <span>{list.name}</span>
+                           <span style={{ color: 'var(--color-text-muted)', fontSize: '0.8rem', background: 'rgba(0,0,0,0.05)', padding: '2px 6px', borderRadius: '12px' }}>{count}</span>
+                        </div>
+                        {list.name !== 'Master Newsletter' && (
+                           <button onClick={() => handleDeleteList(list.id, list.name)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-text-muted)' }} title="Delete List & Scrub Users">
+                               <Trash2 size={16} />
+                           </button>
+                        )}
+                      </div>
                     )
                   })}
                   {riskCount > 0 && (
-                    <button style={{ padding: '12px', borderRadius: '8px', background: 'rgba(239, 68, 68, 0.05)', border: '1px solid rgba(239, 68, 68, 0.2)', textAlign: 'left', display: 'flex', justifyContent: 'space-between', fontWeight: 600, color: '#EF4444' }}>
+                    <div style={{ padding: '12px', borderRadius: '8px', background: 'rgba(239, 68, 68, 0.05)', border: '1px solid rgba(239, 68, 68, 0.2)', textAlign: 'left', display: 'flex', justifyContent: 'space-between', fontWeight: 600, color: '#EF4444' }}>
                       <span>High Flight Risk (Algorithmic)</span>
                       <span style={{ fontSize: '0.9rem' }}>{riskCount}</span>
-                    </button>
+                    </div>
                   )}
-                  <button style={{ padding: '12px', borderRadius: '8px', background: 'var(--color-bg-light)', border: '1px dashed rgba(0,0,0,0.2)', textAlign: 'left', fontWeight: 600, color: 'var(--color-text-muted)' }}>+ Create Segment</button>
+                  <button onClick={() => setShowCreateListModal(true)} style={{ padding: '12px', borderRadius: '8px', background: 'var(--color-bg-light)', border: '1px dashed rgba(0,0,0,0.2)', textAlign: 'left', fontWeight: 600, color: 'var(--color-text-muted)', cursor: 'pointer' }}>+ Create List</button>
                 </div>
               </div>
             </div>
