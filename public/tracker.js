@@ -25,6 +25,7 @@
     return;
   }
 
+  const sessionId = 'sess_' + Math.random().toString(36).substr(2, 9);
   const endpoint = `${SUPABASE_URL}/rest/v1/tracking_events`;
   let eventBatch = [];
   
@@ -52,6 +53,8 @@
   const queueEvent = (type, x, y) => {
     eventBatch.push({
       project_id: projectId,
+      domain: window.location.hostname,
+      session_id: sessionId,
       url_path: window.location.pathname,
       event_type: type,
       x_coord: Math.round(x),
