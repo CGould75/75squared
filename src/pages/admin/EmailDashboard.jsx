@@ -26,7 +26,7 @@ const EmailDashboard = () => {
   // Physical Spam Sandbox Regex Matrix
   React.useEffect(() => {
      if (activeTab === 'deliverability') {
-         const payloadString = `${campaignDraft.subject_line} ${campaignDraft.body_content}`.toUpperCase();
+         const payloadString = `${campaignDraft?.subject_line || ''} ${campaignDraft?.body_content || ''}`.toUpperCase();
          let deductions = 0;
          let caught = [];
          const penalties = { 'FREE': 15, 'ACT NOW': 25, 'GUARANTEE': 10, 'URGENT': 15, '$$$': 20, 'CLICK HERE': 10 };
@@ -36,7 +36,7 @@ const EmailDashboard = () => {
          setSpamScore(Math.max(0, 100 - deductions));
          setSpamTriggers(caught);
      }
-  }, [campaignDraft.body_content, campaignDraft.subject_line, activeTab]);
+  }, [campaignDraft?.body_content, campaignDraft?.subject_line, activeTab]);
 
   const [clientArchetype, setClientArchetype] = useState('service');
   const [campaigns, setCampaigns] = useState([]);
@@ -58,11 +58,17 @@ const EmailDashboard = () => {
   const [automationNodes, setAutomationNodes] = useState([]);
   const [previewDevice, setPreviewDevice] = useState('desktop'); // 'desktop' | 'tablet' | 'mobile'
 
+  const [telemetry, setTelemetry] = useState([]);
+
   // Natively pull from Supabase Vault instead of hardcoded state
   React.useEffect(() => {
     const fetchCoreData = async () => {
-      // 1. Fetch Audience
-      const { data: subsData } = await supabase.from('email_subscribers').select('*').order('id', { ascending: false });
+      // 0. Fetch Telemetry Events from Subsystem Ledgers securely
+      const { data: telemetryData } = await supabase.from('email_telemetry').select('*').eq('tenant_domain', activeDomain).order('event_timestamp', { ascending: false });
+      if (telemetryData) setTelemetry(telemetryData);
+
+      // 1. Fetch Audience (SECURED)
+      const { data: subsData } = await supabase.from('email_subscribers').select('*').eq('domain', activeDomain).order('id', { ascending: false });
       if (subsData) setAudience(subsData);
 
       // 2. Fetch Business Archetype
@@ -75,7 +81,7 @@ const EmailDashboard = () => {
       const { data: campData } = await supabase.from('email_campaigns').select('*').eq('domain', activeDomain).order('id', { ascending: false });
       if (campData) {
          const patchedData = campData.map(camp => {
-            if (camp.body_content) camp.body_content = camp.body_content.replace(/Take Action Now/g, 'Click Here');
+            if (camp.body_content && typeof camp.body_content === 'string') camp.body_content = camp.body_content.replace(/Take Action Now/g, 'Click Here');
             return camp;
          });
          setCampaigns(patchedData);
@@ -108,7 +114,7 @@ const EmailDashboard = () => {
     setCampaignDraft({ 
        title: camp.title, 
        subject_line: camp.subject_line || '', 
-       body_content: (camp.body_content || '').replace(/Take Action Now/g, 'Click Here'),
+       body_content: (typeof camp.body_content === 'string' ? camp.body_content : '').replace(/Take Action Now/g, 'Click Here'),
        target_segment: camp.target_segment || 'All Subscribers', 
        status: camp.status || 'Draft',
        channel: camp.channel || 'email'
@@ -133,15 +139,21 @@ const EmailDashboard = () => {
         if (error) { TelemetryEngine.dispatchException('EmailDashboard', 'Supabase Insert/Update Database Alert', error, 'fatal'); return; }
         if (data && data[0]) {
            setCampaigns(prev => prev.map(c => c.id === activeCampaignId ? data[0] : c));
-           setCampaignDraft(prev => ({...prev, status: data[0].status}));
+           setCampaignDraft(prev => { 
+                if(!prev) return prev; 
+                return {...prev, status: data[0].status}; 
+           });
         }
       } else {
         const { data, error } = await supabase.from('email_campaigns').insert([payload]).select();
         if (error) { TelemetryEngine.dispatchException('EmailDashboard', 'Supabase Insert/Update Database Alert', error, 'fatal'); return; }
         if (data && data[0]) {
-           setCampaigns([data[0], ...campaigns]);
+           setCampaigns(prev => [data[0], ...(prev || [])]);
            setActiveCampaignId(data[0].id);
-           setCampaignDraft(prev => ({...prev, status: data[0].status}));
+           setCampaignDraft(prev => {
+                if(!prev) return prev;
+                return {...prev, status: data[0].status};
+           });
         }
       }
       alert(`Campaign cleanly saved as ${targetStatus}!`);
@@ -224,6 +236,8 @@ const EmailDashboard = () => {
          method: 'POST',
          headers: { 'Content-Type': 'application/json' },
          body: JSON.stringify({
+            tenant_domain: activeDomain,
+            campaign_id: targetCampaignId,
             title: campaignDraft.title,
             subject_line: campaignDraft.subject_line,
             body_content: campaignDraft.body_content,
@@ -309,10 +323,13 @@ const EmailDashboard = () => {
     }
     
     // Write the raw parsed data to the Active Campaign State
-    setCampaignDraft(prev => ({
-        ...prev,
-        body_content: payload
-    }));
+    setCampaignDraft(prev => {
+        if(!prev) return prev;
+        return {
+            ...prev,
+            body_content: payload
+        };
+    });
 
     if (activeCampaignId) {
         await supabase.from('email_campaigns').update({ body_content: payload }).eq('id', activeCampaignId);
@@ -356,10 +373,13 @@ const EmailDashboard = () => {
 </table>`;
     }
 
-    setCampaignDraft(prev => ({
-        ...prev,
-        body_content: (prev.body_content || '') + blockHtml
-    }));
+    setCampaignDraft(prev => {
+        if(!prev) return prev;
+        return {
+            ...prev,
+            body_content: (prev.body_content || '') + blockHtml
+        };
+    });
     setActiveTab('campaign');
     setViewState('editor');
   };
@@ -429,6 +449,7 @@ const EmailDashboard = () => {
   const handleAddNew = async () => {
     if (!newEmail) return;
     const newRecord = { 
+      domain: activeDomain,
       email: newEmail, 
       status: "Subscribed", 
       tags: [],
@@ -516,9 +537,19 @@ const EmailDashboard = () => {
         // Calculate dynamic active segments from user lists/tags
         const dynamicSegments = new Set(['Master Newsletter']);
         audience.forEach(sub => {
-           if (sub.lists) { sub.lists.forEach(l => dynamicSegments.add(l)); }
-           if (sub.tags) { sub.tags.forEach(t => dynamicSegments.add(t)); }
+            if (sub.lists && Array.isArray(sub.lists)) sub.lists.forEach(l => dynamicSegments.add(l));
+            if (sub.tags && Array.isArray(sub.tags)) sub.tags.forEach(t => dynamicSegments.add(t));
         });
+
+        // High Flight Risk Algorithm Segment Injection:
+        const riskEmails = new Set();
+        (telemetry || []).forEach(t => {
+           // We isolate any email bounding or unsubscribing
+           if (['email.bounced', 'email.complained'].includes(t.event_type)) {
+              riskEmails.add(t.subscriber_email);
+           }
+        });
+        const riskCount = riskEmails.size;
 
         return (
         <div className="fade-in">
@@ -563,17 +594,65 @@ const EmailDashboard = () => {
                       <h3 style={{ fontSize: '1.4rem', fontWeight: 800, marginBottom: '12px' }}>Bulk Contact Intake</h3>
                       <p style={{ color: 'var(--color-text-muted)', fontSize: '0.95rem', marginBottom: '30px' }}>Upload a `.csv` file. We accept exports natively from Mailchimp, HubSpot, ActiveCampaign, or generic formats.</p>
                       
-                      <div style={{ border: '2px dashed rgba(0,0,0,0.1)', borderRadius: '12px', padding: '40px', background: 'var(--color-bg-light)', marginBottom: '30px', cursor: 'pointer' }}>
+                      <div style={{ border: '2px dashed rgba(0,0,0,0.1)', borderRadius: '12px', padding: '40px', background: 'var(--color-bg-light)', marginBottom: '30px', position: 'relative' }}>
+                         <input 
+                           type="file" 
+                           accept=".csv"
+                           style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer', zIndex: 10 }}
+                           onChange={async (e) => {
+                              const file = e.target.files[0];
+                              if (!file) return;
+                              
+                              const reader = new FileReader();
+                              reader.onload = async (event) => {
+                                 const text = event.target.result;
+                                 const lines = text.split('\\n').map(l => l.trim()).filter(l => l);
+                                 if (lines.length < 2) return alert('Invalid or empty CSV. Must contain headers and at least 1 row.');
+                                 
+                                 // Simple CSV parser ignoring quotes for now (assuming standard email column)
+                                 const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+                                 const emailIndex = headers.findIndex(h => h.includes('email'));
+                                 
+                                 if (emailIndex === -1) return alert('CSV must contain an "email" column.');
+                                 
+                                 const payloadArray = [];
+                                 for(let i=1; i<lines.length; i++) {
+                                     const cols = lines[i].split(',');
+                                     if(cols[emailIndex]) {
+                                         payloadArray.push({
+                                             domain: activeDomain,
+                                             email: cols[emailIndex].trim(),
+                                             status: "Subscribed",
+                                             tags: ['CSV Import'],
+                                             lists: ['Master Newsletter'],
+                                             open_rate: "0%",
+                                             ctr: "0%"
+                                         });
+                                     }
+                                 }
+                                 
+                                 if(payloadArray.length > 0) {
+                                     const { data, error } = await supabase.from('email_subscribers').insert(payloadArray).select();
+                                     if (error) {
+                                         alert('Failed to insert batch: ' + error.message);
+                                     } else {
+                                         setAudience(prev => [...data, ...prev]);
+                                         alert(`Successfully ingested ${data.length} records!`);
+                                         setShowImportModal(false);
+                                     }
+                                 } else {
+                                     alert('No valid emails found to import.');
+                                 }
+                              };
+                              reader.readAsText(file);
+                           }}
+                         />
                          <div style={{ color: 'var(--color-text-muted)', fontWeight: 600 }}>Click to browse or Drag & Drop here</div>
-                         <div style={{ fontSize: '0.8rem', marginTop: '8px', color: 'rgba(0,0,0,0.4)' }}>Max file size: 50MB</div>
+                         <div style={{ fontSize: '0.8rem', marginTop: '8px', color: 'rgba(0,0,0,0.4)' }}>Accepts structured .CSV drops</div>
                       </div>
 
                       <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
-                         <button onClick={() => setShowImportModal(false)} className="btn btn-outline" style={{ padding: '12px 24px', fontWeight: 600 }}>Cancel</button>
-                         <button onClick={() => { 
-                            alert("Simulating 5,000+ row CSV ingest. Launching background worker to parse columns and detect archetypes..."); 
-                            setShowImportModal(false); 
-                         }} className="btn btn-primary" style={{ padding: '12px 24px', fontWeight: 600 }}>Process Data Array</button>
+                         <button onClick={() => setShowImportModal(false)} className="btn btn-outline" style={{ padding: '12px 24px', fontWeight: 600 }}>Close Setup</button>
                       </div>
                    </div>
                 </div>
@@ -790,6 +869,12 @@ const EmailDashboard = () => {
                       </button>
                     )
                   })}
+                  {riskCount > 0 && (
+                    <button style={{ padding: '12px', borderRadius: '8px', background: 'rgba(239, 68, 68, 0.05)', border: '1px solid rgba(239, 68, 68, 0.2)', textAlign: 'left', display: 'flex', justifyContent: 'space-between', fontWeight: 600, color: '#EF4444' }}>
+                      <span>High Flight Risk (Algorithmic)</span>
+                      <span style={{ fontSize: '0.9rem' }}>{riskCount}</span>
+                    </button>
+                  )}
                   <button style={{ padding: '12px', borderRadius: '8px', background: 'var(--color-bg-light)', border: '1px dashed rgba(0,0,0,0.2)', textAlign: 'left', fontWeight: 600, color: 'var(--color-text-muted)' }}>+ Create Segment</button>
                 </div>
               </div>

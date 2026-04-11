@@ -9,7 +9,7 @@ export default class ErrorBoundary extends React.Component {
 
   static getDerivedStateFromError(error) {
     // Update state so the next render will show the fallback UI.
-    return { hasError: true };
+    return { hasError: true, errorMessage: error.message };
   }
 
   componentDidCatch(error, errorInfo) {
@@ -39,6 +39,11 @@ export default class ErrorBoundary extends React.Component {
           <div style={{ background: 'white', padding: '12px 24px', borderRadius: '8px', fontSize: '0.9rem', fontWeight: 600, color: '#EF4444', fontFamily: 'monospace', border: '1px solid rgba(0,0,0,0.1)' }}>
             Reference: {this.state.errorId || 'Dispatching...'}
           </div>
+          {this.state.errorMessage && (
+            <div style={{ marginTop: '20px', background: 'rgba(255,255,255,0.7)', padding: '16px', borderRadius: '8px', fontSize: '0.85rem', color: '#B91C1C', wordBreak: 'break-all', maxWidth: '80%' }}>
+              <strong>Error:</strong> {this.state.errorMessage}
+            </div>
+          )}
           <button onClick={() => window.location.reload()} className="btn btn-primary" style={{ marginTop: '30px', padding: '12px 24px' }}>
              Force Cold Boot
           </button>
