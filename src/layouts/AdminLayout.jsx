@@ -18,6 +18,7 @@ const AdminLayout = () => {
   const [clientPermissions, setClientPermissions] = useState(null);
   const [isCommandOpen, setIsCommandOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   
   // Phase 14: Global Domain Sub-Routing Architectures
   const [activeDomain, setActiveDomain] = useState(() => localStorage.getItem('nexus_tenant_domain') || '75squared.com');
@@ -344,7 +345,31 @@ const AdminLayout = () => {
               </div>
             )}
             <button onClick={() => navigate('/admin/settings')} style={{ background: 'white', border: '1px solid rgba(0,0,0,0.05)', borderRadius: '12px', padding: '10px', cursor: 'pointer' }}><Settings size={20} color="var(--color-text-muted)" /></button>
-            <div onClick={() => navigate('/admin/settings')} style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'linear-gradient(135deg, var(--color-purple-main), var(--color-blue-main))', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 700, cursor: 'pointer' }}>{userRole === 'admin' ? 'CG' : clientName.substring(0, 2).toUpperCase()}</div>
+            <div style={{ position: 'relative' }}>
+              <div onClick={() => setProfileDropdownOpen(!profileDropdownOpen)} style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'linear-gradient(135deg, var(--color-purple-main), var(--color-blue-main))', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 700, cursor: 'pointer', boxShadow: '0 4px 10px rgba(0,0,0,0.1)' }}>
+                {userRole === 'admin' ? 'CG' : clientName.substring(0, 2).toUpperCase()}
+              </div>
+
+              {profileDropdownOpen && (
+                <>
+                  <div onClick={() => setProfileDropdownOpen(false)} style={{ position: 'fixed', inset: 0, zIndex: 99 }} />
+                  <div style={{ position: 'absolute', top: '50px', right: '0', width: '220px', background: 'white', borderRadius: '12px', boxShadow: '0 10px 40px rgba(0,0,0,0.15)', border: '1px solid rgba(0,0,0,0.05)', overflow: 'hidden', zIndex: 100 }} className="fade-in">
+                    <div style={{ padding: '16px', borderBottom: '1px solid rgba(0,0,0,0.05)', background: 'var(--color-bg-light)' }}>
+                       <div style={{ fontWeight: 800, fontSize: '0.95rem', color: 'var(--color-text-main)' }}>{userRole === 'admin' ? 'Super Admin' : clientName}</div>
+                       <div style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>Security Level: Enforced</div>
+                    </div>
+                    <div style={{ padding: '8px' }}>
+                      <button onClick={() => { setProfileDropdownOpen(false); navigate('/admin/settings'); }} style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', padding: '12px', background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--color-text-main)', fontWeight: 600, fontSize: '0.9rem', borderRadius: '8px', textAlign: 'left' }} className="hover-bg-light">
+                        <Settings size={18} color="var(--color-text-muted)" /> Account Settings
+                      </button>
+                      <button onClick={handleLogout} style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', padding: '12px', background: 'transparent', border: 'none', cursor: 'pointer', color: '#EF4444', fontWeight: 600, fontSize: '0.9rem', borderRadius: '8px', textAlign: 'left' }} className="hover-bg-light">
+                        <LogOut size={18} /> Log Out of Nexus
+                      </button>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
           </div>
         </div>
 
