@@ -23,21 +23,6 @@ const EmailDashboard = () => {
   const [spamScore, setSpamScore] = useState(100);
   const [spamTriggers, setSpamTriggers] = useState([]);
 
-  // Physical Spam Sandbox Regex Matrix
-  React.useEffect(() => {
-     if (activeTab === 'deliverability') {
-         const payloadString = `${campaignDraft?.subject_line || ''} ${campaignDraft?.body_content || ''}`.toUpperCase();
-         let deductions = 0;
-         let caught = [];
-         const penalties = { 'FREE': 15, 'ACT NOW': 25, 'GUARANTEE': 10, 'URGENT': 15, '$$$': 20, 'CLICK HERE': 10 };
-         Object.keys(penalties).forEach(kw => {
-             if (payloadString.includes(kw)) { deductions += penalties[kw]; caught.push(kw); }
-         });
-         setSpamScore(Math.max(0, 100 - deductions));
-         setSpamTriggers(caught);
-     }
-  }, [campaignDraft?.body_content, campaignDraft?.subject_line, activeTab]);
-
   const [clientArchetype, setClientArchetype] = useState('service');
   const [campaigns, setCampaigns] = useState([]);
   const [activeCampaignId, setActiveCampaignId] = useState(null);
@@ -57,6 +42,21 @@ const EmailDashboard = () => {
   const [isGeneratingElement, setIsGeneratingElement] = useState(false);
   const [automationNodes, setAutomationNodes] = useState([]);
   const [previewDevice, setPreviewDevice] = useState('desktop'); // 'desktop' | 'tablet' | 'mobile'
+
+  // Physical Spam Sandbox Regex Matrix
+  React.useEffect(() => {
+     if (activeTab === 'deliverability') {
+         const payloadString = `${campaignDraft?.subject_line || ''} ${campaignDraft?.body_content || ''}`.toUpperCase();
+         let deductions = 0;
+         let caught = [];
+         const penalties = { 'FREE': 15, 'ACT NOW': 25, 'GUARANTEE': 10, 'URGENT': 15, '$$$': 20, 'CLICK HERE': 10 };
+         Object.keys(penalties).forEach(kw => {
+             if (payloadString.includes(kw)) { deductions += penalties[kw]; caught.push(kw); }
+         });
+         setSpamScore(Math.max(0, 100 - deductions));
+         setSpamTriggers(caught);
+     }
+  }, [campaignDraft?.body_content, campaignDraft?.subject_line, activeTab]);
 
   const [telemetry, setTelemetry] = useState([]);
 
