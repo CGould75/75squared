@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { servicesData } from '../data/services.jsx';
 
 const Services = () => {
@@ -38,30 +39,38 @@ const Services = () => {
                 gap: '30px'
               }}>
                 {groupedServices[categoryName].map((service, index) => (
-                  <Link to={`/services/${service.id}`} key={index} className="glass-panel hover-grow" style={{ padding: '40px', display: 'flex', flexDirection: 'column', gap: '20px', textDecoration: 'none' }}>
-                    <div style={{
-                      width: '72px',
-                      height: '72px',
-                      borderRadius: '16px',
-                      background: 'rgba(0, 0, 0, 0.03)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      marginBottom: '8px',
-                      color: 'var(--color-text-main)' // fallback
-                    }}>
-                      {service.icon}
-                    </div>
-                    <h4 style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--color-text-main)' }}>{service.title}</h4>
-                    <p style={{ color: 'var(--color-text-muted)', lineHeight: '1.6' }}>
-                      {service.description}
-                    </p>
-                    <div style={{ marginTop: 'auto', paddingTop: '20px' }}>
-                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', fontWeight: 700, fontSize: '0.95rem', color: 'var(--color-purple-main)' }}>
-                        Explore Capability &rarr;
-                      </span>
-                    </div>
-                  </Link>
+                  <motion.div 
+                    initial={{ opacity: 0, y: 30 }} 
+                    whileInView={{ opacity: 1, y: 0 }} 
+                    viewport={{ once: true, margin: '-50px' }} 
+                    transition={{ duration: 0.5, delay: index * 0.1 }}
+                    key={index}
+                  >
+                    <Link to={`/services/${service.id}`} className="glass-panel hover-grow" style={{ padding: '40px', display: 'flex', flexDirection: 'column', gap: '20px', textDecoration: 'none', height: '100%' }}>
+                      <div style={{
+                        width: '72px',
+                        height: '72px',
+                        borderRadius: '16px',
+                        background: 'rgba(0, 0, 0, 0.03)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        marginBottom: '8px',
+                        color: 'var(--color-text-main)' // fallback
+                      }}>
+                        {service.icon}
+                      </div>
+                      <h4 style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--color-text-main)' }}>{service.title}</h4>
+                      <p style={{ color: 'var(--color-text-muted)', lineHeight: '1.6' }}>
+                        {service.description}
+                      </p>
+                      <div style={{ marginTop: 'auto', paddingTop: '20px' }}>
+                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', fontWeight: 700, fontSize: '0.95rem', color: 'var(--color-purple-main)' }}>
+                          Explore Capability &rarr;
+                        </span>
+                      </div>
+                    </Link>
+                  </motion.div>
                 ))}
               </div>
             </div>

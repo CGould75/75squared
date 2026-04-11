@@ -1,0 +1,37 @@
+
+/Users/chris/75squared/video-platform/src/pages/Dashboard.jsx
+  1:10  error  'useState' is defined but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+/Users/chris/75squared/video-platform/src/pages/MeetingRoom.jsx
+   59:9  error    Error: Cannot access variable before it is declared
+
+`startSendingFile` is accessed before it is declared, which prevents the earlier access from updating when this value changes over time.
+
+  57 |       else if (data.type === 'file-accept') {
+  58 |         setActiveTransfer(prev => ({ ...prev, status: 'transferring' }))
+> 59 |         startSendingFile(data.fileId, currentFileRef.current, conn)
+     |         ^^^^^^^^^^^^^^^^ `startSendingFile` accessed before it is declared
+  60 |       }
+  61 |       else if (data.type === 'file-chunk') {
+  62 |         if (fileStreamRef.current) {
+
+  258 |   }
+  259 |
+> 260 |   const startSendingFile = (fileId, file, conn) => {
+      |   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 261 |     const CHUNK_SIZE = 65536 // 64KB max recommended for data channels
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 262 |     let offset = 0
+      …
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 284 |     readSlice(0)
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 285 |   }
+      | ^^^^ `startSendingFile` is declared here
+  286 |
+  287 |   // Remote Control capture 
+  288 |   const handleRemoteInteraction = useCallback((e, type) => {  react-hooks/immutability
+  116:6  warning  React Hook useEffect has a missing dependency: 'setupDataConnectionListeners'. Either include it or remove the dependency array                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        react-hooks/exhaustive-deps
+
+✖ 3 problems (2 errors, 1 warning)
+

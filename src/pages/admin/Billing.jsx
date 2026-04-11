@@ -10,8 +10,17 @@ const Billing = () => {
   React.useEffect(() => {
     const fetchBillingPlans = async () => {
       // Pull live pricing and domain quota structures from the database
-      const { data } = await supabase.from('nexus_billing_plans').select('*').order('price_int', { ascending: true });
-      if (data) {
+      const { data, error } = await supabase.from('nexus_billing_plans').select('*').order('price_int', { ascending: true });
+      
+      const fallbackTiers = [
+        { id: 'starter', name: 'Starter Kit', description: 'Perfect for small local brick & mortar setups.', price: '$49', highlight: false, features: [{name: 'Up to 2,500 contacts', enabled: true}, {name: 'Heatmapping', enabled: true}, {name: 'SEO Dashboard', enabled: false}] },
+        { id: 'agency', name: 'Agency Pro', description: 'Advanced AI tooling for heavy marketing volumes.', price: '$149', highlight: true, features: [{name: 'Up to 25,000 contacts', enabled: true}, {name: 'Heatmapping', enabled: true}, {name: 'SEO Dashboard', enabled: true}, {name: 'Content Studio', enabled: false}] },
+        { id: 'enterprise', name: 'Enterprise authorization', description: 'Unrestricted Nexus Super Node access.', price: '$999', highlight: false, features: [{name: 'Unlimited contacts', enabled: true}, {name: 'Generative AI Prompts', enabled: true}, {name: 'Global API Sync', enabled: true}] }
+      ];
+
+      if (error || !data || data.length === 0) {
+        setTiers(fallbackTiers);
+      } else {
         setTiers(data);
       }
       setLoading(false);

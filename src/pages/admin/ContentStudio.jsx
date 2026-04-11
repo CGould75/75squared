@@ -1,7 +1,9 @@
-import React, { useState, useEffect, useContext } from 'react';
-import { PenTool, CheckCircle, Target, Type, Image as ImageIcon, Link as LinkIcon, Sparkles, Terminal, Globe, Code2, Network, Bot, ChevronRight, Activity, Cpu, CheckCircle2, AlertTriangle } from 'lucide-react';
+import React, { useState, useEffect, useContext, useRef } from 'react';
+import { PenTool, CheckCircle, Target, Type, Image as ImageIcon, Link as LinkIcon, Sparkles, Terminal, Globe, Code2, Network, Bot, ChevronRight, Activity, Cpu, CheckCircle2, AlertTriangle, AlertCircle } from 'lucide-react';
 import { GlobalDomainContext } from '../../layouts/AdminLayout';
 import { useNavigate } from 'react-router-dom';
+import TelemetryEngine from '../../lib/telemetry';
+import { supabase } from '../../lib/supabaseClient';
 
 const MOCK_TARGETS = [
   { word: "library automation", target: 12, essential: true, score: 0.98 },
@@ -41,12 +43,16 @@ const ContentStudio = () => {
     setPipelineLogs(prev => [...prev, { time: new Date().toLocaleTimeString(), msg }]);
   };
 
+  const [uiError, setUiError] = useState('');
+
   const triggerHiveMind = () => {
     if(!targetKeyword) {
-       alert("Please enter a target keyword first!");
+       setUiError("Target Keyword is physically required to authorize Hive Mind crawler spin-up.");
+       setTimeout(() => setUiError(''), 4000);
        return;
     }
     setPipelineState('scraping');
+    setUiError('');
     setPipelineLogs([]);
     setContent('');
     addLog(`[SYSTEM] Initializing Hive Mind for topic: "${targetKeyword}"`);
@@ -66,18 +72,31 @@ const ContentStudio = () => {
     }, 6000);
   };
 
+  // Timer References for Strict Component Unmounting
+  const intervalRef = useRef(null);
+  const timeoutsRef = useRef([]);
+
+  useEffect(() => {
+     return () => {
+        // Strict cleanup to prevent ghost memory leaks
+        if (intervalRef.current) clearInterval(intervalRef.current);
+        timeoutsRef.current.forEach(t => clearTimeout(t));
+     };
+  }, []);
+
   const simulateClaudeEEAT = (rawText) => {
-     setTimeout(() => {
+     const t1 = setTimeout(() => {
         addLog(`[CLAUDE 3.5 SONNET] Purging generic GPT structural parameters (e.g. 'delve', 'moreover')...`);
      }, 2000);
-     setTimeout(() => {
+     const t2 = setTimeout(() => {
         addLog(`[CLAUDE 3.5 SONNET] Injecting senior expert persona and EEAT cognitive framing...`);
      }, 4000);
-     setTimeout(() => {
+     const t3 = setTimeout(() => {
         setContent(rawText + `\n\n> Note from Claude 3.5 Sonnet Cognitive Engine: I have intercepted the raw GPT data source and restructured it to match the tone of an enterprise CIO. The generic semantic fluff has been purged and mathematically replaced with high-friction authoritative framing to guarantee maximum Information Gain (EEAT).`);
         setPipelineState('complete');
         addLog(`[SUCCESS] Neural draft completed via Two-Stage Dual-Model Pipeline.`);
      }, 6000);
+     timeoutsRef.current.push(t1, t2, t3);
   };
 
   const simulateDrafting = () => {
@@ -92,13 +111,16 @@ const ContentStudio = () => {
      
      let i = 0;
      let currentText = '';
-     const interval = setInterval(() => {
+     
+     if (intervalRef.current) clearInterval(intervalRef.current);
+     
+     intervalRef.current = setInterval(() => {
         if(i < draftArray.length) {
            currentText += draftArray[i];
            setContent(currentText);
            i++;
         } else {
-           clearInterval(interval);
+           clearInterval(intervalRef.current);
            setPipelineState('claude_intercept');
            addLog(`[COGNITIVE INTERCEPT] GPT payload generation finished. Handing payload to Claude 3.5 Sonnet...`);
            simulateClaudeEEAT(currentText);
@@ -170,7 +192,7 @@ const ContentStudio = () => {
            <button 
              onClick={() => setViewMode('grader')}
              style={{ padding: '8px 24px', borderRadius: '8px', border: 'none', fontWeight: 700, cursor: 'pointer', background: viewMode === 'grader' ? 'white' : 'transparent', color: viewMode === 'grader' ? '#3B82F6' : 'var(--color-text-muted)', boxShadow: viewMode === 'grader' ? '0 2px 10px rgba(0,0,0,0.05)' : 'none', display: 'flex', alignItems: 'center', gap: '8px' }}>
-             <Activity size={16}/> On-Page Grader (Moz)
+             <Activity size={16}/> Semantic Grader (Surfer)
            </button>
         </div>
       </div>
@@ -181,7 +203,7 @@ const ContentStudio = () => {
          {/* ----------------------------- */}
          <div className="glass-panel" style={{ flexGrow: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
            
-           {/* Editor Toolbar & Hive Mind Injection */}
+            {/* Editor Toolbar & Hive Mind Injection */}
            <div style={{ padding: '24px', borderBottom: '1px solid rgba(0,0,0,0.05)', display: 'flex', flexDirection: 'column', gap: '16px' }}>
                <div style={{ display: 'flex', gap: '12px' }}>
                   <input 
@@ -190,7 +212,7 @@ const ContentStudio = () => {
                      value={targetKeyword}
                      onChange={(e) => setTargetKeyword(e.target.value)}
                      disabled={pipelineState !== 'idle' && pipelineState !== 'complete'}
-                     style={{ flexGrow: 1, padding: '12px 20px', borderRadius: '8px', border: '1px solid rgba(0,0,0,0.1)', fontSize: '1rem', fontWeight: 600, outline: 'none' }}
+                     style={{ flexGrow: 1, padding: '12px 20px', borderRadius: '8px', border: `1px solid ${uiError ? '#EF4444' : 'rgba(0,0,0,0.1)'}`, fontSize: '1rem', fontWeight: 600, outline: 'none' }}
                   />
                   <button 
                      onClick={triggerHiveMind}
@@ -200,6 +222,12 @@ const ContentStudio = () => {
                      <Sparkles size={18} /> {pipelineState === 'idle' || pipelineState === 'complete' ? 'Deploy Hive Mind Engine' : 'Processing...'}
                   </button>
                </div>
+               
+               {uiError && (
+                  <div className="fade-in" style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#EF4444', fontSize: '0.85rem', fontWeight: 700 }}>
+                     <AlertCircle size={14} /> {uiError}
+                  </div>
+               )}
                
                {/* Streaming Console Terminal */}
                {pipelineState !== 'idle' && (
@@ -216,18 +244,61 @@ const ContentStudio = () => {
                )}
            </div>
 
-           {/* CREATIVE CANVAS VIEW */}
-           {viewMode === 'creative' && (
-              <textarea
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                placeholder="The drafted content will stream here continuously. Once complete, you may make manual edits or push it directly out to the edge nodes."
-                style={{
-                  flexGrow: 1, padding: '40px', background: 'white', border: 'none', 
-                  outline: 'none', fontSize: '1.15rem', lineHeight: '1.8', color: '#111',
-                  resize: 'none', overflowY: 'auto', fontFamily: 'var(--font-main)'
-                }}
-              />
+           {/* CREATIVE CANVAS VIEW & SURFER SEO VIEW */}
+           {(viewMode === 'creative' || viewMode === 'grader') && (
+              <div style={{ display: 'flex', flexGrow: 1, overflow: 'hidden' }}>
+                 <textarea
+                   value={content}
+                   onChange={(e) => setContent(e.target.value)}
+                   placeholder="The drafted content will stream here continuously. Once complete, you may make manual edits or push it directly out to the edge nodes."
+                   style={{
+                     flexGrow: 1, padding: '40px', background: 'white', border: 'none', 
+                     outline: 'none', fontSize: '1.15rem', lineHeight: '1.8', color: '#111',
+                     resize: 'none', overflowY: 'auto', fontFamily: 'var(--font-main)'
+                   }}
+                 />
+
+                 {/* Surfer SEO Sidebar */}
+                 {viewMode === 'grader' && (
+                    <div className="fade-in" style={{ width: '380px', background: 'var(--color-bg-light)', borderLeft: '1px solid rgba(0,0,0,0.05)', display: 'flex', flexDirection: 'column', overflowY: 'auto' }}>
+                       <div style={{ padding: '30px 24px', borderBottom: '1px solid rgba(0,0,0,0.05)', background: 'white', textAlign: 'center' }}>
+                          <h3 style={{ fontSize: '1.1rem', fontWeight: 800, marginBottom: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                             <Activity size={18} color="#10B981"/> Semantic NLP Grader
+                          </h3>
+                          <div style={{ width: '140px', height: '140px', borderRadius: '50%', background: `conic-gradient(${getScoreColor(score)} ${score}%, rgba(0,0,0,0.05) 0)`, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: 'inset 0 0 0 12px white, 0 10px 30px rgba(0,0,0,0.05)', margin: '0 auto' }}>
+                             <span style={{ fontSize: '2.5rem', fontWeight: 900, color: '#111' }}>{score}</span>
+                          </div>
+                          <p style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', marginTop: '20px', fontWeight: 600 }}>TF-IDF Content Score</p>
+                       </div>
+                       
+                       <div style={{ padding: '24px' }}>
+                          <h4 style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--color-text-muted)', textTransform: 'uppercase', marginBottom: '16px', letterSpacing: '0.5px' }}>Target Term Density</h4>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                             {['Enterprise Architecture', 'SaaS Platform', 'B2B Sales', 'Algorithmic Routing', 'Serverless', 'React Flow', 'Data Pipeline'].map((term, i) => {
+                                const keywordFound = targetKeyword && content.toLowerCase().includes(targetKeyword.toLowerCase());
+                                const isDiscovered = content.toLowerCase().includes(term.toLowerCase()) || (i === 0 && keywordFound);
+                                return (
+                                   <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 16px', background: isDiscovered ? 'rgba(16, 185, 129, 0.1)' : 'white', border: `1px solid ${isDiscovered ? 'rgba(16, 185, 129, 0.2)' : 'rgba(0,0,0,0.05)'}`, borderRadius: '8px' }}>
+                                      <span style={{ fontSize: '0.85rem', fontWeight: 600, color: isDiscovered ? '#10B981' : 'var(--color-text-main)' }}>{term}</span>
+                                      <span style={{ fontSize: '0.85rem', fontWeight: 700, color: isDiscovered ? '#10B981' : 'var(--color-text-muted)' }}>{isDiscovered ? '2 / 2' : '0 / 2'}</span>
+                                   </div>
+                                )
+                             })}
+                          </div>
+                          
+                          {wordCount < 100 && (
+                             <div style={{ marginTop: '24px', padding: '16px', borderRadius: '12px', background: 'rgba(239, 68, 68, 0.05)', border: '1px solid rgba(239, 68, 68, 0.2)', display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+                                <AlertTriangle size={18} color="#EF4444" style={{ flexShrink: 0 }} />
+                                <div>
+                                   <div style={{ fontSize: '0.85rem', fontWeight: 800, color: '#EF4444', marginBottom: '4px' }}>Word Count Too Low</div>
+                                   <div style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', lineHeight: '1.4' }}>Currently {wordCount} words. Target is 450+ to outrank Top 5 SERP competitors.</div>
+                                </div>
+                             </div>
+                          )}
+                       </div>
+                    </div>
+                 )}
+              </div>
            )}
 
            {/* TECHNICAL DATA VIEW */}
@@ -287,49 +358,6 @@ const ContentStudio = () => {
                </div>
             )}
 
-            {/* MOZ ON-PAGE GRADER VIEW */}
-            {viewMode === 'grader' && (
-               <div className="fade-in" style={{ flexGrow: 1, padding: '40px', background: 'white', overflowY: 'auto' }}>
-                  <div style={{ marginBottom: '30px' }}>
-                     <h3 style={{ fontSize: '1.5rem', fontWeight: 900, marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                        <Activity size={24} color="#10B981"/> On-Page SEO Grader
-                     </h3>
-                     <p style={{ color: 'var(--color-text-muted)' }}>Input a specific URL and Target Keyword to instantly generate a semantic optimization health score.</p>
-                  </div>
-                  
-                  <div style={{ display: 'flex', gap: '16px', marginBottom: '40px' }}>
-                     <input type="text" placeholder="https://domain.com/path" style={{ flex: 2, padding: '12px 20px', borderRadius: '8px', border: '1px solid rgba(0,0,0,0.1)', fontSize: '1rem', outline: 'none' }} />
-                     <input type="text" placeholder="Target Keyword" style={{ flex: 1, padding: '12px 20px', borderRadius: '8px', border: '1px solid rgba(0,0,0,0.1)', fontSize: '1rem', outline: 'none' }} />
-                     <button className="btn hover-lift" style={{ padding: '0 30px', background: '#10B981', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 800, cursor: 'pointer' }}>Analyze URL</button>
-                  </div>
-
-                  {/* Mock Results */}
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '30px' }}>
-                     <div className="glass-panel" style={{ padding: '30px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
-                        <div style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--color-text-muted)', marginBottom: '20px' }}>Page Optimization Score</div>
-                        <div style={{ width: '150px', height: '150px', borderRadius: '50%', background: 'conic-gradient(#10B981 84%, rgba(0,0,0,0.05) 0)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: 'inset 0 0 0 15px white, 0 10px 30px rgba(0,0,0,0.05)' }}>
-                           <span style={{ fontSize: '2.5rem', fontWeight: 900, color: '#111' }}>84</span>
-                        </div>
-                     </div>
-                     
-                     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                        <div style={{ padding: '20px', borderRadius: '12px', background: 'rgba(16, 185, 129, 0.05)', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
-                           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 800, color: '#10B981', marginBottom: '4px' }}><CheckCircle2 size={18}/> Keyword in Page Title</div>
-                           <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9rem', margin: 0 }}>The exact keyword exists in the &lt;title&gt; tag natively.</p>
-                        </div>
-                        <div style={{ padding: '20px', borderRadius: '12px', background: 'rgba(16, 185, 129, 0.05)', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
-                           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 800, color: '#10B981', marginBottom: '4px' }}><CheckCircle2 size={18}/> H1 Tag Optimization</div>
-                           <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9rem', margin: 0 }}>Target keyword is mapped correctly to the primary &lt;h1&gt; text content.</p>
-                        </div>
-                        <div style={{ padding: '20px', borderRadius: '12px', background: 'rgba(239, 68, 68, 0.05)', border: '1px solid rgba(239, 68, 68, 0.2)' }}>
-                           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 800, color: '#EF4444', marginBottom: '4px' }}><AlertTriangle size={18}/> TF-IDF Keyword Density Too Low</div>
-                           <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9rem', margin: 0 }}>The semantic density is 0.4%. It must be pushed above 1.2% to bypass current SERP leaders.</p>
-                        </div>
-                     </div>
-                  </div>
-               </div>
-            )}
-
             {/* Core Universal Deployment Loop */}
            <div style={{ padding: '20px', background: 'rgba(0,0,0,0.02)', borderTop: '1px solid rgba(0,0,0,0.05)' }}>
               
@@ -360,12 +388,28 @@ const ContentStudio = () => {
                  
                  <button 
                     disabled={pipelineState !== 'complete'} 
-                    onClick={() => {
+                    onClick={async () => {
                         if (apiLimitsReached) {
-                            alert("SRE CONSTRAINT MET: Monthly API limits exceeded. Deploy payload pushed to SRE Action Center for manual Human authorization.");
+                            await TelemetryEngine.dispatchException('ContentStudio', 'API Budget Cap Breached (GlobalConstraints)', { wordCount: content.length, cost: '$12.40' }, 'warning');
                             navigate('/admin/action-center');
                         } else {
-                            alert(`Deployment Sequence Initiated. Pushing semantic payload vertically to: ${deploymentTarget}.`);
+                            const insertPayload = {
+                               domain: activeDomain,
+                               target_keyword: targetKeyword,
+                               generated_payload: content,
+                               algorithmic_score: score,
+                               target_platform: deploymentTarget,
+                               status: 'deployed'
+                            };
+                            const { error } = await supabase.from('nexus_content_drafts').insert([insertPayload]);
+                            
+                            if (error) {
+                               await TelemetryEngine.dispatchException('ContentStudio', 'Supabase Insert Database Alert', error, 'fatal');
+                               alert("A fatal error occurred saving to Supabase. Check Action Center.");
+                               return;
+                            }
+                            
+                            alert(`Payload physically anchored and deployed vertically to: ${deploymentTarget}.`);
                         }
                     }} 
                     className="btn hover-lift" 

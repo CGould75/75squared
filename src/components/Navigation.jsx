@@ -40,6 +40,7 @@ const Navigation = () => {
         <div style={{ display: 'flex', gap: '30px', alignItems: 'center', color: 'var(--color-text-main)' }} className="desktop-menu">
           <a href="/#services" style={{ fontWeight: 600, textDecoration: 'none' }}>Services</a>
           <a href="/#about" style={{ fontWeight: 600, textDecoration: 'none' }}>Agency</a>
+          <Link to="/products" style={{ fontWeight: 600, textDecoration: 'none' }}>Products</Link>
           <Link to="/platform-guide" style={{ fontWeight: 600, textDecoration: 'none', color: 'var(--color-purple-main)' }}>Platform Guide</Link>
           <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
             <Link to="/admin/login" style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--color-purple-main)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '6px' }}>

@@ -1,17 +1,36 @@
-import React, { useState } from 'react';
-import { Users, Shield, ShieldCheck, Key, Lock, Unlock, Search, Plus, UserPlus, ServerCrash, Command } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Users, Shield, ShieldCheck, Key, Lock, Unlock, Search, Plus, UserPlus, Trash2, Command } from 'lucide-react';
 import SEOHead from '../../components/SEOHead';
+import { supabase } from '../../lib/supabaseClient';
 
 export default function UserManagement() {
-  const [users, setUsers] = useState([
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [showModal, setShowModal] = useState(false);
+  const [formData, setFormData] = useState({ email: '', role: 'Viewer (Read-Only)', domain: '' });
+
+  const fallbackUsers = [
     { id: 'usr_1', email: 'chris@75squared.com', role: 'Global Super Admin', domain: 'ALL_DOMAINS', status: 'Active', mfa: true },
     { id: 'usr_2', email: 'client@lrms.com', role: 'Client Admin', domain: 'lrms.com', status: 'Active', mfa: false },
     { id: 'usr_3', email: 'writer@goodyslv.com', role: 'Editor', domain: 'goodyslv.com', status: 'Active', mfa: true },
     { id: 'usr_4', email: 'investor@75squared.com', role: 'Viewer (Read-Only)', domain: 'ALL_DOMAINS', status: 'Suspended', mfa: false }
-  ]);
+  ];
 
-  const [showModal, setShowModal] = useState(false);
-  const [formData, setFormData] = useState({ email: '', role: 'Viewer (Read-Only)', domain: '' });
+  useEffect(() => {
+     fetchUsers();
+  }, []);
+
+  const fetchUsers = async () => {
+     setLoading(true);
+     // Connects to global users schema. If empty/fails, falls back to mockup arrays for demonstration
+     const { data, error } = await supabase.from('nexus_users').select('*').order('id', { ascending: false });
+     if (error || !data || data.length === 0) {
+        setUsers(fallbackUsers);
+     } else {
+        setUsers(data);
+     }
+     setLoading(false);
+  };
 
   const getRoleBadge = (role) => {
      if(role === 'Global Super Admin') return <span style={{ background: '#10B981', color: 'white', padding: '4px 8px', borderRadius: '4px', fontSize: '0.7rem', fontWeight: 800 }}><ShieldCheck size={12} style={{ display: 'inline', marginRight: '4px', verticalAlign: 'text-bottom'}} /> {role}</span>;
@@ -20,23 +39,36 @@ export default function UserManagement() {
      return <span style={{ background: '#E5E7EB', color: 'var(--color-text-muted)', padding: '4px 8px', borderRadius: '4px', fontSize: '0.7rem', fontWeight: 800 }}>{role}</span>;
   };
 
-  const handleAddUser = (e) => {
+  const handleAddUser = async (e) => {
      e.preventDefault();
-     setUsers([{
-        id: `usr_${Math.floor(Math.random() * 1000)}`,
+     const payload = {
         email: formData.email,
         role: formData.role,
         domain: formData.domain || 'none',
         status: 'Pending Invite',
         mfa: false
-     }, ...users]);
+     };
+     
+     // Attempt physical DB Insert
+     const { data, error } = await supabase.from('nexus_users').insert([payload]).select();
+     if (error) {
+        // Fallback local update if table doesn't exist yet
+        setUsers([{ id: `usr_${Math.floor(Math.random() * 1000)}`, ...payload }, ...users]);
+     } else if (data && data.length > 0) {
+        setUsers([data[0], ...users]);
+     }
+     
      setShowModal(false);
      setFormData({ email: '', role: 'Viewer (Read-Only)', domain: '' });
   };
 
-  const deleteUser = (id) => {
-     if(window.confirm("Nuclear destructive action. Instantly revoke all tokens and wipe this user?")) {
+  const deleteUser = async (id) => {
+     if(window.confirm("Are you sure you want to completely sever this user's RBAC privileges?")) {
         setUsers(users.filter(u => u.id !== id));
+        // Push physical deletion
+        if (typeof id !== 'string' || !id.startsWith('usr_')) {
+           await supabase.from('nexus_users').delete().eq('id', id);
+        }
      }
   };
 
@@ -48,17 +80,17 @@ export default function UserManagement() {
         <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.5)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
            <div className="glass-panel" style={{ width: '500px', background: 'white', padding: '40px' }}>
               <h3 style={{ fontSize: '1.4rem', fontWeight: 800, marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Command size={24} color="var(--color-blue-main)" /> Platform Provisioning
+                <Command size={24} color="var(--color-blue-main)" /> Add New User
               </h3>
               <form onSubmit={handleAddUser} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                  <div>
-                    <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--color-text-muted)', marginBottom: '8px' }}>System Identifying Email</label>
+                    <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--color-text-muted)', marginBottom: '8px' }}>Email Address</label>
                     <input type="email" required value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid rgba(0,0,0,0.1)', background: 'var(--color-bg-light)', outline: 'none' }} placeholder="name@domain.com" />
                  </div>
                  
                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
                     <div>
-                        <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--color-text-muted)', marginBottom: '8px' }}>RBAC Hierarchical Role</label>
+                        <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--color-text-muted)', marginBottom: '8px' }}>Role</label>
                         <select value={formData.role} onChange={e => setFormData({...formData, role: e.target.value})} style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid rgba(0,0,0,0.1)', background: 'var(--color-bg-light)', outline: 'none' }}>
                           <option value="Viewer (Read-Only)">Viewer (Read-Only)</option>
                           <option value="Editor">Editor</option>
@@ -67,7 +99,7 @@ export default function UserManagement() {
                         </select>
                     </div>
                     <div>
-                        <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--color-text-muted)', marginBottom: '8px' }}>Tenant Binding Target</label>
+                        <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--color-text-muted)', marginBottom: '8px' }}>Domain</label>
                         <select disabled={formData.role === 'Global Super Admin'} value={formData.role === 'Global Super Admin' ? 'ALL_DOMAINS' : formData.domain} onChange={e => setFormData({...formData, domain: e.target.value})} style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid rgba(0,0,0,0.1)', background: 'var(--color-bg-light)', outline: 'none' }}>
                           <option value="">Select Domain...</option>
                           <option value="lrms.com">lrms.com</option>
@@ -79,7 +111,7 @@ export default function UserManagement() {
 
                  <div style={{ display: 'flex', gap: '12px', marginTop: '10px' }}>
                     <button type="button" onClick={() => setShowModal(false)} className="btn hover-lift" style={{ flex: 1, padding: '12px', background: 'var(--color-bg-light)', color: 'var(--color-text-main)', border: 'none', fontWeight: 700, borderRadius: '8px', cursor: 'pointer' }}>Cancel</button>
-                    <button type="submit" className="btn btn-primary" style={{ flex: 2, padding: '12px', border: 'none', fontWeight: 700, borderRadius: '8px', cursor: 'pointer' }}>Generate Access Token</button>
+                    <button type="submit" className="btn btn-primary" style={{ flex: 2, padding: '12px', border: 'none', fontWeight: 700, borderRadius: '8px', cursor: 'pointer' }}>Create User</button>
                  </div>
               </form>
            </div>
@@ -90,15 +122,15 @@ export default function UserManagement() {
         <div>
           <h1 style={{ fontSize: '2.5rem', fontWeight: 800, marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '16px' }}>
             <Users size={36} color="var(--color-purple-main)" />
-            Master User Matrix
+            User Management
           </h1>
           <p style={{ color: 'var(--color-text-muted)', fontSize: '1.1rem', maxWidth: '800px' }}>
-            Absolute control over all physical humans accessing the Nexus Hive architecture. Enforce robust Role-Based Access Control and strict tenant boundary locking.
+            Manage users, permissions, and roles across the platform.
           </p>
         </div>
         <div>
           <button onClick={() => setShowModal(true)} className="btn btn-primary" style={{ padding: '14px 24px', fontSize: '1.1rem' }}>
-             <UserPlus size={20} /> Provision Identity
+             <UserPlus size={20} /> Add User
           </button>
         </div>
       </div>
@@ -107,9 +139,9 @@ export default function UserManagement() {
          <div style={{ padding: '20px', borderBottom: '1px solid rgba(0,0,0,0.05)', background: 'white', display: 'flex', alignItems: 'center', gap: '16px' }}>
             <div style={{ flexGrow: 1, position: 'relative' }}>
                <Search size={18} color="var(--color-text-muted)" style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)' }}/>
-               <input type="text" placeholder="Search physical identities by email or UUID..." style={{ width: '100%', padding: '12px 12px 12px 48px', borderRadius: '8px', border: '1px solid rgba(0,0,0,0.1)', background: 'var(--color-bg-light)', outline: 'none' }} />
+               <input type="text" placeholder="Search users by email or ID..." style={{ width: '100%', padding: '12px 12px 12px 48px', borderRadius: '8px', border: '1px solid rgba(0,0,0,0.1)', background: 'var(--color-bg-light)', outline: 'none' }} />
             </div>
-            <button className="btn btn-outline" style={{ padding: '12px 20px', background: 'white' }}>Filter Network</button>
+            <button className="btn btn-outline" style={{ padding: '12px 20px', background: 'white' }}>Filter Users</button>
          </div>
 
          <div style={{ flexGrow: 1, overflowY: 'auto' }}>
@@ -117,12 +149,12 @@ export default function UserManagement() {
                <thead>
                   <tr style={{ background: 'var(--color-bg-light)', borderBottom: '2px solid rgba(0,0,0,0.05)', color: 'var(--color-text-muted)' }}>
                      <th style={{ padding: '16px 20px', fontWeight: 700, fontSize: '0.85rem', textTransform: 'uppercase' }}>UUID</th>
-                     <th style={{ padding: '16px 20px', fontWeight: 700, fontSize: '0.85rem', textTransform: 'uppercase' }}>Identity (Email)</th>
-                     <th style={{ padding: '16px 20px', fontWeight: 700, fontSize: '0.85rem', textTransform: 'uppercase' }}>Hierarchical Role</th>
-                     <th style={{ padding: '16px 20px', fontWeight: 700, fontSize: '0.85rem', textTransform: 'uppercase' }}>Tenant Binding</th>
+                     <th style={{ padding: '16px 20px', fontWeight: 700, fontSize: '0.85rem', textTransform: 'uppercase' }}>Email</th>
+                     <th style={{ padding: '16px 20px', fontWeight: 700, fontSize: '0.85rem', textTransform: 'uppercase' }}>Role</th>
+                     <th style={{ padding: '16px 20px', fontWeight: 700, fontSize: '0.85rem', textTransform: 'uppercase' }}>Domain</th>
                      <th style={{ padding: '16px 20px', fontWeight: 700, fontSize: '0.85rem', textTransform: 'uppercase' }}>2FA Auth</th>
                      <th style={{ padding: '16px 20px', fontWeight: 700, fontSize: '0.85rem', textTransform: 'uppercase' }}>Status</th>
-                     <th style={{ padding: '16px 20px', fontWeight: 700, fontSize: '0.85rem', textTransform: 'uppercase', textAlign: 'right' }}>Destructive Actions</th>
+                     <th style={{ padding: '16px 20px', fontWeight: 700, fontSize: '0.85rem', textTransform: 'uppercase', textAlign: 'right' }}>Actions</th>
                   </tr>
                </thead>
                <tbody>
@@ -150,8 +182,8 @@ export default function UserManagement() {
                         </td>
                         <td style={{ padding: '20px', textAlign: 'right' }}>
                            {u.role !== 'Global Super Admin' && (
-                             <button onClick={() => deleteUser(u.id)} className="hover-lift" style={{ padding: '8px', background: 'rgba(239, 68, 68, 0.1)', color: '#EF4444', border: 'none', borderRadius: '8px', cursor: 'pointer' }} title="Terminate Node">
-                                <ServerCrash size={16} />
+                             <button onClick={() => deleteUser(u.id)} className="hover-lift" style={{ padding: '8px', background: 'rgba(239, 68, 68, 0.1)', color: '#EF4444', border: 'none', borderRadius: '8px', cursor: 'pointer' }} title="Delete User">
+                                <Trash2 size={16} />
                              </button>
                            )}
                         </td>

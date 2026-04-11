@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { ShieldCheck, ArrowRight, ShieldAlert, Activity, Ghost, Zap, MousePointerClick, Globe, TrendingUp, AlertTriangle, MessageSquare, LayoutDashboard, Search, Eye, LineChart as LineChartIcon } from 'lucide-react';
+import { ShieldCheck, ArrowRight, ShieldAlert, Activity, Ghost, Zap, MousePointerClick, Globe, TrendingUp, AlertTriangle, MessageSquare, LayoutDashboard, Search, Eye, LineChart as LineChartIcon, Bot, Terminal } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
 
@@ -25,12 +25,13 @@ const generateChartData = (startAuth, startOrg, days, dailyAuthGrowth, dailyOrgG
 
 const siteData = {
   '75squared.com - Primary': {
-    da: 2, organic: 14, latency: 98,
-    daText: '+1 pts', organicText: '+600%', latencyText: 'OPTIMAL',
+    da: 2, organic: 14, latency: 98, ai_traffic: 0,
+    daText: '+1 pts', organicText: '+600%', latencyText: 'OPTIMAL', aiText: '0%',
     labels: {
       da: 'Initial indexing detected. Sandbox phase establishing network baseline.',
       organic: 'First branded impressions recorded. Crawl rate prioritizing new sitemaps.',
-      latency: 'Vercel Edge cache hit-rate at 99.4%. Passing all Core Web Vitals.'
+      latency: 'Vercel Edge cache hit-rate at 99.4%. Passing all Core Web Vitals.',
+      ai_traffic: 'Waiting on preliminary AI ingestion bots (Perplexity, ChatGPT).'
     },
     graph: {
       '7d': generateChartData(1, 2, 7, 0.14, 2),
@@ -39,12 +40,13 @@ const siteData = {
     }
   },
   'lrms.com': {
-    da: 46, organic: '2,950', latency: 120,
-    daText: '+4 pts', organicText: '+126%', latencyText: 'OPTIMAL',
+    da: 46, organic: '2,950', latency: 120, ai_traffic: '420',
+    daText: '+4 pts', organicText: '+126%', latencyText: 'OPTIMAL', aiText: '+48%',
     labels: {
       da: 'Top 5% trajectory detected. High probability of SERP takeover.',
       organic: 'Algorithm update favorable. Keywords ranking on Page 1 expanded.',
-      latency: 'Next.js rendering engine stable. TTFB under 200ms.'
+      latency: 'Next.js rendering engine stable. TTFB under 200ms.',
+      ai_traffic: 'Surge driven by ChatGPT and Perplexity referral links.'
     },
     graph: {
       '7d': generateChartData(42, 1200, 7, 0.5, 250),
@@ -53,12 +55,13 @@ const siteData = {
     }
   },
   'goodyslv.com': {
-    da: 28, organic: 840, latency: 85,
-    daText: '+2 pts', organicText: '+12%', latencyText: 'BLAZING',
+    da: 28, organic: 840, latency: 85, ai_traffic: 85,
+    daText: '+2 pts', organicText: '+12%', latencyText: 'BLAZING', aiText: '+12%',
     labels: {
       da: 'Local backlinks successfully acquired. Authority stabilizing.',
       organic: 'Steady growth. Local SEO pack triggering frequently.',
-      latency: 'Lightweight static site serving extremely rapidly.'
+      latency: 'Lightweight static site serving extremely rapidly.',
+      ai_traffic: 'Google AIO citations yielding steady transactional traffic.'
     },
     graph: {
       '7d': generateChartData(26, 700, 7, 0.28, 20),
@@ -73,6 +76,7 @@ const AdminHub = () => {
   const [userRole, setUserRole] = useState('admin');
   const [clientPermissions, setClientPermissions] = useState(null);
   const [activeClients, setActiveClients] = useState([]);
+  const [aiLogs, setAiLogs] = useState([]);
   const { activeDomain } = useContext(GlobalDomainContext);
 
   useEffect(() => {
@@ -82,7 +86,6 @@ const AdminHub = () => {
     if (rawPerms) setClientPermissions(JSON.parse(rawPerms));
 
     const checkLiveProperties = async () => {
-       // --- STEALTH DB UPDATE SCRIPT ---
        await supabase.from('nexus_clients').update({ name: '75 Squared', domain: '75squared.com - Primary' }).eq('name', 'Primary Vault Customer');
        await supabase.from('nexus_clients').update({ name: 'LRMS' }).eq('name', 'LRMS.com');
 
@@ -90,6 +93,23 @@ const AdminHub = () => {
        if (data) setActiveClients(data);
     };
     checkLiveProperties();
+
+    // Mock AI Crawl Log Generator
+    const generateLog = () => {
+       const bots = ['ClaudeBot/1.0', 'ChatGPT-User/1.0', 'PerplexityBot/1.1'];
+       const paths = ['/services/llm-optimization', '/blog/answer-engine-ranking', '/about-us', '/pricing'];
+       const bot = bots[Math.floor(Math.random() * bots.length)];
+       const path = paths[Math.floor(Math.random() * paths.length)];
+       const status = Math.random() > 0.1 ? '200 OK' : '304 NOT MODIFIED';
+       return `[${new Date().toISOString().split('T')[1].split('.')[0]}] HTTP/2.0 ${status} - ${bot} crawled ${path}`;
+    };
+
+    setAiLogs([generateLog(), generateLog(), generateLog()]);
+    const interval = setInterval(() => {
+        setAiLogs(prev => [generateLog(), ...prev].slice(0, 5));
+    }, 3500);
+
+    return () => clearInterval(interval);
   }, []);
 
   const hasAccess = (key) => {
@@ -115,9 +135,8 @@ const AdminHub = () => {
       </div>
 
       {/* KPI Hero Section */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '20px', marginBottom: '30px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '20px', marginBottom: '30px' }}>
         
-        {/* Metric 1 */}
         <div className="glass-panel" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--color-purple-dark)', fontWeight: 700, fontSize: '0.9rem' }}>
@@ -129,7 +148,6 @@ const AdminHub = () => {
            <div style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>{currentData.labels.da}</div>
         </div>
 
-        {/* Metric 2 */}
         <div className="glass-panel" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--color-blue-main)', fontWeight: 700, fontSize: '0.9rem' }}>
@@ -137,11 +155,22 @@ const AdminHub = () => {
               </div>
               <span style={{ fontSize: '0.8rem', background: 'rgba(16, 185, 129, 0.1)', color: '#10B981', padding: '2px 8px', borderRadius: '12px', fontWeight: 800 }}>{currentData.organicText}</span>
            </div>
-           <div style={{ fontSize: '2.5rem', fontWeight: 900 }}>{currentData.organic} <span style={{ fontSize: '1rem', color: 'var(--color-text-muted)' }}>clicks/wk</span></div>
+           <div style={{ fontSize: '2.5rem', fontWeight: 900 }}>{currentData.organic}</div>
            <div style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>{currentData.labels.organic}</div>
         </div>
 
-        {/* Metric 3 */}
+        {/* AI TRAFFIC ANALYTICS COMPONENT */}
+        <div className="glass-panel" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '12px', borderLeft: '4px solid #8B5CF6' }}>
+           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#8B5CF6', fontWeight: 700, fontSize: '0.9rem' }}>
+                <Bot size={16} /> Attributed AI Referrals
+              </div>
+              <span style={{ fontSize: '0.8rem', background: 'rgba(139, 92, 246, 0.1)', color: '#8B5CF6', padding: '2px 8px', borderRadius: '12px', fontWeight: 800 }}>{currentData.aiText}</span>
+           </div>
+           <div style={{ fontSize: '2.5rem', fontWeight: 900 }}>{currentData.ai_traffic}</div>
+           <div style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>{currentData.labels.ai_traffic}</div>
+        </div>
+
         <div className="glass-panel" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#10B981', fontWeight: 700, fontSize: '0.9rem' }}>
@@ -157,7 +186,6 @@ const AdminHub = () => {
 
       <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 2fr) minmax(0, 1fr)', gap: '30px', marginBottom: '40px' }}>
          
-         {/* Live Performance Chart */}
          <div className="glass-panel" style={{ padding: '30px', overflow: 'hidden' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
               <h3 style={{ fontSize: '1.2rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -193,13 +221,12 @@ const AdminHub = () => {
             </div>
          </div>
 
-         {/* Actionable Notification Center */}
          <div className="glass-panel" style={{ padding: '0', display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
             <div style={{ padding: '24px', borderBottom: '1px solid rgba(0,0,0,0.05)', background: 'var(--color-bg-light)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <h3 style={{ fontSize: '1.2rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <ShieldAlert size={18} color="#F59E0B" /> Hive Mind Anomaly Feed
               </h3>
-              <Link to="/admin/action-center" className="btn btn-outline" style={{ padding: '6px 12px', fontSize: '0.8rem', background: 'white' }}>View All In Action Center</Link>
+              <Link to="/admin/action-center" className="btn btn-outline" style={{ padding: '6px 12px', fontSize: '0.8rem', background: 'white' }}>View All</Link>
             </div>
             
             <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px', overflowY: 'auto' }}>
@@ -224,14 +251,24 @@ const AdminHub = () => {
                   <Link to="/admin/action-center" style={{ fontSize: '0.85rem', fontWeight: 700, color: '#F59E0B', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px' }}>Deploy Claude EEAT Patch <ArrowRight size={12} /></Link>
                </div>
 
-               <div style={{ padding: '16px', background: 'rgba(147, 51, 234, 0.05)', borderLeft: '4px solid var(--color-purple-main)', borderRadius: '8px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.8rem', fontWeight: 800, color: 'var(--color-purple-main)', marginBottom: '8px' }}>
-                    <Globe size={14} /> MISSING SCHEMA TARGET
+               <div style={{ padding: '16px', background: 'rgba(139, 92, 246, 0.05)', borderLeft: '4px solid #8B5CF6', borderRadius: '8px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.8rem', fontWeight: 800, color: '#8B5CF6', marginBottom: '8px' }}>
+                    <Bot size={14} /> LOSS OF AIO CITATION
                   </div>
                   <p style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--color-text-main)', marginBottom: '8px', lineHeight: '1.4' }}>
-                    Opponent domain integrated "SoftwareApplication" arrays.
+                    Domain was removed as a primary citation for "SaaS Platforms".
                   </p>
-                  <Link to="/admin/action-center" style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--color-purple-main)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px' }}>Inject Counter-Schema <ArrowRight size={12} /></Link>
+                  <Link to="/admin/action-center" style={{ fontSize: '0.85rem', fontWeight: 700, color: '#8B5CF6', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px' }}>Push Context to MCP <ArrowRight size={12} /></Link>
+               </div>
+
+               <div style={{ padding: '16px', background: 'rgba(16, 185, 129, 0.05)', borderLeft: '4px solid #10B981', borderRadius: '8px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.8rem', fontWeight: 800, color: '#10B981', marginBottom: '8px' }}>
+                    <Activity size={14} /> HIGH LEVERAGE PR TARGET
+                  </div>
+                  <p style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--color-text-main)', marginBottom: '8px', lineHeight: '1.4' }}>
+                    ChatGPT is pulling definitions from an active discussion on r/DigitalMarketing.
+                  </p>
+                  <a href="https://reddit.com" target="_blank" rel="noreferrer" style={{ fontSize: '0.85rem', fontWeight: 700, color: '#10B981', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px' }}>Execute Reddit Intercept Route <ArrowRight size={12} /></a>
                </div>
 
             </div>
@@ -254,8 +291,8 @@ const AdminHub = () => {
                  <LineChartIcon size={24} />
                </div>
                <div>
-                 <h4 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#111', marginBottom: '4px' }}>SEO Edge Engine</h4>
-                 <p style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>Tracking 150 keywords locally.</p>
+                 <h4 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#111', marginBottom: '4px' }}>AI SEO Engine</h4>
+                 <p style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>New generative AI citations tracked.</p>
                </div>
              </div>
            </div>
@@ -306,6 +343,55 @@ const AdminHub = () => {
            </div>
          </Link>
 
+      </div>
+
+      {/* AI Crawl Log Telemetry */}
+      <div style={{ marginTop: '40px', padding: '24px', background: '#0F172A', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.1)', color: '#00FF00', fontFamily: 'monospace', position: 'relative', overflow: 'hidden' }}>
+         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '12px' }}>
+            <Terminal size={20} color="#00FF00" />
+            <h3 style={{ fontSize: '1.1rem', fontWeight: 700, margin: 0, color: '#fff' }}>Vercel Edge Network - AI Spider Telemetry</h3>
+            <button 
+               onClick={() => document.getElementById('crawler-profiles').classList.toggle('hidden')}
+               style={{ marginLeft: '16px', background: 'rgba(59, 130, 246, 0.2)', color: '#60A5FA', border: '1px solid rgba(59, 130, 246, 0.4)', padding: '4px 12px', borderRadius: '8px', fontSize: '0.8rem', cursor: 'pointer', outline: 'none' }}
+            >
+               Analyze Crawler Profiles
+            </button>
+            <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '8px' }}>
+               <span className="pulse-dot" style={{ background: '#00FF00', width: '8px', height: '8px', borderRadius: '50%', display: 'inline-block' }}></span>
+               <span style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.6)' }}>Live Log Ingestion</span>
+            </div>
+         </div>
+         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '0.9rem', opacity: 0.9 }}>
+            {aiLogs.map((log, i) => (
+                <div key={i} style={{ display: 'flex', gap: '12px', opacity: 1 - (i * 0.15) }}>
+                   <span style={{ color: '#888' }}>→</span>
+                   <span>{log}</span>
+                </div>
+            ))}
+         </div>
+         
+         <div id="crawler-profiles" className="hidden fade-in" style={{ marginTop: '24px', paddingTop: '24px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+            <h4 style={{ fontSize: '1rem', color: '#60A5FA', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}><Activity size={16} /> Edge Bandwidth by AI Agent</h4>
+            <div style={{ width: '100%', height: '200px' }}>
+              <ResponsiveContainer>
+                <BarChart data={[
+                  { name: 'ChatGPT-User', reqs: 420 },
+                  { name: 'ClaudeBot', reqs: 210 },
+                  { name: 'PerplexityBot', reqs: 850 },
+                  { name: 'Google-Extended', reqs: 142 }
+                ]} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
+                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: 'rgba(255,255,255,0.5)' }} />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: 'rgba(255,255,255,0.5)' }} />
+                  <Tooltip cursor={{ fill: 'rgba(255,255,255,0.05)' }} contentStyle={{ background: '#111', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#fff' }} />
+                  <Bar dataKey="reqs" fill="#60A5FA" radius={[4, 4, 0, 0]} barSize={40} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+         </div>
+         <style dangerouslySetInnerHTML={{__html: `
+            .hidden { display: none !important; }
+         `}} />
       </div>
 
       {/* Integration Status (Live Edge) */}

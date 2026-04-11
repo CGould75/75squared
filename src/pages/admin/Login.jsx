@@ -13,6 +13,16 @@ const Login = () => {
   const [authError, setAuthError] = useState('');
   const [isLoginMode, setIsLoginMode] = useState(true);
   const navigate = useNavigate();
+  
+  // URL Parameter Detection for Email Campaigns
+  const urlParams = new URLSearchParams(window.location.search);
+  const isVipInvite = urlParams.get('invite') === 'vip';
+
+  React.useEffect(() => {
+     if (isVipInvite) {
+        setIsLoginMode(false); // Force default to Signup mode
+     }
+  }, [isVipInvite]);
 
   const handleAuthPayload = async (e) => {
     e.preventDefault();
@@ -30,13 +40,29 @@ const Login = () => {
         navigate('/admin');
       }
     } else {
-      const { data, error } = await supabase.auth.signUp({ email, password });
+      // If they came from the VIP email link, we inject top-tier metadata natively into Supabase Auth
+      const signUpPayload = { email, password };
+      if (isVipInvite) {
+         signUpPayload.options = {
+            data: {
+               tier: 'enterprise',
+               role: 'admin',
+               source: 'beta_email_campaign' 
+            }
+         };
+      }
+
+      const { data, error } = await supabase.auth.signUp(signUpPayload);
       if (error) {
         setAuthError(error.message);
         setIsAuthenticating(false);
       } else {
         // Successful registration
-        setAuthError("Registration successful! Check your email to verify your account before logging in. If email verifications are disabled, you can log in immediately.");
+        if (isVipInvite) {
+           setAuthError("VIP Registration successful! You have been granted Enterprise tier access. Check your email to verify your account.");
+        } else {
+           setAuthError("Registration successful! Check your email to verify your account before logging in.");
+        }
         setIsAuthenticating(false);
         setIsLoginMode(true); // switch back to login
       }
@@ -70,6 +96,15 @@ const Login = () => {
              By clicking "{isLoginMode ? 'Sign In' : 'Sign Up'}" below, you agree to Nexus's Universal <a href="#" style={{ color: 'var(--color-text-main)', textDecoration: 'underline' }}>Terms of Service</a> (updated Feb 2, 2026) and <a href="#" style={{ color: 'var(--color-text-main)', textDecoration: 'underline' }}>Privacy Policy</a>.
            </p>
         </div>
+
+        {isVipInvite && !isLoginMode && (
+          <div style={{ padding: '16px', borderRadius: '8px', background: 'rgba(147, 51, 234, 0.1)', border: '1px solid rgba(147, 51, 234, 0.3)', marginBottom: '24px', display: 'flex', gap: '12px', alignItems: 'center' }}>
+            <Shield size={24} color="var(--color-purple-main)" />
+            <div style={{ fontSize: '0.9rem', color: '#111', fontWeight: 600 }}>
+               VIP Invite Recognized. Creating this account will automatically unlock Top-Tier Enterprise access inside the Nexus platform.
+            </div>
+          </div>
+        )}
 
           <form onSubmit={handleAuthPayload} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             

@@ -7,6 +7,7 @@ import Footer from './components/Footer';
 import Home from './pages/Home';
 import ServicePage from './pages/ServicePage';
 import Contact from './pages/Contact';
+import Products from './pages/Products';
 
 // SaaS Application Components
 import AdminLayout from './layouts/AdminLayout';
@@ -31,6 +32,8 @@ import ReputationDashboard from './pages/admin/ReputationDashboard';
 import KnowledgeGraphSync from './pages/admin/KnowledgeGraphSync';
 import UserManagement from './pages/admin/UserManagement';
 import ActionCenter from './pages/admin/ActionCenter';
+import SettingsHub from './pages/admin/SettingsHub';
+import SuperAdminDashboard from './pages/admin/SuperAdminDashboard';
 
 // Layout Wrapper for the public agency site
 const PublicLayout = ({ children }) => (
@@ -49,9 +52,11 @@ function App() {
       <Route path="/services/:id" element={<PublicLayout><ServicePage /></PublicLayout>} />
       <Route path="/contact" element={<PublicLayout><Contact /></PublicLayout>} />
       <Route path="/platform-guide" element={<PublicLayout><PlatformGuide /></PublicLayout>} />
+      <Route path="/products" element={<PublicLayout><Products /></PublicLayout>} />
       
       {/* SaaS Authentication */}
       <Route path="/admin/login" element={<Login />} />
+      <Route path="/super-admin" element={<SuperAdminDashboard />} />
       
       {/* Secure SaaS Nexus App Routes */}
       <Route path="/admin" element={<AdminLayout />}>
@@ -75,6 +80,7 @@ function App() {
         <Route path="directory-sync" element={<KnowledgeGraphSync />} />
         <Route path="users" element={<UserManagement />} />
         <Route path="action-center" element={<ActionCenter />} />
+        <Route path="settings" element={<SettingsHub />} />
       </Route>
     </Routes>
   );

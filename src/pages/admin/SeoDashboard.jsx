@@ -1,7 +1,8 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { Globe, Lock, ShieldAlert, Award, Link2, ArrowUpRight, Search, Activity, AlertTriangle, CheckCircle2, AlertOctagon, Bot, Zap, Target, FileText, Database, Code2, LineChart, Hash, Mail, Share2, MonitorPlay, Shield, Crosshair, DollarSign, Layers, Printer } from 'lucide-react';
+import { Globe, Lock, ShieldAlert, Award, Link2, ArrowUpRight, Search, Activity, AlertTriangle, CheckCircle2, AlertOctagon, Bot, Zap, Target, FileText, Database, Code2, LineChart, Hash, Mail, Share2, MonitorPlay, Shield, Crosshair, DollarSign, Layers, Printer, Radar } from 'lucide-react';
 import { GlobalDomainContext } from '../../layouts/AdminLayout';
 import { Link, useNavigate } from 'react-router-dom';
+import TelemetryEngine from '../../lib/telemetry';
 
 // MOCK PAYLOADS BY TENANT
 const MOCK_DOMAINS = {
@@ -136,23 +137,72 @@ const MOCK_TRAJECTORY = [
 const SeoDashboard = () => {
   const navigate = useNavigate();
   const [userTier, setUserTier] = useState('Enterprise'); 
-  const [activeTab, setActiveTab] = useState('site explorer');
+  const [activeTab, setActiveTab] = useState('brand radar & ai');
+  
+  const [expandedAio, setExpandedAio] = useState(null);
+  
+  const [activePersona, setActivePersona] = useState('Gen-Z Tech Shopper');
+  const [activeLLM, setActiveLLM] = useState('Perplexity Pro');
+  const [generatedPrompt, setGeneratedPrompt] = useState('');
+  const [isGeneratingPrompt, setIsGeneratingPrompt] = useState(false);
+
+  const runPersonaPrompt = () => {
+     setIsGeneratingPrompt(true);
+     setGeneratedPrompt('');
+     setTimeout(() => {
+        setIsGeneratingPrompt(false);
+        setGeneratedPrompt(`"Act as a ${activePersona}. I need to find the absolute best options for ${domainKey} products right now. What are the top 3 brands and why?"`);
+     }, 1500);
+  };
   
   const { activeDomain } = useContext(GlobalDomainContext);
   
   // Safe resolution logic to prevent data collisions from UI states
   const normalizedDomain = activeDomain ? String(activeDomain).toLowerCase().trim() : '';
   const domainKey = ['goodyslv.com', 'lrms.com'].find(key => normalizedDomain.includes(key)) || '75squared.com';
-  const domainData = MOCK_DOMAINS[domainKey];
+  
+  const [domainData, setDomainData] = useState(MOCK_DOMAINS[domainKey]);
+  const [isSyncing, setIsSyncing] = useState(false);
+
+  useEffect(() => {
+     let isMounted = true;
+     const fetchData = async () => {
+         setIsSyncing(true);
+         try {
+             // Fetch high-level Backlink & DR metrics from DataForSEO
+             const res = await fetch(`/api/dataforseo?domain=${encodeURIComponent(normalizedDomain || '75squared.com')}&action=backlinks`);
+             const json = await res.json();
+             
+             if (isMounted && json.tasks && json.tasks[0].result && json.tasks[0].result[0]) {
+                 const stats = json.tasks[0].result[0];
+                 setDomainData(prev => ({
+                     ...MOCK_DOMAINS[domainKey], // Fallback for other mock modules (Audit, Keywords)
+                     overview: {
+                         ...MOCK_DOMAINS[domainKey].overview,
+                         domain_rating: stats.rank || MOCK_DOMAINS[domainKey].overview.domain_rating,
+                         total_backlinks: stats.backlinks || MOCK_DOMAINS[domainKey].overview.total_backlinks,
+                     }
+                 }));
+             } else {
+                 setDomainData(MOCK_DOMAINS[domainKey]);
+             }
+         } catch(e) {
+             console.error("DataForSEO Fetch Error:", e);
+             if (isMounted) setDomainData(MOCK_DOMAINS[domainKey]);
+         }
+         if (isMounted) setIsSyncing(false);
+     };
+
+     fetchData();
+
+     return () => { isMounted = false; }
+  }, [normalizedDomain, domainKey]);
 
   const [toastMessage, setToastMessage] = useState('');
 
-  const triggerBackgroundBot = (message) => {
-     setToastMessage(message);
-     setTimeout(() => {
-        setToastMessage('');
-        navigate('/admin/action-center');
-     }, 1500);
+  const triggerBackgroundBot = async (message, severity = 'opportunity') => {
+     await TelemetryEngine.dispatchException('Intelligence Engine', message, { activeDomain }, severity);
+     navigate('/admin/action-center');
   };
 
   return (
@@ -168,8 +218,13 @@ const SeoDashboard = () => {
           </p>
         </div>
         <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+          {isSyncing && (
+             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#10B981', fontWeight: 700, fontSize: '0.85rem' }}>
+                <div className="spinner" style={{width: 14, height: 14, border: '2px solid rgba(16, 185, 129, 0.3)', borderTopColor: '#10B981', borderRadius: '50%', animation: 'spin 1s linear infinite'}} /> DataForSEO Sync Active
+             </div>
+          )}
           <div style={{ padding: '8px 16px', borderRadius: '20px', background: 'rgba(147, 51, 234, 0.1)', color: 'var(--color-purple-dark)', fontWeight: 700, fontSize: '0.85rem' }}>
-            Target Platform: {activeDomain}
+            Target Platform: {activeDomain || '75squared.com'}
           </div>
           <button onClick={() => window.print()} className="btn btn-outline" style={{ padding: '10px 20px', fontSize: '0.9rem', background: 'white' }}>
             <Printer size={16} /> Export PDF Report
@@ -181,8 +236,8 @@ const SeoDashboard = () => {
       </div>
 
       {/* Ahrefs/SEMrush-style Navigation Tabs */}
-      <div style={{ display: 'flex', background: 'rgba(0,0,0,0.05)', borderRadius: '12px', padding: '6px', marginBottom: '40px', width: 'max-content', gap: '4px' }}>
-        {['Site Explorer', 'Keywords Explorer', 'Competitor Gap', 'Site Audit', 'Link Intersect', 'PPC Spyglass'].map(tab => (
+      <div style={{ display: 'flex', background: 'rgba(0,0,0,0.05)', borderRadius: '12px', padding: '6px', marginBottom: '40px', width: 'max-content', gap: '4px', flexWrap: 'wrap' }}>
+        {['Competitor Recon', 'Brand Radar & AI', 'Keywords Explorer', 'Site Explorer', 'Competitor Gap', 'Site Audit', 'Persona Sandbox'].map(tab => (
           <button 
             key={tab}
             onClick={() => setActiveTab(tab.toLowerCase())}
@@ -192,14 +247,90 @@ const SeoDashboard = () => {
               color: activeTab === tab.toLowerCase() ? 'var(--color-blue-main)' : 'var(--color-text-muted)', 
               boxShadow: activeTab === tab.toLowerCase() ? '0 2px 10px rgba(0,0,0,0.05)' : 'none' 
             }}>
-            {tab}
+            {tab === 'Brand Radar & AI' ? <span style={{display: 'flex', gap: '6px', alignItems: 'center'}}><Radar size={16} color="#8B5CF6"/> {tab}</span> : null}
+            {tab === 'Competitor Recon' ? <span style={{display: 'flex', gap: '6px', alignItems: 'center'}}><Crosshair size={16} color="#EF4444"/> {tab}</span> : null}
+            {tab === 'Persona Sandbox' ? <span style={{display: 'flex', gap: '6px', alignItems: 'center'}}><Bot size={16} color="#8B5CF6"/> {tab}</span> : null}
+            {tab !== 'Brand Radar & AI' && tab !== 'Competitor Recon' && tab !== 'Persona Sandbox' ? tab : null}
           </button>
         ))}
       </div>
 
       {/* ========================================== */}
-      {/* TAB 1: SITE EXPLORER & TOXIC AUDITING */}
+      {/* TAB: BRAND RADAR & AI (PHASE 6 & 8)         */}
       {/* ========================================== */}
+      {activeTab === 'brand radar & ai' && (
+         <div className="fade-in">
+            <div className="glass-panel" style={{ padding: '40px', marginBottom: '30px' }}>
+               <h3 style={{ fontSize: '1.4rem', fontWeight: 900, marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '12px' }}><Bot size={20} color="#10B981" /> AI Overviews (AIO) & Chatbot Citations</h3>
+               <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+                  <thead>
+                     <tr style={{ borderBottom: '2px solid rgba(0,0,0,0.05)', color: 'var(--color-text-muted)', fontSize: '0.85rem', textTransform: 'uppercase' }}>
+                        <th style={{ padding: '16px' }}>Target Prompt / Query</th>
+                        <th style={{ padding: '16px' }}>AI Source</th>
+                        <th style={{ padding: '16px' }}>Visibility Status</th>
+                        <th style={{ padding: '16px' }}>AI Analytics Yield</th>
+                     </tr>
+                  </thead>
+                  <tbody>
+                     {((domainData.brand_radar && domainData.brand_radar.ai_overviews) || [
+                        { id: 1, query: "top 10 agencies in las vegas", source: "Google AI Overviews", status: "Cited", traffic_yield: 420 },
+                        { id: 2, query: "best SEO agencies near 89123", source: "Perplexity Pro", status: "Cited", traffic_yield: 85 }
+                     ]).map(aio => (
+                        <React.Fragment key={aio.id}>
+                           <tr style={{ borderBottom: expandedAio === aio.id ? 'none' : '1px solid rgba(0,0,0,0.02)' }}>
+                              <td style={{ padding: '20px 16px', fontWeight: 700, color: '#111' }}>
+                                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                    "{aio.query}"
+                                    <button onClick={() => setExpandedAio(expandedAio === aio.id ? null : aio.id)} className="hover-lift" style={{ background: 'rgba(139, 92, 246, 0.1)', color: '#8B5CF6', border: 'none', padding: '4px 8px', borderRadius: '4px', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 800 }}>Fan-Out Analysis</button>
+                                 </div>
+                              </td>
+                              <td style={{ padding: '20px 16px', fontWeight: 600 }}>{aio.source}</td>
+                              <td style={{ padding: '20px 16px' }}>
+                                 <span style={{ 
+                                    background: aio.status === 'Cited' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)', color: aio.status === 'Cited' ? '#10B981' : '#EF4444',
+                                    padding: '6px 12px', borderRadius: '6px', fontSize: '0.85rem', fontWeight: 800 
+                                 }}>{aio.status}</span>
+                              </td>
+                              <td style={{ padding: '20px 16px', fontWeight: 900 }}>{aio.traffic_yield > 0 ? `+${aio.traffic_yield}` : '-' }</td>
+                           </tr>
+                           {expandedAio === aio.id && (
+                             <tr style={{ borderBottom: '1px solid rgba(0,0,0,0.05)', background: 'rgba(0,0,0,0.01)' }}>
+                                <td colSpan="4" style={{ padding: '0 16px 24px 16px' }}>
+                                   <div className="fade-in" style={{ padding: '16px', background: 'white', borderRadius: '12px', border: '1px dashed rgba(139, 92, 246, 0.4)' }}>
+                                      <div style={{ fontSize: '0.8rem', fontWeight: 800, color: '#8B5CF6', marginBottom: '12px', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '6px' }}><Share2 size={14}/> Reverse-Engineered Parent Semantic Signals</div>
+                                      <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                                         <span style={{ padding: '6px 12px', background: 'var(--color-bg-light)', borderRadius: '16px', fontSize: '0.85rem', fontWeight: 600, border: '1px solid rgba(0,0,0,0.05)' }}>Query: "{aio.query.split(' ')[0]} near me" (42% match)</span>
+                                         <span style={{ padding: '6px 12px', background: 'var(--color-bg-light)', borderRadius: '16px', fontSize: '0.85rem', fontWeight: 600, border: '1px solid rgba(0,0,0,0.05)' }}>Query: "best {aio.query.split(' ')[1] || 'options'}" (38% match)</span>
+                                         <span style={{ padding: '6px 12px', background: 'rgba(239, 68, 68, 0.05)', color: '#EF4444', borderRadius: '16px', fontSize: '0.85rem', fontWeight: 600, border: '1px solid rgba(239, 68, 68, 0.2)' }}>Thread: Reddit /r/AskReddit (12% index)</span>
+                                      </div>
+                                   </div>
+                                </td>
+                             </tr>
+                           )}
+                        </React.Fragment>
+                     ))}
+                  </tbody>
+               </table>
+            </div>
+         </div>
+      )}
+
+      {/* ========================================== */}
+      {/* TAB: COMPETITOR RECON (PHASE 6)            */}
+      {/* ========================================== */}
+      {activeTab === 'competitor recon' && (
+         <div className="fade-in glass-panel" style={{ padding: '40px' }}>
+            <h3 style={{ fontSize: '1.8rem', fontWeight: 900, marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '12px', color: '#111' }}>
+               <Crosshair size={24} color="#EF4444" /> Target Acquisition Matrix (G2 / Social)
+            </h3>
+            <p style={{ fontSize: '1.05rem', color: 'var(--color-text-muted)', margin: '0 0 30px 0' }}>
+               Deploy sentiment scrapers across major review platforms to identify critical vulnerabilities in competitor offerings.
+            </p>
+         </div>
+      )}
+
+      {/* ========================================== */}
+      {/* TAB: PERSONA SANDBOX (PHASE 8)             */}
       {activeTab === 'site explorer' && (
         <div className="fade-in">
           {/* Top Level Ahrefs Metrics */}
@@ -580,45 +711,118 @@ const SeoDashboard = () => {
       {/* TAB 5: SITE AUDIT */}
       {/* ========================================== */}
       {activeTab === 'site audit' && (
-        <div className="fade-in">
-           <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 2fr)', gap: '30px' }}>
-              
-              {/* Health Score Overview */}
-              <div className="glass-panel" style={{ padding: '40px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
-                 <h3 style={{ fontSize: '1.4rem', fontWeight: 900, marginBottom: '30px' }}>Domain Health Score</h3>
-                 <div style={{ width: '180px', height: '180px', borderRadius: '50%', background: 'conic-gradient(#10B981 92%, rgba(0,0,0,0.05) 0)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: 'inset 0 0 0 20px white, 0 10px 30px rgba(0,0,0,0.05)', position: 'relative' }}>
-                    <span style={{ fontSize: '3rem', fontWeight: 900, color: '#111' }}>{domainData.audit.health_score}</span>
-                 </div>
-              </div>
+         <div className="fade-in" style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 2fr)', gap: '30px', alignItems: 'start' }}>
+            <div className="glass-panel" style={{ padding: '40px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
+               <div style={{ position: 'relative', width: '200px', height: '200px', flexShrink: 0 }}>
+                  <svg viewBox="0 0 36 36" style={{ width: '100%', height: '100%' }}>
+                     <path strokeDasharray="100, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="rgba(0,0,0,0.05)" strokeWidth="3" />
+                     <path strokeDasharray={`${domainData.audit.health_score}, 100`} d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#10B981" strokeWidth="3" style={{ strokeLinecap: 'round' }} />
+                  </svg>
+                  <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                     <span style={{ fontSize: '3.5rem', fontWeight: 900, color: '#10B981', lineHeight: '1' }}>{domainData.audit.health_score}</span>
+                  </div>
+               </div>
+               <h3 style={{ fontSize: '1.4rem', fontWeight: 900, marginTop: '24px' }}>Excellent Health</h3>
+               <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9rem', marginTop: '8px' }}>Based on {domainData.audit.urls_crawled.toLocaleString()} crawled pages.</p>
+            </div>
 
-              {/* Critical Errors & Handoff */}
-              <div className="glass-panel" style={{ padding: '40px' }}>
-                 <h3 style={{ fontSize: '1.4rem', fontWeight: 900, marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '12px' }}><AlertOctagon size={24} color="#EF4444" /> Crawl Diagnostics</h3>
-                 <p style={{ color: 'var(--color-text-muted)', marginBottom: '30px', fontSize: '1rem' }}>Technical issues manually verified against core Google crawler diagnostics.</p>
-                 
-                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                    {domainData.audit.critical_errors.map(error => (
-                       <div key={error.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '20px', border: '1px solid rgba(239, 68, 68, 0.2)', background: 'rgba(239, 68, 68, 0.05)', borderRadius: '12px' }}>
-                          <div>
-                             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
-                                <span style={{ padding: '4px 8px', background: '#EF4444', color: 'white', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase' }}>{error.priority} Risk</span>
-                                <h4 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#111' }}>{error.type}</h4>
-                             </div>
-                             <div style={{ fontSize: '0.9rem', color: '#EF4444', display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 600 }}>
-                                <Code2 size={16} /> Edge Path: {error.path}
-                             </div>
-                          </div>
-                          
-                          <button onClick={() => triggerBackgroundBot(`Alerting SRE: '${error.type}' anomaly pushed to Action Center queue for auto-fixing.`)} className="btn hover-lift" style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 24px', background: 'white', border: '2px solid var(--color-purple-main)', color: 'var(--color-purple-main)', fontWeight: 800, borderRadius: '8px', cursor: 'pointer' }}>
-                             <Target size={18} /> Push Payload to Action Center
-                          </button>
-                       </div>
-                    ))}
-                 </div>
-              </div>
+            <div className="glass-panel" style={{ padding: '30px' }}>
+               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+                  <h3 style={{ fontSize: '1.2rem', fontWeight: 900, display: 'flex', alignItems: 'center', gap: '8px' }}><ShieldAlert size={18} color="#EF4444" /> Technical Errors & Warnings</h3>
+                  <button className="btn btn-primary shadow-hover" style={{ padding: '8px 16px', fontSize: '0.85rem' }}><Code2 size={16}/> Export Dev Tickets</button>
+               </div>
 
-           </div>
-        </div>
+               <div style={{ display: 'flex', gap: '16px', marginBottom: '30px' }}>
+                  <div style={{ flex: 1, padding: '16px', borderRadius: '12px', background: 'rgba(239, 68, 68, 0.05)', border: '1px solid rgba(239, 68, 68, 0.2)' }}>
+                     <div style={{ fontSize: '0.8rem', fontWeight: 800, color: '#EF4444', textTransform: 'uppercase' }}>Broken URLs</div>
+                     <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#EF4444' }}>{domainData.audit.broken_urls}</div>
+                  </div>
+                  <div style={{ flex: 1, padding: '16px', borderRadius: '12px', background: 'rgba(245, 158, 11, 0.05)', border: '1px solid rgba(245, 158, 11, 0.2)' }}>
+                     <div style={{ fontSize: '0.8rem', fontWeight: 800, color: '#F59E0B', textTransform: 'uppercase' }}>Redirect Chains</div>
+                     <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#F59E0B' }}>{domainData.audit.redirects}</div>
+                  </div>
+               </div>
+
+               <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+                  <thead>
+                     <tr style={{ background: 'rgba(0,0,0,0.02)', borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
+                        <th style={{ padding: '12px 16px', fontSize: '0.8rem', color: 'var(--color-text-muted)', textTransform: 'uppercase' }}>Issue Type</th>
+                        <th style={{ padding: '12px 16px', fontSize: '0.8rem', color: 'var(--color-text-muted)', textTransform: 'uppercase' }}>Top Affected Path</th>
+                     </tr>
+                  </thead>
+                  <tbody>
+                     {domainData.audit.critical_errors.map((err, idx) => (
+                        <tr key={idx} style={{ borderBottom: '1px solid rgba(0,0,0,0.03)' }}>
+                           <td style={{ padding: '16px', fontWeight: 700, color: '#EF4444' }}>{err.type}</td>
+                           <td style={{ padding: '16px', fontWeight: 600, color: 'var(--color-text-muted)' }}>{err.path}</td>
+                        </tr>
+                     ))}
+                  </tbody>
+               </table>
+            </div>
+         </div>
+      )}
+
+      {/* ========================================== */}
+      {/* TAB: PERSONA SANDBOX (PHASE 8 CONTINUATION)*/}
+      {/* ========================================== */}
+      {activeTab === 'persona sandbox' && (
+         <div className="fade-in glass-panel" style={{ padding: '40px' }}>
+            <h3 style={{ fontSize: '1.8rem', fontWeight: 900, marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '12px', color: '#111' }}>
+               <Bot size={24} color="#8B5CF6" /> Persona-Based Prompt Generation
+            </h3>
+            <p style={{ fontSize: '1.05rem', color: 'var(--color-text-muted)', margin: '0 0 30px 0' }}>
+               Simulate exactly how different consumer demographics interact with AI engines. Generate engineered prompts to deploy live tests.
+            </p>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '30px' }}>
+               <div>
+                  <label style={{ display: 'block', fontSize: '0.9rem', fontWeight: 800, marginBottom: '8px', color: 'var(--color-text-main)' }}>Target Persona Archetype</label>
+                  <select 
+                     value={activePersona} 
+                     onChange={(e) => setActivePersona(e.target.value)}
+                     style={{ width: '100%', padding: '16px', borderRadius: '12px', border: '1px solid rgba(0,0,0,0.1)', background: 'var(--color-bg-light)', fontSize: '1rem', fontWeight: 600, outline: 'none' }}>
+                     <option>Gen-Z Tech Shopper</option>
+                     <option>B2B Enterprise CTO</option>
+                     <option>Local Discount Hunter</option>
+                     <option>Academic Researcher</option>
+                  </select>
+               </div>
+               <div>
+                  <label style={{ display: 'block', fontSize: '0.9rem', fontWeight: 800, marginBottom: '8px', color: 'var(--color-text-main)' }}>Target AI Engine</label>
+                  <select 
+                     value={activeLLM} 
+                     onChange={(e) => setActiveLLM(e.target.value)}
+                     style={{ width: '100%', padding: '16px', borderRadius: '12px', border: '1px solid rgba(0,0,0,0.1)', background: 'var(--color-bg-light)', fontSize: '1rem', fontWeight: 600, outline: 'none' }}>
+                     <option>Perplexity Pro</option>
+                     <option>ChatGPT-4o</option>
+                     <option>Claude 3.5 Sonnet</option>
+                     <option>Google AI Overviews</option>
+                  </select>
+               </div>
+            </div>
+
+            <button 
+               onClick={runPersonaPrompt}
+               className="btn hover-lift" 
+               style={{ background: '#8B5CF6', color: 'white', padding: '16px 30px', fontSize: '1.05rem', border: 'none', borderRadius: '12px', cursor: 'pointer', fontWeight: 800, display: 'flex', gap: '10px', alignItems: 'center' }}>
+               {isGeneratingPrompt ? <div className="spinner" style={{width: 18, height: 18, border: '3px solid rgba(255,255,255,0.3)', borderTopColor: 'white', borderRadius: '50%', animation: 'spin 1s linear infinite'}} /> : <Zap size={20} />}
+               {isGeneratingPrompt ? 'Synthesizing Prompt...' : 'Generate Zero-Click Prompt'}
+            </button>
+
+            {generatedPrompt && (
+               <div className="fade-in" style={{ marginTop: '40px', padding: '30px', background: 'rgba(139, 92, 246, 0.05)', border: '1px dashed rgba(139, 92, 246, 0.3)', borderRadius: '16px' }}>
+                  <div style={{ fontSize: '0.85rem', color: '#8B5CF6', fontWeight: 800, textTransform: 'uppercase', marginBottom: '12px' }}>Engineered Result</div>
+                  <div style={{ fontSize: '1.4rem', fontWeight: 600, color: '#111', fontStyle: 'italic', lineHeight: '1.5' }}>
+                     {generatedPrompt}
+                  </div>
+                  <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
+                     <button className="btn" style={{ background: '#111', color: 'white', padding: '10px 20px', borderRadius: '8px', fontSize: '0.9rem', fontWeight: 700, border: 'none' }}>Copy Prompt</button>
+                     <button className="btn" style={{ background: 'white', color: '#111', border: '1px solid rgba(0,0,0,0.1)', padding: '10px 20px', borderRadius: '8px', fontSize: '0.9rem', fontWeight: 700 }}>Execute in Sandbox</button>
+                  </div>
+               </div>
+            )}
+         </div>
       )}
 
       {/* Global Bot Telemetry Toast */}
