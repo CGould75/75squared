@@ -35,36 +35,60 @@ const Login = () => {
         setAuthError(error.message);
         setIsAuthenticating(false);
       } else {
-        localStorage.setItem('nexus_role', 'admin');
-        localStorage.setItem('nexus_client', '75 Squared (Master)');
+        // Extrapolate dynamic metadata from Supabase
+        const meta = data?.user?.user_metadata || {};
+        
+        let role = meta.role || 'client';
+        let clientName = meta.tenant_name;
+        
+        // Critical Security Failsafe:
+        // Prevent earlier VIP signups (which were given 'admin' in metadata) from gaining Global Super Admin rights.
+        if (role === 'admin' && !email.toLowerCase().includes('75squared.com')) {
+           role = 'client'; 
+        }
+
+        if (email.toLowerCase() === 'chris@75squared.com' || email.includes('admin@75squared.com')) {
+           role = 'admin';
+           clientName = '75 Squared (Master)';
+        }
+
+        if (!clientName) {
+           const prefix = email.split('@')[0];
+           clientName = prefix.charAt(0).toUpperCase() + prefix.slice(1) + ' Workspace';
+        }
+
+        localStorage.setItem('nexus_role', role);
+        localStorage.setItem('nexus_client', clientName);
         navigate('/admin');
       }
     } else {
-      // If they came from the VIP email link, we inject top-tier metadata natively into Supabase Auth
+      // Signup Mode Logic
+      const prefix = email.split('@')[0];
+      const generatedTenantName = prefix.charAt(0).toUpperCase() + prefix.slice(1) + ' Workspace';
+      
       const signUpPayload = { email, password };
-      if (isVipInvite) {
-         signUpPayload.options = {
-            data: {
-               tier: 'enterprise',
-               role: 'admin',
-               source: 'beta_email_campaign' 
-            }
-         };
-      }
+      
+      signUpPayload.options = {
+         data: {
+            tenant_name: generatedTenantName,
+            source: isVipInvite ? 'vip_beta_email' : 'organic_signup',
+            tier: isVipInvite ? 'enterprise' : 'starter',
+            role: 'client' // Strictly enforce client role for all non-manual overrides
+         }
+      };
 
       const { data, error } = await supabase.auth.signUp(signUpPayload);
       if (error) {
         setAuthError(error.message);
         setIsAuthenticating(false);
       } else {
-        // Successful registration
         if (isVipInvite) {
            setAuthError("VIP Registration successful! You have been granted Enterprise tier access. Check your email to verify your account.");
         } else {
            setAuthError("Registration successful! Check your email to verify your account before logging in.");
         }
         setIsAuthenticating(false);
-        setIsLoginMode(true); // switch back to login
+        setIsLoginMode(true);
       }
     }
   };
