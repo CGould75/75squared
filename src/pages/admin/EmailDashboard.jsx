@@ -738,26 +738,6 @@ const EmailDashboard = () => {
                 </div>
               )}
 
-              {showCreateListModal && (
-                <div style={{ position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                   <div className="fade-in" style={{ width: '380px', background: 'white', borderRadius: '16px', padding: '30px', boxShadow: '0 25px 50px rgba(0,0,0,0.25)' }}>
-                      <h3 style={{ fontSize: '1.2rem', fontWeight: 800, marginBottom: '20px' }}>Create Mailing List</h3>
-                      <input 
-                         autoFocus
-                         type="text" 
-                         value={newListName}
-                         onChange={(e) => setNewListName(e.target.value)}
-                         placeholder="e.g. VIP Customers"
-                         style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid rgba(0,0,0,0.1)', marginBottom: '24px', fontSize: '1rem', outline: 'none' }}
-                      />
-                      <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
-                         <button onClick={() => { setShowCreateListModal(false); setNewListName(''); }} style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', background: 'rgba(0,0,0,0.05)', cursor: 'pointer', fontWeight: 600 }}>Cancel</button>
-                         <button onClick={handleCreateList} className="btn btn-primary" style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', cursor: 'pointer', fontWeight: 600 }}>Save List</button>
-                      </div>
-                   </div>
-                </div>
-              )}
-
               {selectedProfile && (
                 <div style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', justifyContent: 'flex-end', background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}>
                    <div className="fade-in" style={{ width: '450px', background: 'white', height: '100%', boxShadow: '-20px 0 50px rgba(0,0,0,0.2)', display: 'flex', flexDirection: 'column' }}>
@@ -1761,7 +1741,30 @@ const EmailDashboard = () => {
             </div>
           </div>
         </div>
+        </div>
       )}
+
+      {/* Root Level Modals for Render Stability */}
+      {showCreateListModal && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 99999, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+           <div className="fade-in" style={{ width: '380px', background: 'white', borderRadius: '16px', padding: '30px', boxShadow: '0 25px 50px rgba(0,0,0,0.25)' }}>
+              <h3 style={{ fontSize: '1.2rem', fontWeight: 800, marginBottom: '20px' }}>Create Mailing List</h3>
+              <input 
+                 autoFocus
+                 type="text" 
+                 value={newListName}
+                 onChange={(e) => setNewListName(e.target.value)}
+                 placeholder="e.g. VIP Customers"
+                 style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid rgba(0,0,0,0.1)', marginBottom: '24px', fontSize: '1rem', outline: 'none' }}
+              />
+              <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
+                 <button onClick={() => { setShowCreateListModal(false); setNewListName(''); }} type="button" style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', background: 'rgba(0,0,0,0.05)', cursor: 'pointer', fontWeight: 600 }}>Cancel</button>
+                 <button onClick={handleCreateList} type="button" className="btn btn-primary" style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', cursor: 'pointer', fontWeight: 600 }}>Save List</button>
+              </div>
+           </div>
+        </div>
+      )}
+
     </div>
   );
 };
